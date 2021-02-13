@@ -1,0 +1,14 @@
+#Listado de archivos ignorados
+ESE_GRS(Proyect).sdf
+ESE_GRS(Proyect).sln
+ESE_GRS(Proyect).v11.suo
+ESE_GRS(Proyect).opensdf
+/Debug
+/ESE_GRS(Proyect)/Debug
+/ESE_GRS(Proyect)/obj
+/ESE_GRS(Proyect)/freeglut.dll
+/ESE_GRS(Proyect)/miObj.obj
+/ESE_GRS(Proyect)/miObj0.obj
+/ESE_GRS(Proyect)/ESE_GRS(Proyect).vcxproj
+/ESE_GRS(Proyect)/ESE_GRS(Proyect).vcxproj.filters
+/ESE_GRS(Proyect)/ESE_GRS(Proyect).vcxproj.user
