@@ -4,10 +4,9 @@
 TimeDuration::TimeDuration(void)
 {
 	TimE=0;
-	
 	tBool=false;
 }
-float TimeDuration::InitCiclo(TimeDuration*TimeDurat){
+float TimeDuration::Incrementa(TimeDuration*TimeDurat){
 	if(TimeDurat->tBool)
 	      {
 			  TimeDurat->TimE+=(((float)clock()-TimeDurat->TimeClock)/CLOCKS_PER_SEC);
@@ -21,8 +20,12 @@ float TimeDuration::InitCiclo(TimeDuration*TimeDurat){
 			return 0;
 	     }
 }
-bool TimeDuration::Ciclo(TimeDuration*TimeDurat)
-{
+void TimeDuration::InitDecrementa(TimeDuration*TimeDurat,float tiMe){
+		TimeDurat->tBool=true;
+		TimeDurat->TimE=tiMe;
+}
+bool TimeDuration::Decrementa(TimeDuration*TimeDurat)
+{	
 	if(TimeDurat->tBool)
 	{
 		TimeDurat->TimE-=(((float)clock()-TimeDurat->TimeClock)/CLOCKS_PER_SEC);
@@ -32,7 +35,6 @@ bool TimeDuration::Ciclo(TimeDuration*TimeDurat)
 			 if(TimeDurat->TimE>0)
 			 {
 				 TimeDurat->TimeClock=(float)clock();
-				
 				return false;
 			 }
 				TimeDurat->ResetT(TimeDurat);

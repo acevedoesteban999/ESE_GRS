@@ -38,7 +38,7 @@ void MeSSenger::Drawing_and_Decremt(MeSSenger*m)
 {
 	if(m->Drawing)
 	   {
-	   if(!m->t->Ciclo(m->t))
+	   if(!m->t->Decrementa(m->t))
 	      {
 			  ESE_GRS::text(m->meSSenger,m->x,m->y,m->z,m->R,m->G,m->B,m->BigLV==1?1:0,m->BigLV>1?1:0);
 	      }

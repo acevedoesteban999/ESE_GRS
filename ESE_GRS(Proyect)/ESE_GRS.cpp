@@ -30,7 +30,7 @@ char*escrituraCOM="COM2",*escrituraVelocidad="9600";
 StackLoaderObject*ManejadorObject=new StackLoaderObject();
 //LoaderObject*NewObj;
 PuertoSerie*p;
-TimeDuration tCOM,TCentralTop,TSimular;
+TimeDuration tDisplay(true),tCOM(true),TCentralTop,TSimular;
 IGSClass*igs=new IGSClass;
 thread*t1;
 mutex m,m1,m2;
@@ -249,10 +249,12 @@ void ESE_GRS::display(){
 		////Inicio los .obj y pongo el caartel de Cargando///////////////////////////////////////////
 		
 		
-
+		
 	}//end of carga de objetos
-	glFlush();//siempre lleva esto no de q es bien 
+	
+    glFlush();//siempre lleva esto no de q es bien 
 	glutSwapBuffers();
+	
 }
 void ESE_GRS::Entorno(){
 	glPushMatrix();
@@ -1156,42 +1158,26 @@ void ESE_GRS::MenuPuertoSeie(int opcion){
 ///////////////////////// DATOS//////////////////////////////////////////////////
 void ESE_GRS::recivirDatosCOM(){
 	if(recibir_serie)
-	   {
-		   
-		   if(tCOM.InitCiclo(&tCOM)>=0.200)//si ha esperado mas de 0.200 segundos
-		   {
+	   { 
+		  // if(tCOM.Incrementa(&tCOM)>=0.100)//si ha esperado mas de 0.100 segundos
+		  // {
 		   char*c=p->Recibir();
-		   tCOM.ResetT(&tCOM);//reinicio el tiempo del conteo del tiempo de lectura 
+		   tCOM.ResettIncrementa(&tCOM);//reinicio el tiempo del conteo del tiempo de lectura 
 		   if(c!=NULL)//si no esta vacio 
-		     { 
-				 
+		     {
 			  //glutPostRedisplay();
 			  unsigned strleN=strlen(c);
-		      if(strleN==0)
-			     strleN=1;
+			  if((strleN)%2!=0)
+			  {
+			  cout<<"Error:Secuencia de entrada erronea:(Han llegado menos de  2 bytes en un a entrada)"<<endl;
+			  }
 
-			  if(boolNeXt)
+
+			  for(unsigned i=0;i<strleN/2;i+=2)
 			     {
-			      char*newC=new char[strleN+2];
-			      newC[strleN+1]=0;
-			      for(unsigned i=0;i<strleN;i++)
-				      newC[i+1]=c[i];
-			      newC[0]=neXt;
-			      c=newC;
-			      strleN=strlen(c);
-			      boolNeXt=false;
-		         }
 
-			   if(strleN%2!=0)
-			     {
-				  neXt=c[strleN-1];
-				  boolNeXt=true;
-			     }
 
-			  unsigned strlenFor=strleN%2==0?strleN:strleN-1;
-
-			  for(unsigned i=0;i<strlenFor;i+=2)
-			     {
+					 std::cout<<endl<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i]);
 					/* if(!EsperandoReedireccionar&&SalvMov->Enable)
 				    {
 		
@@ -1200,7 +1186,12 @@ void ESE_GRS::recivirDatosCOM(){
 				 
 				    }*/
 					 //si bit 1  es 1 EJECUTO un codigo y no hago el proceso completo
-			        if(DataProcessor::BitData(c[i],1)==1)
+			         if(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0)
+					 {
+						 cout<<"->Verificacion";
+						 continue;
+					 }
+						 if(DataProcessor::BitData(c[i],1)==1)
 					   {
 					    //REDIRECCIONAR
 					    if(DataProcessor::BitData(c[i],2)==1)
@@ -1212,7 +1203,7 @@ void ESE_GRS::recivirDatosCOM(){
 							//ManejadorForms->AddNewText("labelRecib","Procesando Datos...",ManejadorForms); 
 							ManejadorForms->DesactivateForm("labelRecib",ManejadorForms);
 							//ManejadorForms->AddNewCRD("labelRecib",new CRD((float)(wigth/2-strlen("Procesando Datos...")*4.5),(float)(height-40),0),ManejadorForms);
-							std::cout<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"->Redireccionamiento"<<endl;
+							std::cout<<"->Redireccionamiento";
 					       }
 			           }
 				   else if(EsperandoReedireccionar)
@@ -1222,7 +1213,7 @@ void ESE_GRS::recivirDatosCOM(){
 			        else
 			           {
 					     
-					   std::cout<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<endl;
+					   
 			            if(DataProcessor::PorcesarDatos(c[i],c[i+1],angules))//ejecuto la lectura de los bits y muevo los angulos
 			              {
 							corrdCambi=true;
@@ -1328,10 +1319,13 @@ void ESE_GRS::recivirDatosCOM(){
 					   }
 			          }//end else
 			  }//end for
+			   cout<<"("<<tCOM.Incrementa(&tCOM)<<")";
+		       tCOM.ResettIncrementa(&tCOM);
+			 
 			 
 		   }//end if(!NULL)
 
-		 }//end time>0.200
+		// }//end time>0.100
 
 	  }//end recivir serie
 		
@@ -1525,7 +1519,7 @@ void ESE_GRS::ThreadSimular(){
 			{
 				if(salirSimulacion)
 					break;
-				if(TSimular.InitCiclo(&TSimular)>=(RadioButtonSpeed==0?0.1:RadioButtonSpeed==1?0.5:RadioButtonSpeed==2?1.0:2.0))
+				if(TSimular.Incrementa(&TSimular)>=(RadioButtonSpeed==0?0.1:RadioButtonSpeed==1?0.5:RadioButtonSpeed==2?1.0:2.0))
 	           {
 				   cooRd=coordenadas();
 				   if(!corrdCambi)
