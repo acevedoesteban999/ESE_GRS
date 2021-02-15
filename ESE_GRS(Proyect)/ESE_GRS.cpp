@@ -4,16 +4,17 @@
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
-bool boolNeXt=false,EsperandoReedireccionar=true;
+bool EsperandoReedireccionar=true;
 bool threaDCOM=false,MostrarAngules=false,SeguirPuntoFinal=false;
 bool corrdCambi=false,SetAngules=false;
-char neXt;
+bool verif=false;
 unsigned toSaveCOM=2,toSaveSpeed=9600;
 unsigned STRLEN,RadioButtonEstilo=0,RadioButtonRestriccion=0,RadioButtonSpeed=0,LastRBEstilo=0,LastRBRestriccion=0;
 int contMenuToDraw=-1;
 int movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 double trasladarX=0,trasladarY=0,trasladarZ=0;
 double *cooRd=new double[3];
+int contt=0;
 
 bool Pint=false;
 
@@ -1023,7 +1024,7 @@ void ESE_GRS::defaul_menu(int opcion){
 
 			  // SalvMov->Clear(SalvMov);
 			   msg="Conectado Correctamente...";
-			   
+			   cout<<endl<<"Conexion establecida:"<<escrituraCOM<<"-"<<escrituraVelocidad<<endl;
 		       //subs
 			   ManejadorForms->Sub("textBoxCOM",ManejadorForms);
 		       ManejadorForms->Sub("textBoxSpeed",ManejadorForms);
@@ -1088,6 +1089,7 @@ void ESE_GRS::defaul_menu(int opcion){
 		delete p;
 		EsperandoReedireccionar=true;
 		ESE_GRS::InitMenu();
+		cout<<endl<<"Conexion finalizada"<<endl;
 	break;
 	}
 	
@@ -1175,9 +1177,8 @@ void ESE_GRS::recivirDatosCOM(){
 
 			  for(unsigned i=0;i<strleN/2;i+=2)
 			     {
-
-
-					 std::cout<<endl<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i]);
+					 contt++;
+					 std::cout<<endl<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
 					/* if(!EsperandoReedireccionar&&SalvMov->Enable)
 				    {
 		
@@ -1186,16 +1187,29 @@ void ESE_GRS::recivirDatosCOM(){
 				 
 				    }*/
 					 //si bit 1  es 1 EJECUTO un codigo y no hago el proceso completo
-			         if(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0)
-					 {
+					 if(contt%11==0&&!EsperandoReedireccionar)
+					    {
+					    if(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0)
+					     {
 						 cout<<"->Verificacion";
 						 continue;
-					 }
-						 if(DataProcessor::BitData(c[i],1)==1)
+					     }
+					     cout<<"->Error:Verificacion atrasada";
+						 messeng=new MeSSenger("Error:verificacion atrasada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
+				         continue;
+					    }
+					 if(!EsperandoReedireccionar&&(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0))
+				          {
+						   cout<<"->Error:Verificacion adelantada";
+						   messeng=new MeSSenger("Error:verificacion adelantada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
+						   continue;
+					      }
+
+					 if(DataProcessor::BitData(c[i],1)==1)
 					   {
 					    //REDIRECCIONAR
 					    if(DataProcessor::BitData(c[i],2)==1)
-					       {
+					        {
 							SpecialKeys(-1,0,0);
 							//ANGULES REDIRECCIOADOS
 							messeng=new MeSSenger("REDIRECCIONADO",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
@@ -1204,12 +1218,18 @@ void ESE_GRS::recivirDatosCOM(){
 							ManejadorForms->DesactivateForm("labelRecib",ManejadorForms);
 							//ManejadorForms->AddNewCRD("labelRecib",new CRD((float)(wigth/2-strlen("Procesando Datos...")*4.5),(float)(height-40),0),ManejadorForms);
 							std::cout<<"->Redireccionamiento";
-					       }
+					        }
+						    else if(EsperandoReedireccionar)
+				              {
+				                cout<<"Esperando redireccionamiento";//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
+				                continue;      
+						      }
 			           }
 				   else if(EsperandoReedireccionar)
 				       {
-				       //PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
-				       }
+				       cout<<"Esperando redireccionamiento";//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
+					   continue;
+					   }
 			        else
 			           {
 					     
@@ -1319,7 +1339,7 @@ void ESE_GRS::recivirDatosCOM(){
 					   }
 			          }//end else
 			  }//end for
-			   cout<<"("<<tCOM.Incrementa(&tCOM)<<")";
+			  cout<<"("<<tCOM.Incrementa(&tCOM)<<")";
 		       tCOM.ResettIncrementa(&tCOM);
 			 
 			 
