@@ -1171,12 +1171,14 @@ void ESE_GRS::recivirDatosCOM(){
 			  unsigned strleN=strlen(c);
 			  if((strleN)%2!=0)
 			  {
-			  cout<<"Error:Secuencia de entrada erronea:(Han llegado menos de  2 bytes en un a entrada)"<<endl;
+			  cout<<"Error:Secuencia de entrada erronea:(Han llegado "<<strleN<<"bytes en un a entrada)"<<endl;
 			  }
 
 
-			  for(unsigned i=0;i<strleN/2;i+=2)
+			  for(unsigned i=0;i<strleN;i+=2)
 			     {
+					 if(strleN/2>1)
+						 cout<<endl<<"{"<<i/2+1<<"/"<<strleN/2<<"}"<<"("<<strleN<<")";
 					 contt++;
 					 std::cout<<endl<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
 					/* if(!EsperandoReedireccionar&&SalvMov->Enable)
