@@ -8,6 +8,7 @@ bool EsperandoReedireccionar=true;
 bool threaDCOM=false,MostrarAngules=false,SeguirPuntoFinal=false;
 bool corrdCambi=false,SetAngules=false;
 bool verif=false;
+char byt;bool bytBool=false;
 unsigned toSaveCOM=2,toSaveSpeed=9600;
 unsigned STRLEN,RadioButtonEstilo=0,RadioButtonRestriccion=0,RadioButtonSpeed=0,LastRBEstilo=0,LastRBRestriccion=0;
 int contMenuToDraw=-1;
@@ -216,7 +217,7 @@ void ESE_GRS::display(){
 	if(!CargObjct||!cargMenu)
 		IniciarCargObjetos();
 	else
-	{
+	{		
 	   // recivirDatosCOM();//recivo y proceso la entrada del puerto serie
 		Inicializar();//iniciaizo proyeccin luces y pongo los angulos del brazo 
 		Entorno();
@@ -1164,23 +1165,48 @@ void ESE_GRS::recivirDatosCOM(){
 		  // if(tCOM.Incrementa(&tCOM)>=0.100)//si ha esperado mas de 0.100 segundos
 		  // {
 		   char*c=p->Recibir();
-		   tCOM.ResettIncrementa(&tCOM);//reinicio el tiempo del conteo del tiempo de lectura 
 		   if(c!=NULL)//si no esta vacio 
 		     {
 			  //glutPostRedisplay();
 			  unsigned strleN=strlen(c);
+			  unsigned RealStrleN=strleN;
+			  bool adjunt=false;
+			  if(bytBool)
+			         {
+				     if(strleN%2==0)
+				        adjunt=true;
+					 cout<<"Se ha adjuntado {"<<DataProcessor::printfBits(byt)<<"} a {"<<DataProcessor::printfBits(c[0])<<"}"<<endl;
+					 char*newc=new char[strleN+2];
+				     newc[strleN+1]=0;
+					 newc[0]=c[0];
+				     newc[1]=byt;
+				     for(unsigned i=1;i<strleN;i++)
+					     newc[i+1]=c[i];
+				     delete c;
+				     c=newc;
+				     strleN=strlen(c);
+				     bytBool=false;
+			        }
 			  if((strleN)%2!=0)
-			  {
-			  cout<<"Error:Secuencia de entrada erronea:(Han llegado "<<strleN<<"bytes en un a entrada)"<<endl;
-			  }
+			       {
+				     if(!bytBool)
+				        {
+						cout<<"Cuidado,ha llegado "<<RealStrleN<<" bytes"<<(adjunt?"(+1)porque se ha adjuntado un elemento q estaba en espera,":",")<<"{"<<DataProcessor::printfBits(c[strleN-1])<<"} esperando a adjuntarse"<<endl;
+						adjunt=false;
+						byt=c[strleN-1];
+				        c[strleN-1]=0;
+				        strleN=strlen(c);
+				        bytBool=true;
+				        }
+			       }
 
 
 			  for(unsigned i=0;i<strleN;i+=2)
-			     {
-					 if(strleN/2>1)
-						 cout<<endl<<"{"<<i/2+1<<"/"<<strleN/2<<"}"<<"("<<strleN<<")";
+			      {
 					 contt++;
-					 std::cout<<endl<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
+					 std::cout<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
+					  if(strleN/2>1)
+						 cout<<"{"<<i/2+1<<"/"<<strleN/2<<"}"<<"("<<strleN<<")-";
 					/* if(!EsperandoReedireccionar&&SalvMov->Enable)
 				    {
 		
@@ -1193,16 +1219,16 @@ void ESE_GRS::recivirDatosCOM(){
 					    {
 					    if(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0)
 					     {
-						 cout<<"->Verificacion";
+						 cout<<"->Verificacion"<<endl;
 						 continue;
 					     }
-					     cout<<"->Error:Verificacion atrasada";
+					     cout<<"->Error:Verificacion atrasada"<<endl;
 						 messeng=new MeSSenger("Error:verificacion atrasada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
 				         continue;
 					    }
 					 if(!EsperandoReedireccionar&&(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0))
 				          {
-						   cout<<"->Error:Verificacion adelantada";
+						   cout<<"->Error:Verificacion adelantada"<<endl;
 						   messeng=new MeSSenger("Error:verificacion adelantada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
 						   continue;
 					      }
@@ -1214,7 +1240,7 @@ void ESE_GRS::recivirDatosCOM(){
 					        {
 							SpecialKeys(-1,0,0);
 							//ANGULES REDIRECCIOADOS
-							messeng=new MeSSenger("REDIRECCIONADO",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
+							messeng=new MeSSenger("Redireccionado Correctamente",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
 						    EsperandoReedireccionar=false;
 							//ManejadorForms->AddNewText("labelRecib","Procesando Datos...",ManejadorForms); 
 							ManejadorForms->DesactivateForm("labelRecib",ManejadorForms);
@@ -1223,13 +1249,13 @@ void ESE_GRS::recivirDatosCOM(){
 					        }
 						    else if(EsperandoReedireccionar)
 				              {
-				                cout<<"Esperando redireccionamiento";//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
+				                cout<<"Codigo,Esperando Redireccionamiento"<<endl;//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
 				                continue;      
 						      }
 			           }
 				   else if(EsperandoReedireccionar)
 				       {
-				       cout<<"Esperando redireccionamiento";//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
+				       cout<<"Esperando Redireccionamiento"<<endl;//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
 					   continue;
 					   }
 			        else
@@ -1340,9 +1366,10 @@ void ESE_GRS::recivirDatosCOM(){
 						//corrdCambi=true;
 					   }
 			          }//end else
+					  cout<<"("<<tCOM.Incrementa(&tCOM)<<")"<<endl;
+		              tCOM.ResettIncrementa(&tCOM);
 			  }//end for
-			  cout<<"("<<tCOM.Incrementa(&tCOM)<<")";
-		       tCOM.ResettIncrementa(&tCOM);
+			  
 			 
 			 
 		   }//end if(!NULL)
