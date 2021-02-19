@@ -32,6 +32,7 @@ public:
 	static void text(char*c,GLfloat x,GLfloat y,GLfloat z,GLfloat R=1.0,GLfloat G=1.0,GLfloat B=1.0,bool big=false,bool moreBig=false);
 	static void smallEjeCoord(GLfloat size=10);
 	static void DrawingObjectIGS();
+	static void ShowAngules();
 	///////////DEFAULTGLUTS
 	static void movRaton(GLsizei x,GLsizei y);
 	static void teclaRaton(int boton,int state,int x,int y);
@@ -60,6 +61,7 @@ public:
 	static void slavarInitDatos();
 	static void recivirDatosCOM();
     static double*coordenadas();
+	static char* Verificacion(char*c,unsigned*strleN);
 
 	//HILOS
 	static void ThreadCOM();

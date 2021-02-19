@@ -54,6 +54,9 @@ public:
 		l->NewCRD(new CRD(crd[0].x+20,crd[0].y,crd[0].z));
 	}
 	static bool IsChecket(RadioButton*rb){return rb->Checket;};
+	unsigned GetChecket(){
+		return IsChecket(this);
+	}
 	unsigned Click(){
 		if(!Checket)
 		   Checket=true;

@@ -16,6 +16,15 @@ int movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 double trasladarX=0,trasladarY=0,trasladarZ=0;
 double *cooRd=new double[3];
 int contt=0;
+bool NEWLine=false;
+bool exist=false;
+
+
+
+CRD*coorPint=new CRD[1000];
+unsigned contCoorPint=0,cantCoorPint=1000;
+bool PintarLineaSuspensiva=true;
+
 
 bool Pint=false;
 
@@ -98,13 +107,12 @@ ESE_GRS::ESE_GRS(){
 }
 ESE_GRS::~ESE_GRS(){
 	//no hace falta explicar VERDAD?
-	if(threaDCOM)
-		{
-		threaDCOM=false;
+	    ManejadorObject->Salir=true;
 		recibir_serie=false;
 	    t1->join();
-	    }
+	    
 	delete[]ManejadorObject;
+	delete[]ManejadorForms;
 	if(p->EstaConectado())
 		delete p;
 }
@@ -247,7 +255,6 @@ void ESE_GRS::display(){
 		glVertex3f((GLfloat)ManejadorObject->CoordReales[0],(GLfloat)ManejadorObject->CoordReales[1],(GLfloat)ManejadorObject->CoordReales[2]);
 		glEnd();
 		}
-		
 		////Inicio los .obj y pongo el caartel de Cargando///////////////////////////////////////////
 		
 		
@@ -312,7 +319,38 @@ void ESE_GRS::Entorno(){
 	glTranslatef((GLfloat)trasladarX,(GLfloat)trasladarY,(GLfloat)trasladarZ);//desplazamiento manual de  ejes x , y , z
 }
 void ESE_GRS::DrawingObjectIGS(){
-	if(igs->GETCont(igs)==1)
+	igs->Draw(PintarLineaSuspensiva,RadioButtonEstilo,cooRd,igs);
+	/*if(contCoorPint)
+	{
+	glColor3f(1,1,1);
+	glBegin(GL_LINE_STRIP);
+	for(unsigned i=0;i<contCoorPint;i++)
+	   glVertex3f((GLfloat)coorPint[i].x,(GLfloat)coorPint[i].y,(GLfloat)coorPint[i].z);
+	glEnd();
+	for(unsigned i=0;i<contCoorPint;i++)
+	{
+	    glPushMatrix();
+		glTranslatef((GLfloat)coorPint[i].x,(GLfloat)coorPint[i].y,(GLfloat)coorPint[i].z);
+		glColor3f(1,1,1);
+		glutSolidSphere(0.25,10,10);
+		glPopMatrix();
+	}
+	if(PintarLineaSuspensiva&&RadioButtonEstilo==1)
+	{
+	glBegin(GL_LINES);
+	double a,b,c,d,e,f;
+	a=coorPint[contCoorPint-1].x;
+	b=coorPint[contCoorPint-1].y;
+	c=coorPint[contCoorPint-1].z;
+	d=cooRd[0]-coorPint[contCoorPint-1].x;
+	e=cooRd[1]-coorPint[contCoorPint-1].y;
+	f=cooRd[2]-coorPint[contCoorPint-1].z;
+	for(unsigned i=0;i<=9;i++)
+	   glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
+	glEnd();
+	}
+	}*/
+	/*if(igs->cont==1)
 	{
 		glColor3f(0,1,0);
 		glBegin(GL_POINTS);
@@ -321,15 +359,15 @@ void ESE_GRS::DrawingObjectIGS(){
 	}
 	else
 	{
-       for(unsigned i=1;i<igs->GETCont(igs);i++)
+       for(unsigned i=1;i<igs->cont;i++)
 		{
-			unsigned lastNL=igs->GETContNL(igs),actualNL=0;
+			unsigned lastNL=igs->contNL,actualNL=0;
 			bool NEWLINE=false;
 			for(unsigned ii=0;ii<lastNL;ii++)
 			 {
 				if(igs->NewLine[ii]==i)
 				{
-					if(i+1==igs->GETCont(igs))
+					if(i+1==igs->cont)
 						break;
 					NEWLINE=true;
 					i++;
@@ -351,7 +389,7 @@ void ESE_GRS::DrawingObjectIGS(){
 		glEnd();
 		}
 	}
-
+	*/
 }
 void ESE_GRS::text(char*c,GLfloat x,GLfloat y,GLfloat z,GLfloat R,GLfloat G,GLfloat B,bool big,bool moreBig){
 	//dibujo el char c en la posicion x,y,z con color RGB
@@ -396,6 +434,18 @@ void ESE_GRS::smallEjeCoord(GLfloat size){
 	
 
 }
+void ESE_GRS::ShowAngules(){
+	                  if(MostrarAngules)
+						{
+						 ManejadorForms->GetForm("labelAngule0",ManejadorForms)->CambiarEscritura((char*)to_string(angules[0]).c_str());
+						 ManejadorForms->GetForm("labelAngule1",ManejadorForms)->CambiarEscritura((char*)to_string(angules[1]).c_str());
+						 ManejadorForms->GetForm("labelAngule2",ManejadorForms)->CambiarEscritura((char*)to_string(angules[2]).c_str());
+						 ManejadorForms->GetForm("labelAngule3",ManejadorForms)->CambiarEscritura((char*)to_string(angules[3]).c_str());
+						 ManejadorForms->GetForm("labelAngule4",ManejadorForms)->CambiarEscritura((char*)to_string(angules[4]).c_str());
+						 ManejadorForms->GetForm("labelAngule5",ManejadorForms)->CambiarEscritura((char*)to_string(angules[5]).c_str());
+							  
+						}
+}
 /////////////////////FUNCIONES DE GLUT A LLAMAR POR DEFECTO////////////////////////////
 void ESE_GRS::reshape(int x,int y){
 	wigth=(float)x;height=(float)y;
@@ -437,13 +487,47 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 
 		                                                case Type::RADIOBUTTON:
 				/////////////////////////////////////////////////////////RADIOBUTTON//////////////////////////////////////////////////////////
-
+		      
 		    if(recibir_serie)/////////////////////////if recivir_serie///////////////////////////////////////////////////////////////////////////////////
-		   {
+		    {
+			   ///////////RADIO BUTTOM GROUP//////////////
 			   if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)))
+			   {
 			        RadioButtonEstilo=ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecket();
-			   if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)))
-		            RadioButtonRestriccion=ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->GetChecket();   
+					if(RadioButtonEstilo==1)
+					{
+						
+
+						ManejadorForms->Add(new RadioButton("radioButtomNewLine",*(new CRD(100,168,0)),"NEW",wigth,height,!igs->cont?1:0),ManejadorForms);
+						if(!igs->contNL)
+							PintarLineaSuspensiva=false;
+					}
+					else
+						ManejadorForms->Sub("radioButtomNewLine",ManejadorForms);
+			   }
+					if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)))
+		                RadioButtonRestriccion=ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->GetChecket();   
+					 ///////////RADIO BUTTOM//////////////
+					if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)))
+					{
+						NEWLine=ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->GetChecket()?1:0;
+						PintarLineaSuspensiva=NEWLine?0:1;
+						
+					}
+					if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)))
+					{
+						igs->CancelLastPoint(igs);
+						ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)->CambiarChecket();
+						if(!igs->cont)
+							ManejadorForms->Sub("radioButtomCrl-Z",ManejadorForms);
+						if(igs->contNP)
+					      {
+						   if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
+							   PintarLineaSuspensiva=false;
+						   else
+							   PintarLineaSuspensiva=true;
+					       }
+					}
 			  /* if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonSeguirMovim",ManejadorForms)))
 			   {
 				   if(SalvMov->Enable)
@@ -600,17 +684,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   }
 				   
 			   corrdCambi=true;
-			   if(MostrarAngules)
-						{
-						
-						ManejadorForms->GetForm("labelAngule0",ManejadorForms)->CambiarEscritura((char*)to_string(angules[0]).c_str());
-						ManejadorForms->GetForm("labelAngule1",ManejadorForms)->CambiarEscritura((char*)to_string(angules[1]).c_str());
-						ManejadorForms->GetForm("labelAngule2",ManejadorForms)->CambiarEscritura((char*)to_string(angules[2]).c_str());
-						ManejadorForms->GetForm("labelAngule3",ManejadorForms)->CambiarEscritura((char*)to_string(angules[3]).c_str());
-						ManejadorForms->GetForm("labelAngule4",ManejadorForms)->CambiarEscritura((char*)to_string(angules[4]).c_str());
-						ManejadorForms->GetForm("labelAngule5",ManejadorForms)->CambiarEscritura((char*)to_string(angules[5]).c_str());
-						
-						}
+			   ShowAngules();
 		    }
 		   
 		  
@@ -739,16 +813,7 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
 
 	     }
 
-	      if(MostrarAngules)
-						{
-							  ManejadorForms->GetForm("labelAngule0",ManejadorForms)->CambiarEscritura((char*)to_string(angules[0]).c_str());
-						      ManejadorForms->GetForm("labelAngule1",ManejadorForms)->CambiarEscritura((char*)to_string(angules[1]).c_str());
-						      ManejadorForms->GetForm("labelAngule2",ManejadorForms)->CambiarEscritura((char*)to_string(angules[2]).c_str());
-						      ManejadorForms->GetForm("labelAngule3",ManejadorForms)->CambiarEscritura((char*)to_string(angules[3]).c_str());
-						      ManejadorForms->GetForm("labelAngule4",ManejadorForms)->CambiarEscritura((char*)to_string(angules[4]).c_str());
-						      ManejadorForms->GetForm("labelAngule5",ManejadorForms)->CambiarEscritura((char*)to_string(angules[5]).c_str());
-							  
-						}
+	  ShowAngules();
 
 
 	  DataProcessor::RectificarAngules(angules);
@@ -791,16 +856,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 		angules[5]=(GLfloat)-2.04;
 		corrdCambi=true;
 
-		 if(MostrarAngules)
-			{
-			ManejadorForms->GetForm("labelAngule0",ManejadorForms)->CambiarEscritura((char*)to_string(angules[0]).c_str());
-			ManejadorForms->GetForm("labelAngule1",ManejadorForms)->CambiarEscritura((char*)to_string(angules[1]).c_str());
-			ManejadorForms->GetForm("labelAngule2",ManejadorForms)->CambiarEscritura((char*)to_string(angules[2]).c_str());
-			ManejadorForms->GetForm("labelAngule3",ManejadorForms)->CambiarEscritura((char*)to_string(angules[3]).c_str());
-		    ManejadorForms->GetForm("labelAngule4",ManejadorForms)->CambiarEscritura((char*)to_string(angules[4]).c_str());
-			ManejadorForms->GetForm("labelAngule5",ManejadorForms)->CambiarEscritura((char*)to_string(angules[5]).c_str());
-			}
-		
+		 ShowAngules();
 		break;
 	case GLUT_KEY_F4:
 		if(!recibir_serie)
@@ -813,15 +869,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 		angules[5]=(GLfloat)-2.04;
 		corrdCambi=true;
 
-		 if(MostrarAngules)
-			{
-			ManejadorForms->GetForm("labelAngule0",ManejadorForms)->CambiarEscritura((char*)to_string(angules[0]).c_str());
-			ManejadorForms->GetForm("labelAngule1",ManejadorForms)->CambiarEscritura((char*)to_string(angules[1]).c_str());
-			ManejadorForms->GetForm("labelAngule2",ManejadorForms)->CambiarEscritura((char*)to_string(angules[2]).c_str());
-			ManejadorForms->GetForm("labelAngule3",ManejadorForms)->CambiarEscritura((char*)to_string(angules[3]).c_str());
-		    ManejadorForms->GetForm("labelAngule4",ManejadorForms)->CambiarEscritura((char*)to_string(angules[4]).c_str());
-			ManejadorForms->GetForm("labelAngule5",ManejadorForms)->CambiarEscritura((char*)to_string(angules[5]).c_str());
-			}
+		 ShowAngules();
 		}
 		break;
 	case GLUT_KEY_F5:
@@ -849,15 +897,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 		corrdCambi=true;
 		SeguirPuntoFinal=false;
 		MenuVista(-1);
-		 if(MostrarAngules)
-			{
-			ManejadorForms->GetForm("labelAngule0",ManejadorForms)->CambiarEscritura((char*)to_string(angules[0]).c_str());
-			ManejadorForms->GetForm("labelAngule1",ManejadorForms)->CambiarEscritura((char*)to_string(angules[1]).c_str());
-			ManejadorForms->GetForm("labelAngule2",ManejadorForms)->CambiarEscritura((char*)to_string(angules[2]).c_str());
-			ManejadorForms->GetForm("labelAngule3",ManejadorForms)->CambiarEscritura((char*)to_string(angules[3]).c_str());
-		    ManejadorForms->GetForm("labelAngule4",ManejadorForms)->CambiarEscritura((char*)to_string(angules[4]).c_str());
-			ManejadorForms->GetForm("labelAngule5",ManejadorForms)->CambiarEscritura((char*)to_string(angules[5]).c_str());
-			}
+		ShowAngules();
 		}
 		else
 		   {
@@ -900,6 +940,17 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 				trasladarZ+=5;
 				SeguirPuntoFinal=false;
 			break;
+			case GLUT_KEY_F8:
+				if(igs->cont)
+				{
+					double*d=igs->Media(igs);
+					trasladarX=-d[0];
+					trasladarY=-d[1];
+					trasladarZ=-d[2];
+					SeguirPuntoFinal=false;
+				}
+				else
+				break;
 	
 		
 	}
@@ -1039,12 +1090,12 @@ void ESE_GRS::defaul_menu(int opcion){
 			   ManejadorForms->Add(new Label("labelRecib","Esperando Reedireccionamiento...",*(new CRD((float)(wigth/2-139.5),(float)(height-40),0)),2,0.5,0.5,0.5,wigth,height),ManejadorForms); 
 			   
 		       ManejadorForms->Add(new RadioButtonGroup("radioButtonGroupProp",*new CRD(10,150,0),wigth,height),ManejadorForms);
-      	          ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton1","Puntos",true);
-	              ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton2","Lineas");
-	              ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton3","Circulo");
-		          ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->SetNewProp((float)strlen("Circulo")*9);
-	              ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton4","Superficies");
-	              ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton5","Curva");
+      	         ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton2","Puntos",true);   
+			     ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton1","Linea"); 
+	             //ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton3","Nueva Linea");
+		          //ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->SetNewProp((float)strlen("Circulo")*9);
+	              //ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton4","Superficies");
+	              //ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton5","Curva");
 	          ManejadorForms->Add(new RadioButtonGroup("radioButtonGroupRestriccion",*new CRD(10,170+(18*5),0),wigth,height),ManejadorForms);
 		          ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton6","Sin resctricciones",true);
 	              ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton7","Plano XY");
@@ -1169,37 +1220,7 @@ void ESE_GRS::recivirDatosCOM(){
 		     {
 			  //glutPostRedisplay();
 			  unsigned strleN=strlen(c);
-			  unsigned RealStrleN=strleN;
-			  bool adjunt=false;
-			  if(bytBool)
-			         {
-				     if(strleN%2==0)
-				        adjunt=true;
-					 cout<<"Se ha adjuntado {"<<DataProcessor::printfBits(byt)<<"} a {"<<DataProcessor::printfBits(c[0])<<"}"<<endl;
-					 char*newc=new char[strleN+2];
-				     newc[strleN+1]=0;
-					 newc[0]=c[0];
-				     newc[1]=byt;
-				     for(unsigned i=1;i<strleN;i++)
-					     newc[i+1]=c[i];
-				     delete c;
-				     c=newc;
-				     strleN=strlen(c);
-				     bytBool=false;
-			        }
-			  if((strleN)%2!=0)
-			       {
-				     if(!bytBool)
-				        {
-						cout<<"Cuidado,ha llegado "<<RealStrleN<<" bytes"<<(adjunt?"(+1)porque se ha adjuntado un elemento q estaba en espera,":",")<<"{"<<DataProcessor::printfBits(c[strleN-1])<<"} esperando a adjuntarse"<<endl;
-						adjunt=false;
-						byt=c[strleN-1];
-				        c[strleN-1]=0;
-				        strleN=strlen(c);
-				        bytBool=true;
-				        }
-			       }
-
+			  c=Verificacion(c,&strleN);
 
 			  for(unsigned i=0;i<strleN;i+=2)
 			      {
@@ -1260,30 +1281,12 @@ void ESE_GRS::recivirDatosCOM(){
 					   }
 			        else
 			           {
-					     
-					   
+						   
 			            if(DataProcessor::PorcesarDatos(c[i],c[i+1],angules))//ejecuto la lectura de los bits y muevo los angulos
 			              {
-							corrdCambi=true;
-							if(MostrarAngules)
-						      {
-							 /* clock_t te=clock();
-							  ManejadorForms->AddNewText("labelAngule0",(char*)to_string(angules[0]).c_str(),ManejadorForms);
-							  ManejadorForms->AddNewText("labelAngule1",(char*)to_string(angules[1]).c_str(),ManejadorForms);
-							  ManejadorForms->AddNewText("labelAngule2",(char*)to_string(angules[2]).c_str(),ManejadorForms);
-							  ManejadorForms->AddNewText("labelAngule3",(char*)to_string(angules[3]).c_str(),ManejadorForms);
-							  ManejadorForms->AddNewText("labelAngule4",(char*)to_string(angules[4]).c_str(),ManejadorForms);
-							  ManejadorForms->AddNewText("labelAngule5",(char*)to_string(angules[5]).c_str(),ManejadorForms);
-							  cout<<"AddNewText:"<<double(te-clock());
-							  te=clock();
-							  ManejadorForms->GetForm("labelAngule0",ManejadorForms)->CambiarEscritura((char*)to_string(angules[0]).c_str());
-						      ManejadorForms->GetForm("labelAngule1",ManejadorForms)->CambiarEscritura((char*)to_string(angules[1]).c_str());
-						      ManejadorForms->GetForm("labelAngule2",ManejadorForms)->CambiarEscritura((char*)to_string(angules[2]).c_str());
-						      ManejadorForms->GetForm("labelAngule3",ManejadorForms)->CambiarEscritura((char*)to_string(angules[3]).c_str());
-						      ManejadorForms->GetForm("labelAngule4",ManejadorForms)->CambiarEscritura((char*)to_string(angules[4]).c_str());
-						      ManejadorForms->GetForm("labelAngule5",ManejadorForms)->CambiarEscritura((char*)to_string(angules[5]).c_str());
-						      cout<<"GetForm->CambiarEscritura:"<<double(te-clock());  
-							*/}
+						    corrdCambi=true;
+						    cooRd=coordenadas();
+						    ShowAngules();
 						  /* //si procesar datos devuelve true es q tengo q pintar
 					       if(!NewObjbool)
 				              {
@@ -1322,17 +1325,53 @@ void ESE_GRS::recivirDatosCOM(){
 						   break;
 					   }
 					   */
-							  CRD*newCorrd=new CRD(cooRd);
+
+							if(!igs->cont)//poner el rediobutton de crl-z
+							 ManejadorForms->Add(new RadioButton("radioButtomCrl-Z",*(new CRD(100,150,0)),"Ctrl-Z",wigth,height),ManejadorForms);
+							
+							
+							if(cooRd[0]==igs->Vertex[igs->cont-1].x&&cooRd[1]==igs->Vertex[igs->cont-1].y&&cooRd[2]==igs->Vertex[igs->cont-1].z)
+									  cout<<"["<<cooRd[0]<<";"<<cooRd[1]<<";"<<cooRd[2]<<"] No pintado";
+							else
+							{
 							  switch (RadioButtonEstilo)
 							  {
-							  case 0://PUNTOS
-
-
-
+							   case 0://Puntos
+								   igs->NewPOINT(igs);
 								  break;
-							  default:
+							   case 1://Lineas
+
+								   if(!igs->cont)
+								   {  
+									  ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->CambiarChecket();
+								      igs->NewLINE(igs);
+							       }
+								   if(!igs->contNL)
+									   igs->NewLINE(igs);
+								   if(igs->cont-1==igs->NewPoint[igs->contNP-1])
+									   igs->NewLINE(igs);
+								  PintarLineaSuspensiva=true;
+								  if(NEWLine)
+								     {
+									  NEWLine=false;
+									  PintarLineaSuspensiva=false;
+									  ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->CambiarChecket();
+									  igs->NewLINE(igs);
+								     }
+							 
+								  //coorPint[contCoorPint].x=cooRd[0];
+								  //coorPint[contCoorPint].y=cooRd[1];
+								  //coorPint[contCoorPint++].z=cooRd[2];
+								  
 								  break;
-							  }
+							    default:
+								  break;
+							    }
+
+
+							   cout<<"["<<cooRd[0]<<";"<<cooRd[1]<<";"<<cooRd[2]<<"]-Pintado";
+							  igs->add(*(new CRD(cooRd)),igs);
+							 }
 							 /* if(RadioButtonRestriccion!=LastRBRestriccion)
 							     {
 								 RadioButtonRestriccion=LastRBRestriccion;
@@ -1361,10 +1400,12 @@ void ESE_GRS::recivirDatosCOM(){
 
 					      ///////
 			              }//end if TRUE de ProcesarDatos
-					   else
-					   {
-						//corrdCambi=true;
-					   }
+						else
+						{
+						    corrdCambi=true;
+						    cooRd=coordenadas();
+						    ShowAngules();
+						}
 			          }//end else
 					  cout<<"("<<tCOM.Incrementa(&tCOM)<<")"<<endl;
 		              tCOM.ResettIncrementa(&tCOM);
@@ -1380,16 +1421,9 @@ void ESE_GRS::recivirDatosCOM(){
 		
 }
 void ESE_GRS::slavarInitDatos(){
-	if(threaDCOM)
-	   {
 	   recibir_serie=false;
-	   t1->join();
-	   }
-	if(!CargObjct)
-	   {
 	   ManejadorObject->Salir=true;
 	   t1->join();
-	   }
 	ofstream f;
 	f.open("My_Proyecto.onrn",ios::out|ios::binary);
 	f.write((char*)&movRatXinit,sizeof(int));
@@ -1481,16 +1515,45 @@ void ESE_GRS::SaveObj(char*address,LoaderObject*l){
 	
 	
 }
+char* ESE_GRS::Verificacion(char*c,unsigned*strleN){
+	unsigned RealStrleN=*strleN;
+			  bool adjunt=false;
+			  if(bytBool)
+			         {
+				     if(*strleN%2==0)
+				        adjunt=true;
+					 cout<<"Se ha adjuntado {"<<DataProcessor::printfBits(byt)<<"} a {"<<DataProcessor::printfBits(c[0])<<"}"<<endl;
+					 char*newc=new char[*strleN+2];
+				     newc[*strleN+1]=0;
+					 newc[0]=c[0];
+				     newc[1]=byt;
+				     for(unsigned i=1;i<*strleN;i++)
+					     newc[i+1]=c[i];
+				     delete c;
+				     c=newc;
+				     *strleN=strlen(c);
+				     bytBool=false;
+			        }
+			  if((*strleN)%2!=0)
+			       {
+				     if(!bytBool)
+				        {
+						cout<<"Cuidado,ha llegado "<<RealStrleN<<" bytes"<<(adjunt?"(+1)porque se ha adjuntado un elemento q estaba en espera,":",")<<"{"<<DataProcessor::printfBits(c[*strleN-1])<<"}=>esperando a adjuntarse"<<endl;
+						adjunt=false;
+						byt=c[*strleN-1];
+				        c[*strleN-1]=0;
+				        *strleN=strlen(c);
+				        bytBool=true;
+				        }
+			       }
+			  return c;
+}
 /////////////////////////THREADS//////////////////////////////////////////////////
 void ESE_GRS::ThreadCOM()
 {
 	m.lock();
-	threaDCOM=true;	
 	while(recibir_serie)
-	{
-	recivirDatosCOM();
-	}
-	threaDCOM=false;
+	 recivirDatosCOM();
 	m.unlock();
 
 }

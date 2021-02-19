@@ -11,6 +11,7 @@ private:
 	unsigned cont;
 public:
 	StackForms(){cont=0;cant=10;forms=new Forms*[cant];};
+	~StackForms(){delete[]forms;};
 	static void Add(Forms*form,StackForms*sf){
 		
 		for(unsigned i=0;i<sf->cont;i++)

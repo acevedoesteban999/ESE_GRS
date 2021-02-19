@@ -42,7 +42,6 @@ void DataProcessor::RectificarAngules(GLfloat*angules){
 }
 bool DataProcessor::PorcesarDatos(char ByteLow,char ByteHigh,GLfloat*angules)
 {
-	bool mov=false;
 	for(int i=2;i<8;i++)
 	{
 		switch (i)
@@ -60,14 +59,12 @@ bool DataProcessor::PorcesarDatos(char ByteLow,char ByteHigh,GLfloat*angules)
 					 else
 						 angules[i-2]-=0.9;
 					 RectificarAngules(angules);
-					 if(!mov)
-						 mov=true;
 			       }	
 		         break;      	
 	   }//end switch
 	
 	}//end for
-	if(BitData(ByteHigh,1)==1||mov)
+	if(BitData(ByteHigh,1)==1)
 	     return true;
 
 	return false;

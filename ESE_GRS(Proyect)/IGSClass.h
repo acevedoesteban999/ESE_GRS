@@ -1,20 +1,24 @@
 #pragma once
 #include <fstream>
+#include "GL\freeglut.h"
 #include"CRD.h"
 using namespace std;
 class IGSClass
 {
 private:
 	unsigned S,G,D,P,ContDs,ContPs,LastD,LastP;
-	unsigned cant,cont,cantNL,contNL;
+
 	CRD*puntoRestriccion;
 public:
 	CRD*Vertex;
-	unsigned*NewLine;
+	unsigned*NewLine,*NewPoint;
+	unsigned cant,cont,cantNL,contNL,cantNP,contNP;
 	IGSClass(void);
 	~IGSClass(){delete NewLine,Vertex;};
+	static void Draw(bool PintLinSusp,unsigned RadioButtonEstilo,double*cooRd,IGSClass*igs);
 	static void add(CRD vertex,IGSClass*igs);
 	static void NewLINE(IGSClass*igs);
+	static void NewPOINT(IGSClass*igs);
 	static void End(char*name,IGSClass*igs);
 	static void Clear(IGSClass*igs){igs=new IGSClass;}
 	static void SetRestriccion(CRD*crd,IGSClass*igs){
@@ -34,8 +38,8 @@ public:
 			break;
 	   }
 	}
-	static unsigned GETCont(IGSClass*igs){return igs->cont;};
-	static unsigned GETContNL(IGSClass*igs){return igs->contNL;};
-	static void CancelLastPoint(IGSClass*igs){if(igs->cont>0)igs->cont--;};
+	static void CancelLastPoint(IGSClass*igs);
+	static double* Media(IGSClass*igs);
+	
 };
 

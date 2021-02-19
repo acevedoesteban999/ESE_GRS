@@ -5,11 +5,12 @@
 using namespace std;
 IGSClass::IGSClass(void)
 {
-	S=G=D=P=LastP=ContDs=ContPs=LastD=cont=contNL=0;
+	S=G=D=P=LastP=ContDs=ContPs=LastD=cont=contNL=contNP=0;
 	cant=100;
-	cantNL=10;
+	cantNL=cantNP=100;
 	Vertex=new CRD[cant]; 
 	NewLine=new unsigned[cantNL];
+	NewPoint=new unsigned[cantNP];
 }
 void IGSClass::NewLINE(IGSClass*igs)
    {
@@ -26,6 +27,17 @@ void IGSClass::NewLINE(IGSClass*igs)
 	
 
    }
+void IGSClass::NewPOINT(IGSClass*igs){
+ if(igs->contNP>=igs->cantNP)
+	     {
+		  unsigned*NewData=new unsigned[igs->cantNP+10];
+		  igs->cantNP+=10;
+		  for(unsigned i=0;i<igs->contNP;i++)
+			 NewData[i]=igs->NewPoint[i];
+		  igs->NewPoint=NewData;
+	      }
+	igs->NewPoint[igs->contNP++]=igs->cont;
+};
 void IGSClass::add(CRD v,IGSClass*igs)
 {
 	
@@ -262,3 +274,111 @@ void IGSClass::End(char*c,IGSClass*igs)
 		std::cout<<"ERror no puede haber un solo vertice";
 		
 }
+void IGSClass::Draw(bool PintLinSusp,unsigned RadioButtonEstilo,double*cooRd,IGSClass*igs){
+	if(igs->cont)
+	{
+      glColor3f(1,1,1);
+	   glPointSize(3);
+	  glBegin(GL_POINTS);
+	  for(unsigned i=0;i<igs->cont;i++)//PUNTOS//Siempre pinto todos los puntos
+	    {
+			glVertex3f((GLfloat)igs->Vertex[i].x,(GLfloat)igs->Vertex[i].y,(GLfloat)igs->Vertex[i].z);
+	    }
+	  glEnd();
+	  switch (RadioButtonEstilo)
+	     {
+	      case 1://Lineas
+		     glBegin(GL_LINE_STRIP);
+	         for(unsigned i=0;i<igs->cont;i++)//LINEAS
+	           {
+				   bool contin=false;
+				   for(unsigned ii=0;ii<igs->contNP;ii++)//si ese vetice es solo un punto
+				   {
+					   if(igs->NewPoint[ii]==i)
+			           {
+						   contin=true;
+						   break;
+				       }
+				   
+				   }
+				   if(contin)//si era un punto subo al siguinete elemento del for
+					   continue;
+		        for(unsigned ii=0;ii<igs->contNL;ii++)//si este vertice es una nueva linea
+		           {
+			         if(igs->NewLine[ii]==i)
+			           {
+				        glEnd();//cambio a line strip de nuevo para q no cuente el ultimo elemento por donde va el for del arreglo de vertices
+				        glBegin(GL_LINE_STRIP);
+			          }
+		           }
+		        glVertex3f((GLfloat)igs->Vertex[i].x,(GLfloat)igs->Vertex[i].y,(GLfloat)igs->Vertex[i].z);//pinto el vertice para recta strip
+	          }
+		     glEnd();
+	         if(PintLinSusp)//LINEAS SUSPENSIVAS
+	           {
+	            glBegin(GL_LINES);
+	            double a,b,c,d,e,f;
+	            a=igs->Vertex[igs->cont-1].x;
+	            b=igs->Vertex[igs->cont-1].y;
+	            c=igs->Vertex[igs->cont-1].z;
+	            d=cooRd[0]-igs->Vertex[igs->cont-1].x;
+	            e=cooRd[1]-igs->Vertex[igs->cont-1].y;
+	            f=cooRd[2]-igs->Vertex[igs->cont-1].z;
+	            for(unsigned i=0;i<=9;i++)
+	               glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
+	            glEnd();
+	           }
+		    break;
+
+		  case 2:
+			  break;
+	       }
+	    } 
+
+
+};
+double* IGSClass::Media(IGSClass*igs){
+    double*d=new double[3];
+	d[0]=0;
+	d[1]=0;
+	d[2]=0;
+	
+	for(unsigned i=0;i<igs->cont;i++)
+	{
+		d[0]+=igs->Vertex[i].x;
+		d[1]+=igs->Vertex[i].y;
+		d[2]+=igs->Vertex[i].z;
+	}
+	d[0]/=igs->cont;
+	d[1]/=igs->cont;
+	d[2]/=igs->cont;
+	return d;
+}
+
+
+void IGSClass::CancelLastPoint(IGSClass*igs){
+if(igs->cont>0)
+		{
+		for(unsigned i=0;i<igs->contNP;i++)
+		{
+			if(igs->NewPoint[i]==igs->cont-1)
+			{
+				for(unsigned ii=i;ii<igs->contNP-1;i++)
+					igs->NewPoint[i]=igs->NewPoint[i+1];
+				igs->contNP--;
+			}
+		}
+		for(unsigned i=0;i<igs->contNL;i++)
+		{
+			if(igs->NewLine[i]==igs->cont-1)
+			{
+				for(unsigned ii=i;ii<igs->contNL-1;i++)
+					igs->NewLine[i]=igs->NewLine[i+1];
+				igs->contNL--;
+			}
+		}
+
+		
+			igs->cont--;
+		}
+};
