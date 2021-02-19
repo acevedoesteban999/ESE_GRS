@@ -122,4 +122,15 @@ public:
 	}
 	unsigned GetChecket(){
 		return Checket;};
+	void CambiarChecket(){
+		RB[Checket]->NoClick();
+		Checket==contRB-1?Checket=0:Checket++;
+		RB[Checket]->Click();
+	}
+	double* GetChecketPositton(){
+	   double*a=new double[2];
+	   a[0]=RB[Checket]->coord->x;
+	   a[1]=RB[Checket]->coord->y;
+	   return a;
+	}
 };

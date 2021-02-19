@@ -1,20 +1,23 @@
 #pragma once
 #include "Forms.h"
+#include "TimeDuration.h"
 
 class TextBox:public Forms
 {
 public:
 	bool escribiendo;
 	char*escritura;
+	TimeDuration tim;
+	bool dosClicks;
 	TextBox();
 	TextBox(char*name,CRD crd,float wigth,float height,float TotalWigth,float TotalHeight):Forms(name,crd,wigth,height,TotalWigth,TotalHeight){
-		escribiendo=false;
+		dosClicks=escribiendo=false;
 		escritura=new char;
 		t=Type::TEXTBOX;
 		escritura=new char(0);
 	};
 	TextBox(char*name,char*Escritura,CRD crd,float wigth,float height,float TotalWigth,float TotalHeight):Forms(name,crd,wigth,height,TotalWigth,TotalHeight){
-		escribiendo=false;
+		dosClicks=escribiendo=false;
 		escritura=new char;
 		t=Type::TEXTBOX;
 		escritura=new char[strlen(Escritura)+1];
@@ -26,7 +29,8 @@ public:
 	bool Escribiendo(){
 		return escribiendo;};
 	char*GetEscritura(){
-		return escritura;};
+		return escritura;
+	};
 	void AddNewText(char*N){NewText(N);};
 	void AddText(char letra){
 		
@@ -53,12 +57,15 @@ public:
 	void CambiarEscritura(char*Newescritura){NewText(Newescritura);};
 	void NewText(char*newText)
 	{
+		
 		escritura=new char[strlen(newText)+1];
 		escritura[strlen(newText)]=0;
 		for(unsigned i=0;i<strlen(newText);i++)
 			escritura[i]=newText[i];
 		if((float)strlen(escritura)*10>Wigth)
 		   Wigth+=(float)(strlen(escritura)*10)/2;
+		
+		
 	}
 	//PURAS///
 	void Draw(){
@@ -82,7 +89,21 @@ public:
 	unsigned Click(){
 		if(!escribiendo)
 			escribiendo=true;
-		NewText("");
+
+		if(!dosClicks)
+		{
+			dosClicks=true;
+			tim.ResettIncrementa(&tim);
+			tim.Incrementa(&tim);
+		}
+		else if(dosClicks)
+		{
+		dosClicks=false;
+		tim.Incrementa(&tim);
+		if(tim.TimE<=1.5)
+			NewText("");
+
+		}
 
 		return t;
 	}
@@ -90,6 +111,7 @@ public:
 		if(escribiendo)
 			escribiendo=false;
 	}
+	
 
 
 };

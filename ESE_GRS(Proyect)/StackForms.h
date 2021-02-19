@@ -131,4 +131,10 @@ public:
 				return true;
 	     return false;
 	}
+	bool GetEstoyEscribindo(){
+		for(unsigned i=0;i<this->cont;i++)
+			if(forms[i]->Escribiendo())
+				return true;
+			return false;
+	}
 };

@@ -81,9 +81,10 @@ public:
 	
 	};
 	virtual bool Escribiendo(){
-		return true;};
+		return false;};
 	virtual char*GetEscritura(){
 		return "NULL";};
+	virtual bool GetEstoyEscribindo(){return false;}
 	virtual unsigned GetChecket(){return 0;};
 	virtual void NewText(char*newText){};
 	virtual void NewCRD(CRD*crd){};
@@ -102,6 +103,11 @@ public:
 	} 
 	virtual void CambiarEscritura(char*newText){};
 	virtual void CambiarChecket(){}
+	virtual double* GetChecketPositton(){
+		double*a=new double[2];
+		a[0]=this->coord->x;
+		a[1]=this->coord->y;
+		return a;};
 	//PURAS
 	virtual void Draw()=0; 
 	virtual unsigned Click()=0;

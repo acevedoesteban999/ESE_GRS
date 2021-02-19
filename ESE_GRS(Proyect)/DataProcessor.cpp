@@ -42,6 +42,7 @@ void DataProcessor::RectificarAngules(GLfloat*angules){
 }
 bool DataProcessor::PorcesarDatos(char ByteLow,char ByteHigh,GLfloat*angules)
 {
+
 	for(int i=2;i<8;i++)
 	{
 		switch (i)

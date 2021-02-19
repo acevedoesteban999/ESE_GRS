@@ -107,10 +107,12 @@ ESE_GRS::ESE_GRS(){
 }
 ESE_GRS::~ESE_GRS(){
 	//no hace falta explicar VERDAD?
-	    ManejadorObject->Salir=true;
-		recibir_serie=false;
-	    t1->join();
-	    
+	if(recibir_serie||!ManejadorObject->Salir)
+	{
+	   recibir_serie=false;
+	   ManejadorObject->Salir=true;
+	   t1->join();
+	}
 	delete[]ManejadorObject;
 	delete[]ManejadorForms;
 	if(p->EstaConectado())
@@ -496,9 +498,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			        RadioButtonEstilo=ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecket();
 					if(RadioButtonEstilo==1)
 					{
-						
-
-						ManejadorForms->Add(new RadioButton("radioButtomNewLine",*(new CRD(100,168,0)),"NEW",wigth,height,!igs->cont?1:0),ManejadorForms);
+						ManejadorForms->Add(new RadioButton("radioButtomNewLine",*(new CRD(100,168,0)),"NEW",wigth,height),ManejadorForms);
 						if(!igs->contNL)
 							PintarLineaSuspensiva=false;
 					}
@@ -731,12 +731,14 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	glutPostRedisplay();
 }
 void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
-
+  if(ManejadorForms->GetEstoyEscribindo()){
 	if(tecla==8)
 	    ManejadorForms->SubText(ManejadorForms);
 	else
 		ManejadorForms->AddText(tecla,ManejadorForms);
-
+	}
+  else
+	{
 	if(tecla=='l')
 		{
 		trasladarY+=5;
@@ -823,7 +825,7 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
 	   //messeng=new MeSSenger("Accion no valida ;Conexion por puerto serie ya iniciada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
       }
 	
-	
+	}
 	glutPostRedisplay();//refresco y ejecuto el displayFunc()
 }
 void ESE_GRS::wheel(int boton,int direcc,int x,int y){
@@ -962,6 +964,7 @@ void ESE_GRS::defaul_menu(int opcion){
 	{
 	case 4:///SET angules
 		ManejadorForms->Sub("textBoxCOM",ManejadorForms);
+		ManejadorForms->Sub("textBoxSpeed",ManejadorForms);
 		ManejadorForms->Sub("buttonInitCOM",ManejadorForms);
 		ManejadorForms->Sub("buttonCancelCOM",ManejadorForms);
 		ManejadorForms->Add(new TextBox("textBoxsSetAngules0",(char*)to_string(angules[0]).c_str(),*(new CRD(0,100,0)),110,20,wigth,height),ManejadorForms);
@@ -1213,217 +1216,149 @@ void ESE_GRS::MenuPuertoSeie(int opcion){
 void ESE_GRS::recivirDatosCOM(){
 	if(recibir_serie)
 	   { 
-		  // if(tCOM.Incrementa(&tCOM)>=0.100)//si ha esperado mas de 0.100 segundos
-		  // {
+		   //COMANDOS
+		   /*00000111->Redireccionar
+			 00001111->cambiar de linea a punto,o sea bajar al elemento del radiobutton q sigue(el ultimo reinicia);
+			 00001011->Linea nueva
+			 00010011->Ctrl-z
+			 */
+			
 		   char*c=p->Recibir();
 		   if(c!=NULL)//si no esta vacio 
 		     {
 			  //glutPostRedisplay();
 			  unsigned strleN=strlen(c);
 			  c=Verificacion(c,&strleN);
-
-			  for(unsigned i=0;i<strleN;i+=2)
+		     for(unsigned i=0;i<strleN;i+=2)
 			      {
 					 contt++;
 					 std::cout<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
 					  if(strleN/2>1)
 						 cout<<"{"<<i/2+1<<"/"<<strleN/2<<"}"<<"("<<strleN<<")-";
-					/* if(!EsperandoReedireccionar&&SalvMov->Enable)
-				    {
-		
-						SalvMov->Add(c[i],SalvMov);
-				        SalvMov->Add(c[i+1],SalvMov);
-				 
-				    }*/
-					 //si bit 1  es 1 EJECUTO un codigo y no hago el proceso completo
-					 if(contt%11==0&&!EsperandoReedireccionar)
+					  if(contt%11==0&&!EsperandoReedireccionar)///////////VERIFICACION//////////
 					    {
 					    if(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0)
-					     {
-						 cout<<"->Verificacion"<<endl;
-						 continue;
-					     }
+					       {
+						    cout<<"->Verificacion"<<endl;
+						    continue;
+					       }
 					     cout<<"->Error:Verificacion atrasada"<<endl;
 						 messeng=new MeSSenger("Error:verificacion atrasada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
 				         continue;
 					    }
-					 if(!EsperandoReedireccionar&&(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0))
+					   if(!EsperandoReedireccionar&&(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0))
 				          {
 						   cout<<"->Error:Verificacion adelantada"<<endl;
 						   messeng=new MeSSenger("Error:verificacion adelantada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
 						   continue;
 					      }
 
-					 if(DataProcessor::BitData(c[i],1)==1)
+					 if(DataProcessor::BitData(c[i],1)==1)////CODIGO//////////////////////////
 					   {
-					    //REDIRECCIONAR
-					    if(DataProcessor::BitData(c[i],2)==1)
+						   
+						   
+						   //////////////////////////////////Ctrl Z//////////////
+						   if(DataProcessor::BitData(c[i],4)==1&&DataProcessor::BitData(c[i],3)==0&&DataProcessor::BitData(c[i],2)==0)
+						   {
+							   double*a=ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)->GetChecketPositton();
+						       teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
+						       if(a[0]&&a[1])cout<<"Ejecutado comando Ctrl-Z";
+						   
+						   
+						   }
+						   //////////////////////////////////CAMBIAR PROPIEDADES//////////////
+						   if(DataProcessor::BitData(c[i],2)==1&&DataProcessor::BitData(c[i],3)==1)
+						      {
+							   ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->CambiarChecket();
+							   double*a=ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecketPositton();
+							   teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
+							   if(a[0]&&a[1])
+								   cout<<"RadioButtomProp->Checket cambiado al elemento "<< ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecket()<<" ";
+						      }
+						   //////////////////////////////////New Line//////////////////////////
+						   else if(DataProcessor::BitData(c[i],2)==0&&DataProcessor::BitData(c[i],3)==1)
+						      {
+						       double*a=ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->GetChecketPositton();
+						       teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
+						       if(a[0]&&a[1])
+								   cout<<"RadioButtomNewLine->Checket cambiado a "<< ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->GetChecket();
+						      }
+						   /////////////////////////////////////////REDIRECCIONAR//////////////
+					       else if(DataProcessor::BitData(c[i],2)==1)
 					        {
-							SpecialKeys(-1,0,0);
-							//ANGULES REDIRECCIOADOS
-							messeng=new MeSSenger("Redireccionado Correctamente",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
-						    EsperandoReedireccionar=false;
-							//ManejadorForms->AddNewText("labelRecib","Procesando Datos...",ManejadorForms); 
-							ManejadorForms->DesactivateForm("labelRecib",ManejadorForms);
-							//ManejadorForms->AddNewCRD("labelRecib",new CRD((float)(wigth/2-strlen("Procesando Datos...")*4.5),(float)(height-40),0),ManejadorForms);
-							std::cout<<"->Redireccionamiento";
+							 SpecialKeys(-1,0,0);
+							 messeng=new MeSSenger("Redireccionado Correctamente",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
+						     EsperandoReedireccionar=false;
+							 ManejadorForms->DesactivateForm("labelRecib",ManejadorForms);
+							 std::cout<<"->Redireccionamiento";
 					        }
-						    else if(EsperandoReedireccionar)
+						    if(EsperandoReedireccionar)
 				              {
-				                cout<<"Codigo,Esperando Redireccionamiento"<<endl;//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
-				                continue;      
+				                cout<<"Codigo,Esperando Redireccionamiento"<<endl;//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE    
 						      }
 			           }
 				   else if(EsperandoReedireccionar)
 				       {
 				       cout<<"Esperando Redireccionamiento"<<endl;//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
-					   continue;
 					   }
-			        else
-			           {
-						   
-			            if(DataProcessor::PorcesarDatos(c[i],c[i+1],angules))//ejecuto la lectura de los bits y muevo los angulos
+			        else/////////////PINTAR Y/O MOVER
+			           {   
+			            if(DataProcessor::PorcesarDatos(c[i],c[i+1],angules))//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
 			              {
 						    corrdCambi=true;
 						    cooRd=coordenadas();
 						    ShowAngules();
-						  /* //si procesar datos devuelve true es q tengo q pintar
-					       if(!NewObjbool)
-				              {
-					           NewObj=new LoaderObject();
-					           NewObjbool=true;
-				              }  
-				           // NewObj->Add("Vertices segun angulos",NewObj);
-                  
-					       //Ejemplo
-					      /*
-					   GLfloat*f=new GLfloat[3];
-					   switch (contyy)
-					   {
-                        case 0:
-					   f[0]=100;
-					   f[1]=120;
-					   f[2]=130;
-					   contyy++;
-					   NewObj->Add(f,NewObj);
-						   break;
-						   case 1:
-					   f[0]=250;
-					   f[1]=260;
-					   f[2]=270;
-					   contyy++;
-					   NewObj->Add(f,NewObj);
-						   break;
-						   case 2:
-					   f[0]=390;
-					   f[1]=380;
-					   f[2]=300;
-					   contyy++;
-					   NewObj->Add(f,NewObj);
-						   break;
-					   default:
-						   break;
-					   }
-					   */
-
 							if(!igs->cont)//poner el rediobutton de crl-z
-							 ManejadorForms->Add(new RadioButton("radioButtomCrl-Z",*(new CRD(100,150,0)),"Ctrl-Z",wigth,height),ManejadorForms);
-							
-							
+							    ManejadorForms->Add(new RadioButton("radioButtomCrl-Z",*(new CRD(100,150,0)),"Ctrl-Z",wigth,height),ManejadorForms);
 							if(cooRd[0]==igs->Vertex[igs->cont-1].x&&cooRd[1]==igs->Vertex[igs->cont-1].y&&cooRd[2]==igs->Vertex[igs->cont-1].z)
-									  cout<<"["<<cooRd[0]<<";"<<cooRd[1]<<";"<<cooRd[2]<<"] No pintado";
+								cout<<"["<<cooRd[0]<<";"<<cooRd[1]<<";"<<cooRd[2]<<"] No pintado";
 							else
-							{
-							  switch (RadioButtonEstilo)
-							  {
-							   case 0://Puntos
-								   igs->NewPOINT(igs);
-								  break;
-							   case 1://Lineas
-
-								   if(!igs->cont)
-								   {  
-									  ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->CambiarChecket();
-								      igs->NewLINE(igs);
-							       }
-								   if(!igs->contNL)
-									   igs->NewLINE(igs);
-								   if(igs->cont-1==igs->NewPoint[igs->contNP-1])
-									   igs->NewLINE(igs);
-								  PintarLineaSuspensiva=true;
-								  if(NEWLine)
-								     {
-									  NEWLine=false;
-									  PintarLineaSuspensiva=false;
-									  ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->CambiarChecket();
-									  igs->NewLINE(igs);
-								     }
-							 
-								  //coorPint[contCoorPint].x=cooRd[0];
-								  //coorPint[contCoorPint].y=cooRd[1];
-								  //coorPint[contCoorPint++].z=cooRd[2];
-								  
-								  break;
-							    default:
-								  break;
-							    }
-
-
-							   cout<<"["<<cooRd[0]<<";"<<cooRd[1]<<";"<<cooRd[2]<<"]-Pintado";
-							  igs->add(*(new CRD(cooRd)),igs);
-							 }
-							 /* if(RadioButtonRestriccion!=LastRBRestriccion)
-							     {
-								 RadioButtonRestriccion=LastRBRestriccion;
-								 igs->SetRestriccion(newCoord,igs);
-								 }
-							 else
-								 {
-							     switch (RadioButtonRestriccion)
-							       {
-							       case 0:
-
-	     						   break;
-							       case 1:
-								     newCoord->set(newCoord->x,newCoord->y,igs->getCoordRestricion(2,igs))
-								  break;
-								  case 2:
-								     newCoord->set(newCoord->x,newCoord->y,igs->getCoordRestricion(1,igs))
-								  break;
-								  case 1:
-								     newCoord->set(newCoord->x,newCoord->y,igs->getCoordRestricion(0,igs))
-								  break;
-							      }
-							    }
-							  */
-							  //igs->add(newCoord,igs);
-
-					      ///////
-			              }//end if TRUE de ProcesarDatos
+							   {
+							    switch (RadioButtonEstilo)
+							      {
+							       case 0://Puntos
+								      igs->NewPOINT(igs);
+								   break;
+							       case 1://Lineas
+								      if(!igs->contNL)
+									     igs->NewLINE(igs);
+								      if(igs->cont-1==igs->NewPoint[igs->contNP-1])
+									    igs->NewLINE(igs);
+								      PintarLineaSuspensiva=true;
+								      if(NEWLine)
+								        {
+									     NEWLine=false;
+									     PintarLineaSuspensiva=false;
+									     ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->CambiarChecket();
+									     igs->NewLINE(igs);
+								        }
+								   break;
+							     }
+							     cout<<"["<<cooRd[0]<<";"<<cooRd[1]<<";"<<cooRd[2]<<"]-Pintado";
+							     igs->add(*(new CRD(cooRd)),igs);
+						      }
+			               }//end if TRUE de ProcesarDatos
 						else
-						{
+						   {
 						    corrdCambi=true;
 						    cooRd=coordenadas();
 						    ShowAngules();
-						}
+						   }
 			          }//end else
 					  cout<<"("<<tCOM.Incrementa(&tCOM)<<")"<<endl;
 		              tCOM.ResettIncrementa(&tCOM);
-			  }//end for
-			  
-			 
-			 
-		   }//end if(!NULL)
-
-		// }//end time>0.100
-
-	  }//end recivir serie
+			      }//end for
+		       }//end if(!NULL)
+	       }//end recivir serie
 		
 }
 void ESE_GRS::slavarInitDatos(){
+	if(recibir_serie||!ManejadorObject->Salir)
+	{
 	   recibir_serie=false;
 	   ManejadorObject->Salir=true;
 	   t1->join();
+	}
 	ofstream f;
 	f.open("My_Proyecto.onrn",ios::out|ios::binary);
 	f.write((char*)&movRatXinit,sizeof(int));
@@ -1562,6 +1497,7 @@ void ESE_GRS::ThreadCargObject()
 	m.lock();
 	ManejadorObject->pushByTxt("Entrada_de_Modelos.txt",ManejadorObject);//cargo el txt con las direcciones de los .obj
 	CargObjct=true;
+	ManejadorObject->Salir=false;
 	m.unlock();
 }
 void ESE_GRS::ThreadCargMovent(){
