@@ -133,4 +133,5 @@ public:
 	   a[1]=RB[Checket]->coord->y;
 	   return a;
 	}
+	unsigned GetMaxChecket(){return this->contRB;};
 };

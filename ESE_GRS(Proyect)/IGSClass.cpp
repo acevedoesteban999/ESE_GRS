@@ -274,20 +274,23 @@ void IGSClass::End(char*c,IGSClass*igs)
 		std::cout<<"ERror no puede haber un solo vertice";
 		
 }
-void IGSClass::Draw(bool PintLinSusp,unsigned RadioButtonEstilo,double*cooRd,IGSClass*igs){
+void IGSClass::Draw(bool PintLinSusp,unsigned RadioButtonCant,CRD*cooRd,IGSClass*igs){
 	if(igs->cont)
-	{
-      glColor3f(1,1,1);
-	   glPointSize(3);
-	  glBegin(GL_POINTS);
-	  for(unsigned i=0;i<igs->cont;i++)//PUNTOS//Siempre pinto todos los puntos
-	    {
-			glVertex3f((GLfloat)igs->Vertex[i].x,(GLfloat)igs->Vertex[i].y,(GLfloat)igs->Vertex[i].z);
-	    }
-	  glEnd();
-	  switch (RadioButtonEstilo)
-	     {
+	   {
+        glColor3f(1,1,1);
+	    for(unsigned RBC=0;RBC<RadioButtonCant;RBC++)
+	       switch (RBC)
+	        {
+	      case 0://Puntos
+			  glPointSize(3);
+	          glBegin(GL_POINTS);
+			  for(unsigned i=0;i<igs->cont;i++)//PUNTOS//Siempre pinto todos los puntos
+	             {
+			     glVertex3f((GLfloat)igs->Vertex[i].x,(GLfloat)igs->Vertex[i].y,(GLfloat)igs->Vertex[i].z);
+	             }
+	          glEnd();
 	      case 1://Lineas
+			  glPointSize(3);
 		     glBegin(GL_LINE_STRIP);
 	         for(unsigned i=0;i<igs->cont;i++)//LINEAS
 	           {
@@ -321,9 +324,9 @@ void IGSClass::Draw(bool PintLinSusp,unsigned RadioButtonEstilo,double*cooRd,IGS
 	            a=igs->Vertex[igs->cont-1].x;
 	            b=igs->Vertex[igs->cont-1].y;
 	            c=igs->Vertex[igs->cont-1].z;
-	            d=cooRd[0]-igs->Vertex[igs->cont-1].x;
-	            e=cooRd[1]-igs->Vertex[igs->cont-1].y;
-	            f=cooRd[2]-igs->Vertex[igs->cont-1].z;
+	            d=cooRd->x-igs->Vertex[igs->cont-1].x;
+	            e=cooRd->y-igs->Vertex[igs->cont-1].y;
+	            f=cooRd->z-igs->Vertex[igs->cont-1].z;
 	            for(unsigned i=0;i<=9;i++)
 	               glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
 	            glEnd();
@@ -372,8 +375,8 @@ if(igs->cont>0)
 		{
 			if(igs->NewLine[i]==igs->cont-1)
 			{
-				for(unsigned ii=i;ii<igs->contNL-1;i++)
-					igs->NewLine[i]=igs->NewLine[i+1];
+				for(unsigned ii=i;ii<igs->contNL-1;ii++)
+					igs->NewLine[ii]=igs->NewLine[ii+1];
 				igs->contNL--;
 			}
 		}

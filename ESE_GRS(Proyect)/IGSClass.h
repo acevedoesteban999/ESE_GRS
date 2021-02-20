@@ -7,7 +7,6 @@ class IGSClass
 {
 private:
 	unsigned S,G,D,P,ContDs,ContPs,LastD,LastP;
-
 	CRD*puntoRestriccion;
 public:
 	CRD*Vertex;
@@ -15,7 +14,7 @@ public:
 	unsigned cant,cont,cantNL,contNL,cantNP,contNP;
 	IGSClass(void);
 	~IGSClass(){delete NewLine,Vertex;};
-	static void Draw(bool PintLinSusp,unsigned RadioButtonEstilo,double*cooRd,IGSClass*igs);
+	static void Draw(bool PintLinSusp,unsigned RadioButtonCant,CRD*cooRd,IGSClass*igs);
 	static void add(CRD vertex,IGSClass*igs);
 	static void NewLINE(IGSClass*igs);
 	static void NewPOINT(IGSClass*igs);

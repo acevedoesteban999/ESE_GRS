@@ -108,6 +108,7 @@ public:
 		a[0]=this->coord->x;
 		a[1]=this->coord->y;
 		return a;};
+	virtual unsigned GetMaxChecket(){return 0;};
 	//PURAS
 	virtual void Draw()=0; 
 	virtual unsigned Click()=0;

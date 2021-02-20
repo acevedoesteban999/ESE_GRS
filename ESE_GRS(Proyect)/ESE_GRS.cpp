@@ -8,49 +8,38 @@ bool EsperandoReedireccionar=true;
 bool threaDCOM=false,MostrarAngules=false,SeguirPuntoFinal=false;
 bool corrdCambi=false,SetAngules=false;
 bool verif=false;
-char byt;bool bytBool=false;
-unsigned toSaveCOM=2,toSaveSpeed=9600;
-unsigned STRLEN,RadioButtonEstilo=0,RadioButtonRestriccion=0,RadioButtonSpeed=0,LastRBEstilo=0,LastRBRestriccion=0;
-int contMenuToDraw=-1;
-int movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
-double trasladarX=0,trasladarY=0,trasladarZ=0;
-double *cooRd=new double[3];
-int contt=0;
 bool NEWLine=false;
-bool exist=false;
-
-
-
-CRD*coorPint=new CRD[1000];
-unsigned contCoorPint=0,cantCoorPint=1000;
-bool PintarLineaSuspensiva=true;
-
-
+bool PintarLineaSuspensiva=false;
 bool Pint=false;
 
+char byt;bool bytBool=false;
+char*escrituraCOM="COM2",*escrituraVelocidad="9600";
+char*msg,*recib="Esperando datos...";
+unsigned toSaveCOM=2,toSaveSpeed=9600;
+unsigned STRLEN,RadioButtonEstilo=0,RadioButtonRestriccion=0;
+unsigned RadioButtonSpeed=0,LastRBEstilo=0,LastRBRestriccion=0;
+int contMenuToDraw=-1;
+int movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 int Initheight,Initwigth,velGiro=3;
 int &movESE_GRSX=movRatX,&movESE_GRSY=movRatY,movESE_GRSZ=25;
 float TimE=0,height,wigth;
 GLfloat angules[6]={0,0,55,0,0,0};
 GLfloat heightOrtho,wigthOrtho;
 GLdouble movWheel=1;
-char*msg,*recib="Esperando datos...";
-///////////////////PUNTEROS////////////////////////
-char*escrituraCOM="COM2",*escrituraVelocidad="9600";
-///////////////////OBJECTS///////////////////////
+double trasladarX=0,trasladarY=0,trasladarZ=0;
+CRD*cooRd=new CRD(0,0,0);
+int contt=0;
+///////////////////OBJECTS//////////////////////////////////////
 StackLoaderObject*ManejadorObject=new StackLoaderObject();
 //LoaderObject*NewObj;
-PuertoSerie*p;
-TimeDuration tDisplay(true),tCOM(true),TCentralTop,TSimular;
+PuertoSerie*p=new PuertoSerie();
+TimeDuration tCOM(true);
 IGSClass*igs=new IGSClass;
-thread*t1;
+thread*t1=new thread();
 mutex m,m1,m2;
 MeSSenger*messeng=new MeSSenger;
 StackForms*ManejadorForms=new StackForms();
 //SalverMovement*SalvMov=new SalverMovement();
-
-//////////////////OTOS///////
-
 
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
 
@@ -234,15 +223,15 @@ void ESE_GRS::display(){
 		ManejadorObject->draw(ManejadorObject,contMenuToDraw);
 		DrawingObjectIGS();
 		//primero trasladar segun corrdenadas de la matriz de traslacion y rotacion del brazo 
-		//glTranslatef((GLfloat)cooRd[0],(GLfloat)cooRd[1],(GLfloat)cooRd[2]);
+		//glTranslatef((GLfloat)cooRd->x,(GLfloat)cooRd->y,(GLfloat)cooRd->z);
 		if(contMenuToDraw==-1){
 			//es neceario el PuchMatrix para q la coordenada del OpenGL quede donde va,y no desplazada segun la coordenad del matlab
 			//No inicamos el LoadIdentity porq ya la matriz llega a aki vacia,pero rotalda y escladada por whellAndRotate();
 			glPushMatrix();
-			//glTranslated(cooRd[0],cooRd[1],cooRd[2]);
+			//glTranslated(cooRd->x,cooRd->y,cooRd->z);
 		    glColor3d(0,0,0);
 			glBegin(GL_POINTS);
-			glVertex3f((GLfloat)cooRd[0],(GLfloat)cooRd[1],(GLfloat)cooRd[2]);
+			glVertex3f((GLfloat)cooRd->x,(GLfloat)cooRd->y,(GLfloat)cooRd->z);
 			glEnd();
 			glPopMatrix();
 		
@@ -275,19 +264,19 @@ void ESE_GRS::Entorno(){
 
 	 if(corrdCambi)//calculo las nuevas coordenadas del punto final
 	   {
-		cooRd=coordenadas();
+		CalcularCoordenadas();
 	    if(SeguirPuntoFinal)
 	      {
-		  trasladarX=-cooRd[0];
-		  trasladarY=-cooRd[1];
-		  trasladarZ=-cooRd[2];
+		  trasladarX=-cooRd->x;
+		  trasladarY=-cooRd->y;
+		  trasladarZ=-cooRd->z;
 	      }
 		corrdCambi=false;
 	   }
 
 	 string sd;
 		string sdd;
-		sdd+="MatLab :x:"+to_string(cooRd[0])+" y:"+to_string(cooRd[1])+" z:"+to_string(cooRd[2]);
+		sdd+="MatLab :x:"+to_string(cooRd->x)+" y:"+to_string(cooRd->y)+" z:"+to_string(cooRd->z);
 		sd+="OpenGL:x:"+to_string(ManejadorObject->CoordReales[0])+" y:"+to_string(ManejadorObject->CoordReales[1])+" z:"+to_string(ManejadorObject->CoordReales[2]);
 		ManejadorForms->AddNewText("labelAnguleCoordReales",(char*)(sd.c_str()),ManejadorForms);
 		ManejadorForms->AddNewText("labelAnguleMatlab",(char*)(sdd.c_str()),ManejadorForms);
@@ -321,7 +310,7 @@ void ESE_GRS::Entorno(){
 	glTranslatef((GLfloat)trasladarX,(GLfloat)trasladarY,(GLfloat)trasladarZ);//desplazamiento manual de  ejes x , y , z
 }
 void ESE_GRS::DrawingObjectIGS(){
-	igs->Draw(PintarLineaSuspensiva,RadioButtonEstilo,cooRd,igs);
+	igs->Draw(PintarLineaSuspensiva,ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetMaxChecket(),cooRd,igs);
 	/*if(contCoorPint)
 	{
 	glColor3f(1,1,1);
@@ -344,9 +333,9 @@ void ESE_GRS::DrawingObjectIGS(){
 	a=coorPint[contCoorPint-1].x;
 	b=coorPint[contCoorPint-1].y;
 	c=coorPint[contCoorPint-1].z;
-	d=cooRd[0]-coorPint[contCoorPint-1].x;
-	e=cooRd[1]-coorPint[contCoorPint-1].y;
-	f=cooRd[2]-coorPint[contCoorPint-1].z;
+	d=cooRd->x-coorPint[contCoorPint-1].x;
+	e=cooRd->y-coorPint[contCoorPint-1].y;
+	f=cooRd->z-coorPint[contCoorPint-1].z;
 	for(unsigned i=0;i<=9;i++)
 	   glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
 	glEnd();
@@ -499,11 +488,22 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					if(RadioButtonEstilo==1)
 					{
 						ManejadorForms->Add(new RadioButton("radioButtomNewLine",*(new CRD(100,168,0)),"NEW",wigth,height),ManejadorForms);
+						if(igs->contNP)
+					      {
+						   if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
+							   PintarLineaSuspensiva=false;
+						   else
+							   PintarLineaSuspensiva=true;
+					       }
+						
 						if(!igs->contNL)
 							PintarLineaSuspensiva=false;
 					}
 					else
+					   {
 						ManejadorForms->Sub("radioButtomNewLine",ManejadorForms);
+			            PintarLineaSuspensiva=false;   
+			           }
 			   }
 					if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)))
 		                RadioButtonRestriccion=ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->GetChecket();   
@@ -913,9 +913,9 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 			break;
 	case GLUT_KEY_F6:
 		//me traslado al final del brazo
-		trasladarX=-cooRd[0];
-		trasladarY=-cooRd[1];
-		trasladarZ=-cooRd[2];
+		trasladarX=-cooRd->x;
+		trasladarY=-cooRd->y;
+		trasladarZ=-cooRd->z;
 		SeguirPuntoFinal=false;
 		break;
 		case GLUT_KEY_F7:
@@ -1216,11 +1216,11 @@ void ESE_GRS::MenuPuertoSeie(int opcion){
 void ESE_GRS::recivirDatosCOM(){
 	if(recibir_serie)
 	   { 
-		   //COMANDOS
-		   /*00000111->Redireccionar
-			 00001111->cambiar de linea a punto,o sea bajar al elemento del radiobutton q sigue(el ultimo reinicia);
-			 00001011->Linea nueva
-			 00010011->Ctrl-z
+		   /*COMANDOS
+		     (7)-00000111->Redireccionar
+			 (11)00001111->cambiar de linea a punto,o sea bajar al elemento del radiobutton q sigue(el ultimo reinicia);
+			 (15)00001011->Linea nueva
+			 (19)00010011->Ctrl-z
 			 */
 			
 		   char*c=p->Recibir();
@@ -1233,7 +1233,7 @@ void ESE_GRS::recivirDatosCOM(){
 			      {
 					 contt++;
 					 std::cout<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
-					  if(strleN/2>1)
+					 if(strleN/2>1)
 						 cout<<"{"<<i/2+1<<"/"<<strleN/2<<"}"<<"("<<strleN<<")-";
 					  if(contt%11==0&&!EsperandoReedireccionar)///////////VERIFICACION//////////
 					    {
@@ -1255,63 +1255,62 @@ void ESE_GRS::recivirDatosCOM(){
 
 					 if(DataProcessor::BitData(c[i],1)==1)////CODIGO//////////////////////////
 					   {
-						   
-						   
-						   //////////////////////////////////Ctrl Z//////////////
-						   if(DataProcessor::BitData(c[i],4)==1&&DataProcessor::BitData(c[i],3)==0&&DataProcessor::BitData(c[i],2)==0)
+						   double*a;
+						    
+						   switch (c[i])
 						   {
-							   double*a=ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)->GetChecketPositton();
-						       teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
-						       if(a[0]&&a[1])cout<<"Ejecutado comando Ctrl-Z";
-						   
-						   
-						   }
-						   //////////////////////////////////CAMBIAR PROPIEDADES//////////////
-						   if(DataProcessor::BitData(c[i],2)==1&&DataProcessor::BitData(c[i],3)==1)
-						      {
-							   ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->CambiarChecket();
-							   double*a=ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecketPositton();
-							   teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
-							   if(a[0]&&a[1])
-								   cout<<"RadioButtomProp->Checket cambiado al elemento "<< ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecket()<<" ";
-						      }
-						   //////////////////////////////////New Line//////////////////////////
-						   else if(DataProcessor::BitData(c[i],2)==0&&DataProcessor::BitData(c[i],3)==1)
-						      {
-						       double*a=ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->GetChecketPositton();
-						       teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
-						       if(a[0]&&a[1])
-								   cout<<"RadioButtomNewLine->Checket cambiado a "<< ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->GetChecket();
-						      }
-						   /////////////////////////////////////////REDIRECCIONAR//////////////
-					       else if(DataProcessor::BitData(c[i],2)==1)
-					        {
+						   case 7://////////////////////////////REDIRECCIONAR//////////////
 							 SpecialKeys(-1,0,0);
 							 messeng=new MeSSenger("Redireccionado Correctamente",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
 						     EsperandoReedireccionar=false;
 							 ManejadorForms->DesactivateForm("labelRecib",ManejadorForms);
 							 std::cout<<"->Redireccionamiento";
-					        }
-						    if(EsperandoReedireccionar)
+							 break;
+					
+						   case 19:  //////////////////////////////////Ctrl Z/////////////////////////
+							   a=ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)->GetChecketPositton();
+						       teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
+						       if(a[0]&&a[1])cout<<"Ejecutado comando Ctrl-Z";
+							   break;
+						
+						   case 15:   //////////////////////////////////CAMBIAR PROPIEDADES//////////////
+							   ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->CambiarChecket();
+							   a=ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecketPositton();
+							   teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
+							   if(a[0]&&a[1])
+								   cout<<"RadioButtomProp->Checket cambiado al elemento "<< ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecket()<<" ";
+							   break;
+						   
+						    case 11:  //////////////////////////////////New Line//////////////////////////
+						       a=ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->GetChecketPositton();
+						       teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
+						       if(a[0]&&a[1])
+								   cout<<"RadioButtomNewLine->Checket cambiado a "<< ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->GetChecket();
+						      break;
+						     default:
+							     cout<<"Codigo incorrecto,no hay funcionalidad programada para dicha entrada";
+							  break;
+						    }
+						    if(EsperandoReedireccionar)//PARA Q SE SEPA Q NO SE HA REDIRECCIONADO    
 				              {
-				                cout<<"Codigo,Esperando Redireccionamiento"<<endl;//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE    
+				                cout<<"Codigo,Esperando Redireccionamiento"<<endl;
 						      }
 			           }
-				   else if(EsperandoReedireccionar)
+				   else if(EsperandoReedireccionar)//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
 				       {
-				       cout<<"Esperando Redireccionamiento"<<endl;//PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE
+				       cout<<"Esperando Redireccionamiento"<<endl;
 					   }
 			        else/////////////PINTAR Y/O MOVER
 			           {   
 			            if(DataProcessor::PorcesarDatos(c[i],c[i+1],angules))//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
 			              {
 						    corrdCambi=true;
-						    cooRd=coordenadas();
+						   CalcularCoordenadas();
 						    ShowAngules();
 							if(!igs->cont)//poner el rediobutton de crl-z
 							    ManejadorForms->Add(new RadioButton("radioButtomCrl-Z",*(new CRD(100,150,0)),"Ctrl-Z",wigth,height),ManejadorForms);
-							if(cooRd[0]==igs->Vertex[igs->cont-1].x&&cooRd[1]==igs->Vertex[igs->cont-1].y&&cooRd[2]==igs->Vertex[igs->cont-1].z)
-								cout<<"["<<cooRd[0]<<";"<<cooRd[1]<<";"<<cooRd[2]<<"] No pintado";
+							if(cooRd->x==igs->Vertex[igs->cont-1].x&&cooRd->y==igs->Vertex[igs->cont-1].y&&cooRd->z==igs->Vertex[igs->cont-1].z)
+								cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"] No pintado";
 							else
 							   {
 							    switch (RadioButtonEstilo)
@@ -1334,14 +1333,14 @@ void ESE_GRS::recivirDatosCOM(){
 								        }
 								   break;
 							     }
-							     cout<<"["<<cooRd[0]<<";"<<cooRd[1]<<";"<<cooRd[2]<<"]-Pintado";
-							     igs->add(*(new CRD(cooRd)),igs);
+							     cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"]-Pintado";
+							     igs->add(*(cooRd),igs);
 						      }
 			               }//end if TRUE de ProcesarDatos
 						else
 						   {
 						    corrdCambi=true;
-						    cooRd=coordenadas();
+						    CalcularCoordenadas();
 						    ShowAngules();
 						   }
 			          }//end else
@@ -1353,12 +1352,12 @@ void ESE_GRS::recivirDatosCOM(){
 		
 }
 void ESE_GRS::slavarInitDatos(){
-	if(recibir_serie||!ManejadorObject->Salir)
-	{
+   if(recibir_serie||!ManejadorObject->Salir)
+      {
 	   recibir_serie=false;
 	   ManejadorObject->Salir=true;
 	   t1->join();
-	}
+      }
 	ofstream f;
 	f.open("My_Proyecto.onrn",ios::out|ios::binary);
 	f.write((char*)&movRatXinit,sizeof(int));
@@ -1413,7 +1412,7 @@ void ESE_GRS::cargarInitDatos(){
 	for(unsigned i=0;i<c->length();i++)
 		escrituraVelocidad[i]=c->c_str()[i];
 	escrituraVelocidad[c->length()]=0;
-	cooRd=ESE_GRS::coordenadas();
+	CalcularCoordenadas();
 	}
 	f.close();
 	}
@@ -1483,6 +1482,32 @@ char* ESE_GRS::Verificacion(char*c,unsigned*strleN){
 			       }
 			  return c;
 }
+void ESE_GRS:: CalcularCoordenadas()
+  {
+	  //L1- 43.95;L5-51.65;D5-11.2;
+	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6;
+
+cosFi1=cos((angules[0]+180)*PI/180);
+senFi1=sin((angules[0]+180)*PI/180);
+cosFi2=cos(angules[1]*PI/180);
+senFi2=sin(angules[1]*PI/180);
+cosFi3=cos((angules[2]-90)*PI/180);
+senFi3=sin((angules[2]-90)*PI/180);
+cosFi4=cos(angules[3]*PI/180);
+senFi4=sin(angules[3]*PI/180);
+cosFi5=cos((angules[4]+90)*PI/180);
+senFi5=sin((angules[4]+90)*PI/180);
+cosFi6=cos(angules[5]*PI/180);
+senFi6=sin(angules[5]*PI/180);
+	 /* cooRd->x=(463*sin((Z0+180)*PI/180))/200 + 150*cos((Z0+180)*PI/180)*cos(Z1*PI/180) - (1783*cos(Z3*PI/180)*sin((Z0+180)*PI/180))/200 + 177*cos(Z5*PI/180)*(sin((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*sin((Z2-90)*PI/180) + cos((Z0+180)*PI/180)*cos((Z2-90)*PI/180)*sin(Z1*PI/180)) - cos((Z4+90)*PI/180)*(sin((Z0+180)*PI/180)*sin(Z3*PI/180) - cos(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)))) - 53*sin((Z0+180)*PI/180)*sin(Z3*PI/180) + 53*cos(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)) - (10329*cos((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*sin((Z2-90)*PI/180) + cos((Z0+180)*PI/180)*cos((Z2-90)*PI/180)*sin(Z1*PI/180)))/200 - (1783*sin(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)))/200 + (sin((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*sin((Z2-90)*PI/180) + cos((Z0+180)*PI/180)*cos((Z2-90)*PI/180)*sin(Z1*PI/180)))/500 - (cos((Z4+90)*PI/180)*(sin((Z0+180)*PI/180)*sin(Z3*PI/180) - cos(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))))/500 - (10329*sin((Z4+90)*PI/180)*(sin((Z0+180)*PI/180)*sin(Z3*PI/180) - cos(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))))/200 + 177*sin(Z5*PI/180)*(cos(Z3*PI/180)*sin((Z0+180)*PI/180) + sin(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))) + (451*cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180))/2 - (151*cos((Z0+180)*PI/180)*cos(Z1*PI/180)*sin((Z2-90)*PI/180))/500 - (151*cos((Z0+180)*PI/180)*cos((Z2-90)*PI/180)*sin(Z1*PI/180))/500 - (451*cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))/2;
+      cooRd->y=(1783*cos((Z0+180)*PI/180)*cos(Z3*PI/180))/200 - (463*cos((Z0+180)*PI/180))/200 + 150*cos(Z1*PI/180)*sin((Z0+180)*PI/180) + 53*cos((Z0+180)*PI/180)*sin(Z3*PI/180) + 53*cos(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)) - (10329*cos((Z4+90)*PI/180)*(cos(Z1*PI/180)*sin((Z0+180)*PI/180)*sin((Z2-90)*PI/180) + cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180)*sin(Z1*PI/180)))/200 + 177*cos(Z5*PI/180)*(sin((Z4+90)*PI/180)*(cos(Z1*PI/180)*sin((Z0+180)*PI/180)*sin((Z2-90)*PI/180) + cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180)*sin(Z1*PI/180)) + cos((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*sin(Z3*PI/180) + cos(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)))) - (1783*sin(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)))/200 + (sin((Z4+90)*PI/180)*(cos(Z1*PI/180)*sin((Z0+180)*PI/180)*sin((Z2-90)*PI/180) + cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180)*sin(Z1*PI/180)))/500 + (cos((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*sin(Z3*PI/180) + cos(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))))/500 + (10329*sin((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*sin(Z3*PI/180) + cos(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))))/200 - 177*sin(Z5*PI/180)*(cos((Z0+180)*PI/180)*cos(Z3*PI/180) - sin(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))) + (451*cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180))/2 - (151*cos(Z1*PI/180)*sin((Z0+180)*PI/180)*sin((Z2-90)*PI/180))/500 - (151*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180)*sin(Z1*PI/180))/500 - (451*sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))/2;
+	  cooRd->z= (151*sin((Z1)*(PI/180))*sin((Z2-90)*(PI/180)))/500 - (151*cos((Z1)*(PI/180))*cos((Z2-90)*(PI/180)))/500 - (451*cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)))/2 - (451*cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180)))/2 - 150*sin((Z1)*(PI/180)) - 53*cos((Z3)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))) - (10329*cos((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*cos((Z2-90)*(PI/180)) - sin((Z1)*(PI/180))*sin((Z2-90)*(PI/180))))/200 + (1783*sin((Z3)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))))/200 + (sin((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*cos((Z2-90)*(PI/180)) - sin((Z1)*(PI/180))*sin((Z2-90)*(PI/180))))/500 + 177*cos((Z5)*(PI/180))*(sin((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*cos((Z2-90)*(PI/180)) - sin((Z1)*(PI/180))*sin((Z2-90)*(PI/180))) - cos((Z3)*(PI/180))*cos((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180)))) - (10329*cos((Z3)*(PI/180))*sin((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))))/200 - 177*sin((Z3)*(PI/180))*sin((Z5)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))) - (cos((Z3)*(PI/180))*cos((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))))/500 + 437/10;
+	  */
+      cooRd->x=(463*senFi1)/200 + 150*cosFi1*cosFi2 - (1783*cosFi4*senFi1)/200 + 177*cosFi6*(senFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2) - cosFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3))) - 53*senFi1*senFi4 + 53*cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - (10329*cosFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))/200 - (1783*senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3))/200 + (senFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))/500 - (cosFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)))/500 - (10329*senFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)))/200 + 177*senFi6*(cosFi4*senFi1 + senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)) + (451*cosFi1*cosFi2*cosFi3)/2 - (151*cosFi1*cosFi2*senFi3)/500 - (151*cosFi1*cosFi3*senFi2)/500 - (451*cosFi1*senFi2*senFi3)/2;
+	  cooRd->y=(1783*cosFi1*cosFi4)/200 - (463*cosFi1)/200 + 150*cosFi2*senFi1 + 53*cosFi1*senFi4 + 53*cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - (10329*cosFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2))/200 + 177*cosFi6*(senFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2) + cosFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3))) - (1783*senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3))/200 + (senFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2))/500 + (cosFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)))/500 + (10329*senFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)))/200 - 177*senFi6*(cosFi1*cosFi4 - senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)) + (451*cosFi2*cosFi3*senFi1)/2 - (151*cosFi2*senFi1*senFi3)/500 - (151*cosFi3*senFi1*senFi2)/500 - (451*senFi1*senFi2*senFi3)/2;
+	  cooRd->z=(151*senFi2*senFi3)/500 - (151*cosFi2*cosFi3)/500 - (451*cosFi2*senFi3)/2 - (451*cosFi3*senFi2)/2 - 150*senFi2 - 53*cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) - (10329*cosFi5*(cosFi2*cosFi3 - senFi2*senFi3))/200 + (1783*senFi4*(cosFi2*senFi3 + cosFi3*senFi2))/200 + (senFi5*(cosFi2*cosFi3 - senFi2*senFi3))/500 + 177*cosFi6*(senFi5*(cosFi2*cosFi3 - senFi2*senFi3) - cosFi4*cosFi5*(cosFi2*senFi3 + cosFi3*senFi2)) - (10329*cosFi4*senFi5*(cosFi2*senFi3 + cosFi3*senFi2))/200 - 177*senFi4*senFi6*(cosFi2*senFi3 + cosFi3*senFi2) - (cosFi4*cosFi5*(cosFi2*senFi3 + cosFi3*senFi2))/500 + 437/10;
+	  cooRd->z+=0.7;
+  }
 /////////////////////////THREADS//////////////////////////////////////////////////
 void ESE_GRS::ThreadCOM()
 {
@@ -1497,8 +1522,71 @@ void ESE_GRS::ThreadCargObject()
 	m.lock();
 	ManejadorObject->pushByTxt("Entrada_de_Modelos.txt",ManejadorObject);//cargo el txt con las direcciones de los .obj
 	CargObjct=true;
-	ManejadorObject->Salir=false;
+	ManejadorObject->Salir=true;
 	m.unlock();
+}
+////////////////////////////SIN USO/////////////////////////////////////
+void ESE_GRS::cargarDatosFromTXT(){
+	//cargo los datos de los angArtic's del txt
+	fstream f;
+	f.open("Entrada_de_angArtic.txt",ios::in);
+	if(f.is_open())
+	{
+	char*line=new char[15];
+    bool letra=false;
+	bool negativo=false;
+	for(int y=0;y<4;y++)
+	  {
+	  f>>line;
+	  for(unsigned int i=0;i<strlen(line);i++)
+		   {
+			if(i==0 && line[0]=='-')
+			   {
+			   char*newdata=new char[strlen(line)-1];
+			   for(unsigned int ii=0;ii<strlen(newdata);ii++)
+			   newdata[ii]=line[ii+1];
+			   line=newdata;
+			   negativo=true;
+			   }
+			if(!isdigit(line[i])) 
+			   {
+				letra=true;
+			    break;
+		       } 
+		   }
+		    if(letra==false)
+	    	   {
+				   switch (y)
+				   {
+					    case 0:
+						   negativo==false?angules[0]=(GLfloat)atof(line):angules[0]=-(GLfloat)atof(line);
+					   break;
+				   case 1:
+					   negativo==false?angules[1]=(GLfloat)atof(line):angules[1]=-(GLfloat)atof(line);
+					   break;
+					   case 2:
+						   negativo==false?angules[2]=(GLfloat)atof(line):angules[2]=-(GLfloat)atof(line);
+					   break;
+					   case 3:
+						   negativo==false?angules[3]=(GLfloat)atof(line):angules[3]=-(GLfloat)atof(line);
+					   break;
+					  
+
+				   }
+			    
+          	   }
+
+			negativo=false;
+			letra=false;
+	 }             
+	}
+	else
+	   {
+		f.open("Entrada_de_angArtic.txt",ios::out);
+	    f<<"0"<<endl<<"150"<<endl<<"-130"<<endl<<-45;
+	   }
+	            
+	      	f.close();
 }
 void ESE_GRS::ThreadCargMovent(){
 	/*
@@ -1569,7 +1657,7 @@ void ESE_GRS::ThreadSimular(){
 					break;
 				if(TSimular.Incrementa(&TSimular)>=(RadioButtonSpeed==0?0.1:RadioButtonSpeed==1?0.5:RadioButtonSpeed==2?1.0:2.0))
 	           {
-				   cooRd=coordenadas();
+				   cooRd=CalcularCoordenadas();
 				   if(!corrdCambi)
 							corrdCambi=true;
 				   s=(DataProcessor::printfBits(SalvMov->GETMovimientos(SalvMov)[i+1]));
@@ -1610,96 +1698,5 @@ void ESE_GRS::ThreadSimular(){
 		m1.unlock();
 		*/
 }
-////////////////////////////SIN USO/////////////////////////////////////
-void ESE_GRS::cargarDatosFromTXT(){
-	//cargo los datos de los angArtic's del txt
-	fstream f;
-	f.open("Entrada_de_angArtic.txt",ios::in);
-	if(f.is_open())
-	{
-	char*line=new char[15];
-    bool letra=false;
-	bool negativo=false;
-	for(int y=0;y<4;y++)
-	  {
-	  f>>line;
-	  for(unsigned int i=0;i<strlen(line);i++)
-		   {
-			if(i==0 && line[0]=='-')
-			   {
-			   char*newdata=new char[strlen(line)-1];
-			   for(unsigned int ii=0;ii<strlen(newdata);ii++)
-			   newdata[ii]=line[ii+1];
-			   line=newdata;
-			   negativo=true;
-			   }
-			if(!isdigit(line[i])) 
-			   {
-				letra=true;
-			    break;
-		       } 
-		   }
-		    if(letra==false)
-	    	   {
-				   switch (y)
-				   {
-					    case 0:
-						   negativo==false?angules[0]=(GLfloat)atof(line):angules[0]=-(GLfloat)atof(line);
-					   break;
-				   case 1:
-					   negativo==false?angules[1]=(GLfloat)atof(line):angules[1]=-(GLfloat)atof(line);
-					   break;
-					   case 2:
-						   negativo==false?angules[2]=(GLfloat)atof(line):angules[2]=-(GLfloat)atof(line);
-					   break;
-					   case 3:
-						   negativo==false?angules[3]=(GLfloat)atof(line):angules[3]=-(GLfloat)atof(line);
-					   break;
-					  
-
-				   }
-			    
-          	   }
-
-			negativo=false;
-			letra=false;
-	 }             
-	}
-	else
-	   {
-		f.open("Entrada_de_angArtic.txt",ios::out);
-	    f<<"0"<<endl<<"150"<<endl<<"-130"<<endl<<-45;
-	   }
-	            
-	      	f.close();
-}
-double* ESE_GRS:: coordenadas()
-  {
-	  //L1- 43.95;L5-51.65;D5-11.2;
-	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6;
-
-cosFi1=cos((angules[0]+180)*PI/180);
-senFi1=sin((angules[0]+180)*PI/180);
-cosFi2=cos(angules[1]*PI/180);
-senFi2=sin(angules[1]*PI/180);
-cosFi3=cos((angules[2]-90)*PI/180);
-senFi3=sin((angules[2]-90)*PI/180);
-cosFi4=cos(angules[3]*PI/180);
-senFi4=sin(angules[3]*PI/180);
-cosFi5=cos((angules[4]+90)*PI/180);
-senFi5=sin((angules[4]+90)*PI/180);
-cosFi6=cos(angules[5]*PI/180);
-senFi6=sin(angules[5]*PI/180);
-	  double*coord=new double[3];
-	 /* coord[0]=(463*sin((Z0+180)*PI/180))/200 + 150*cos((Z0+180)*PI/180)*cos(Z1*PI/180) - (1783*cos(Z3*PI/180)*sin((Z0+180)*PI/180))/200 + 177*cos(Z5*PI/180)*(sin((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*sin((Z2-90)*PI/180) + cos((Z0+180)*PI/180)*cos((Z2-90)*PI/180)*sin(Z1*PI/180)) - cos((Z4+90)*PI/180)*(sin((Z0+180)*PI/180)*sin(Z3*PI/180) - cos(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)))) - 53*sin((Z0+180)*PI/180)*sin(Z3*PI/180) + 53*cos(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)) - (10329*cos((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*sin((Z2-90)*PI/180) + cos((Z0+180)*PI/180)*cos((Z2-90)*PI/180)*sin(Z1*PI/180)))/200 - (1783*sin(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)))/200 + (sin((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*sin((Z2-90)*PI/180) + cos((Z0+180)*PI/180)*cos((Z2-90)*PI/180)*sin(Z1*PI/180)))/500 - (cos((Z4+90)*PI/180)*(sin((Z0+180)*PI/180)*sin(Z3*PI/180) - cos(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))))/500 - (10329*sin((Z4+90)*PI/180)*(sin((Z0+180)*PI/180)*sin(Z3*PI/180) - cos(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))))/200 + 177*sin(Z5*PI/180)*(cos(Z3*PI/180)*sin((Z0+180)*PI/180) + sin(Z3*PI/180)*(cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180) - cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))) + (451*cos((Z0+180)*PI/180)*cos(Z1*PI/180)*cos((Z2-90)*PI/180))/2 - (151*cos((Z0+180)*PI/180)*cos(Z1*PI/180)*sin((Z2-90)*PI/180))/500 - (151*cos((Z0+180)*PI/180)*cos((Z2-90)*PI/180)*sin(Z1*PI/180))/500 - (451*cos((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))/2;
-      coord[1]=(1783*cos((Z0+180)*PI/180)*cos(Z3*PI/180))/200 - (463*cos((Z0+180)*PI/180))/200 + 150*cos(Z1*PI/180)*sin((Z0+180)*PI/180) + 53*cos((Z0+180)*PI/180)*sin(Z3*PI/180) + 53*cos(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)) - (10329*cos((Z4+90)*PI/180)*(cos(Z1*PI/180)*sin((Z0+180)*PI/180)*sin((Z2-90)*PI/180) + cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180)*sin(Z1*PI/180)))/200 + 177*cos(Z5*PI/180)*(sin((Z4+90)*PI/180)*(cos(Z1*PI/180)*sin((Z0+180)*PI/180)*sin((Z2-90)*PI/180) + cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180)*sin(Z1*PI/180)) + cos((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*sin(Z3*PI/180) + cos(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)))) - (1783*sin(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180)))/200 + (sin((Z4+90)*PI/180)*(cos(Z1*PI/180)*sin((Z0+180)*PI/180)*sin((Z2-90)*PI/180) + cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180)*sin(Z1*PI/180)))/500 + (cos((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*sin(Z3*PI/180) + cos(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))))/500 + (10329*sin((Z4+90)*PI/180)*(cos((Z0+180)*PI/180)*sin(Z3*PI/180) + cos(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))))/200 - 177*sin(Z5*PI/180)*(cos((Z0+180)*PI/180)*cos(Z3*PI/180) - sin(Z3*PI/180)*(cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180) - sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))) + (451*cos(Z1*PI/180)*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180))/2 - (151*cos(Z1*PI/180)*sin((Z0+180)*PI/180)*sin((Z2-90)*PI/180))/500 - (151*cos((Z2-90)*PI/180)*sin((Z0+180)*PI/180)*sin(Z1*PI/180))/500 - (451*sin((Z0+180)*PI/180)*sin(Z1*PI/180)*sin((Z2-90)*PI/180))/2;
-	  coord[2]= (151*sin((Z1)*(PI/180))*sin((Z2-90)*(PI/180)))/500 - (151*cos((Z1)*(PI/180))*cos((Z2-90)*(PI/180)))/500 - (451*cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)))/2 - (451*cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180)))/2 - 150*sin((Z1)*(PI/180)) - 53*cos((Z3)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))) - (10329*cos((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*cos((Z2-90)*(PI/180)) - sin((Z1)*(PI/180))*sin((Z2-90)*(PI/180))))/200 + (1783*sin((Z3)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))))/200 + (sin((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*cos((Z2-90)*(PI/180)) - sin((Z1)*(PI/180))*sin((Z2-90)*(PI/180))))/500 + 177*cos((Z5)*(PI/180))*(sin((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*cos((Z2-90)*(PI/180)) - sin((Z1)*(PI/180))*sin((Z2-90)*(PI/180))) - cos((Z3)*(PI/180))*cos((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180)))) - (10329*cos((Z3)*(PI/180))*sin((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))))/200 - 177*sin((Z3)*(PI/180))*sin((Z5)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))) - (cos((Z3)*(PI/180))*cos((Z4+90)*(PI/180))*(cos((Z1)*(PI/180))*sin((Z2-90)*(PI/180)) + cos((Z2-90)*(PI/180))*sin((Z1)*(PI/180))))/500 + 437/10;
-	  */
-	  coord[0]=(463*senFi1)/200 + 150*cosFi1*cosFi2 - (1783*cosFi4*senFi1)/200 + 177*cosFi6*(senFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2) - cosFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3))) - 53*senFi1*senFi4 + 53*cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - (10329*cosFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))/200 - (1783*senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3))/200 + (senFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))/500 - (cosFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)))/500 - (10329*senFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)))/200 + 177*senFi6*(cosFi4*senFi1 + senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)) + (451*cosFi1*cosFi2*cosFi3)/2 - (151*cosFi1*cosFi2*senFi3)/500 - (151*cosFi1*cosFi3*senFi2)/500 - (451*cosFi1*senFi2*senFi3)/2;
-	  coord[1]=(1783*cosFi1*cosFi4)/200 - (463*cosFi1)/200 + 150*cosFi2*senFi1 + 53*cosFi1*senFi4 + 53*cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - (10329*cosFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2))/200 + 177*cosFi6*(senFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2) + cosFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3))) - (1783*senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3))/200 + (senFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2))/500 + (cosFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)))/500 + (10329*senFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)))/200 - 177*senFi6*(cosFi1*cosFi4 - senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)) + (451*cosFi2*cosFi3*senFi1)/2 - (151*cosFi2*senFi1*senFi3)/500 - (151*cosFi3*senFi1*senFi2)/500 - (451*senFi1*senFi2*senFi3)/2;
-	  coord[2]=(151*senFi2*senFi3)/500 - (151*cosFi2*cosFi3)/500 - (451*cosFi2*senFi3)/2 - (451*cosFi3*senFi2)/2 - 150*senFi2 - 53*cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) - (10329*cosFi5*(cosFi2*cosFi3 - senFi2*senFi3))/200 + (1783*senFi4*(cosFi2*senFi3 + cosFi3*senFi2))/200 + (senFi5*(cosFi2*cosFi3 - senFi2*senFi3))/500 + 177*cosFi6*(senFi5*(cosFi2*cosFi3 - senFi2*senFi3) - cosFi4*cosFi5*(cosFi2*senFi3 + cosFi3*senFi2)) - (10329*cosFi4*senFi5*(cosFi2*senFi3 + cosFi3*senFi2))/200 - 177*senFi4*senFi6*(cosFi2*senFi3 + cosFi3*senFi2) - (cosFi4*cosFi5*(cosFi2*senFi3 + cosFi3*senFi2))/500 + 437/10;
-	  coord[2]+=0.7;
-	  return coord; 
-  }
 
 

@@ -51,18 +51,14 @@ public:
 	static void MenuVista(int opcion);
 	static void MenuToDraw(int caso);
 	static void defaul_menu(int opcion);
-
-	
-	
 	//////////////DATOS
 	static void cargarDatosFromTXT();
     static void SaveObj(char*address,LoaderObject*l);
 	static void cargarInitDatos();
 	static void slavarInitDatos();
 	static void recivirDatosCOM();
-    static double*coordenadas();
+    static void CalcularCoordenadas();
 	static char* Verificacion(char*c,unsigned*strleN);
-
 	//HILOS
 	static void ThreadCOM();
 	static void ThreadCargObject();
