@@ -16,8 +16,9 @@ char byt;bool bytBool=false;
 char*escrituraCOM="COM2",*escrituraVelocidad="9600";
 char*msg,*recib="Esperando datos...";
 unsigned toSaveCOM=2,toSaveSpeed=9600;
-unsigned STRLEN,RadioButtonEstilo=0,RadioButtonRestriccion=0;
+unsigned STRLEN,radioButtonGroupPrincipal=0,RadioButtonRestriccion=0;
 unsigned RadioButtonSpeed=0,LastRBEstilo=0,LastRBRestriccion=0;
+unsigned interfaz=0;
 int contMenuToDraw=-1;
 int movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 int Initheight,Initwigth,velGiro=3;
@@ -39,6 +40,7 @@ thread*t1=new thread();
 mutex m,m1,m2;
 MeSSenger*messeng=new MeSSenger;
 StackForms*ManejadorForms=new StackForms();
+Plano*pl=new Plano();
 //SalverMovement*SalvMov=new SalverMovement();
 
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
@@ -58,6 +60,7 @@ ESE_GRS::ESE_GRS(){
 	glutCreateWindow("Mi Proyecto");//creo e inicio la ventana
 	glEnable(GL_DEPTH_TEST);//acivo el buffer de profundidad
 
+	
 	/////////////////////////FUNCIONES POR DEFECTO/////////////////
 	
 	//funciones pedfinidad por el usuario para q GLUT las llame al realiarse un evento  
@@ -86,7 +89,7 @@ ESE_GRS::ESE_GRS(){
 	ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angules[5]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelAnguleMatlab","MatLab",*new CRD(0,400,0),1,(GLfloat)1,(GLfloat)1,(GLfloat)1,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelAnguleCoordReales","OpenGL",*new CRD(0,420,0),1,(GLfloat)1,(GLfloat)1,(GLfloat)1,wigth,height),ManejadorForms);
-	    
+
 	/*igs->add(*new CRD(0,0,0),igs);
 	igs->add(*new CRD(100,0,0),igs);
 	//igs->NewLINE(igs);
@@ -310,7 +313,7 @@ void ESE_GRS::Entorno(){
 	glTranslatef((GLfloat)trasladarX,(GLfloat)trasladarY,(GLfloat)trasladarZ);//desplazamiento manual de  ejes x , y , z
 }
 void ESE_GRS::DrawingObjectIGS(){
-	igs->Draw(PintarLineaSuspensiva,ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetMaxChecket(),cooRd,igs);
+	igs->Draw(PintarLineaSuspensiva,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetMaxChecket(),cooRd,igs);
 	/*if(contCoorPint)
 	{
 	glColor3f(1,1,1);
@@ -326,7 +329,7 @@ void ESE_GRS::DrawingObjectIGS(){
 		glutSolidSphere(0.25,10,10);
 		glPopMatrix();
 	}
-	if(PintarLineaSuspensiva&&RadioButtonEstilo==1)
+	if(PintarLineaSuspensiva&&radioButtonGroupPrincipal==1)
 	{
 	glBegin(GL_LINES);
 	double a,b,c,d,e,f;
@@ -437,6 +440,42 @@ void ESE_GRS::ShowAngules(){
 							  
 						}
 }
+RadioButtonGroup* ESE_GRS::Interfaz(unsigned InterfaZ){
+	RadioButtonGroup*rd=new RadioButtonGroup("radioButtonGroupPrincipal",*new CRD(10,150,0),wigth,height);
+	radioButtonGroupPrincipal=0;
+	bool desactivaAcept=false,desactiaCancel=false;
+	switch (InterfaZ)
+	{
+	case 0:
+		rd->AddRB("radioButtonBoceto","Crear boceto",true);
+		desactiaCancel=true;
+		break;
+	case 1:
+		
+			rd->AddRB("radioButton1","Puntos",true);
+		rd->AddRB("radioButton2","Lineas");
+		rd->AddRB("radioButtomNewLine","NEW      ");
+		rd->GetRD("radioButtomNewLine",rd)->Contar_NoCont_Check(rd->GetRD("radioButtomNewLine",rd));
+		rd->AddRB("radioButtomCrl-Z","Ctrl-Z");
+		rd->GetRD("radioButtomCrl-Z",rd)->Contar_NoCont_Check(rd->GetRD("radioButtomCrl-Z",rd));
+		rd->GetRD("radioButtomNewLine",rd)->coord->x+=20;
+		rd->GetRD("radioButtomNewLine",rd)->l->coord->x+=20;
+		rd->GetRD("radioButtomCrl-Z",rd)->coord->x+=20;
+		rd->GetRD("radioButtomCrl-Z",rd)->l->coord->x+=20;
+		rd->GetRD("radioButtomNewLine",rd)->active=false;
+		rd->GetRD("radioButtomCrl-Z",rd)->active=false;
+		desactivaAcept=true;
+		break;
+	}
+	
+	ManejadorForms->Add(new Button("buttonAceptRBPrincipal",Type::BUTTONACEPTRB,*new CRD(rd->coord->x-6,rd->coord->y+18*rd->GetCONTRB()+5,rd->coord->z),0,1,0,rd->Wigth+6,10,rd->TotalWigth,rd->TotalHeight),ManejadorForms);
+	ManejadorForms->Add(new Button("buttonCancelRBPrincipal",Type::BUTTONCANCELRB,*new CRD(rd->coord->x+rd->Wigth,rd->coord->y-6,rd->coord->z),1,0,0,10,rd->Height+21,rd->TotalWigth,rd->TotalHeight),ManejadorForms);
+	if(desactivaAcept)
+		ManejadorForms->DesactivateForm("buttonAceptRBPrincipal",ManejadorForms);
+	if(desactiaCancel)
+		ManejadorForms->DesactivateForm("buttonCancelRBPrincipal",ManejadorForms);
+	return rd;
+}
 /////////////////////FUNCIONES DE GLUT A LLAMAR POR DEFECTO////////////////////////////
 void ESE_GRS::reshape(int x,int y){
 	wigth=(float)x;height=(float)y;
@@ -475,99 +514,109 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	   case 0:
 		  
 		   break;
+		                                               case Type::RADIOBUTTONGROUP:
+				/////////////////////////////////////////////////////////RADIOBUTTONGROUP//////////////////////////////////////////////////////////
+				if(recibir_serie)
+				  {
+				  if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)))
+			        {
+			        radioButtonGroupPrincipal=ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetChecket();
+					
+					
+					
+					if(interfaz==1)
+					{
+						switch (radioButtonGroupPrincipal)
+						{
+						case 0:
+							 ManejadorForms->DesactivateRB("radioButtonGroupPrincipal","radioButtomNewLine",ManejadorForms);
+			                 PintarLineaSuspensiva=false;   
+							break;
+				
+						case 1:
+							ManejadorForms->ActivateRB("radioButtonGroupPrincipal","radioButtomNewLine",ManejadorForms);
+						    if(igs->contNP)
+					         {
+						    if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
+							   PintarLineaSuspensiva=false;
+						    else
+							   PintarLineaSuspensiva=true;
+					        }
+						
+						   if(!igs->contNL)
+							 PintarLineaSuspensiva=false;
+
+							break;
+						
+
+							
+							
+						}
+
+						if(ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->IsChecket("radioButtomNewLine"))
+						{
+						NEWLine=true;
+						PintarLineaSuspensiva=NEWLine?0:1;
+						}
+						if(ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->IsChecket("radioButtomCrl-Z"))
+						{
+							igs->CancelLastPoint(igs);
+							ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->SetChecket("radioButtomCrl-Z",false);
+						    if(!igs->cont)
+							   ManejadorForms->DesactivateRB("radioButtonGroupPrincipal","radioButtomCrl-Z",ManejadorForms);
+						    if(igs->contNP)
+					          {
+						       if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
+							      PintarLineaSuspensiva=false;
+						       else
+							      PintarLineaSuspensiva=true;
+					       }
+						}
+						/*if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetRB("radioButtomCrl-Z")))
+					   {
+						igs->CancelLastPoint(igs);
+						ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)->CambiarChecket();
+						if(!igs->cont)
+							ManejadorForms->DesactivateRB("radioButtonGroupPrincipal","radioButtomCrl-Z",ManejadorForms);
+						if(igs->contNP)
+					      {
+						   if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
+							   PintarLineaSuspensiva=false;
+						   else
+							   PintarLineaSuspensiva=true;
+					       }
+					   }
+						if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetRB("radioButtomNewLine")))
+					    {
+							NEWLine=ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetChecket()?1:0;
+						PintarLineaSuspensiva=NEWLine?0:1;
+					    }*/
+					   if(radioButtonGroupPrincipal==1)
+					   {
+						   
+					   }
+					   else
+					      {
+							 
+			              }
+					}
+			     }	
+				}
+				
+							
+					  				   							 							   
+														   break;
 
 		                                                case Type::RADIOBUTTON:
 				/////////////////////////////////////////////////////////RADIOBUTTON//////////////////////////////////////////////////////////
 		      
 		    if(recibir_serie)/////////////////////////if recivir_serie///////////////////////////////////////////////////////////////////////////////////
 		    {
-			   ///////////RADIO BUTTOM GROUP//////////////
-			   if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)))
-			   {
-			        RadioButtonEstilo=ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecket();
-					if(RadioButtonEstilo==1)
-					{
-						ManejadorForms->Add(new RadioButton("radioButtomNewLine",*(new CRD(100,168,0)),"NEW",wigth,height),ManejadorForms);
-						if(igs->contNP)
-					      {
-						   if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
-							   PintarLineaSuspensiva=false;
-						   else
-							   PintarLineaSuspensiva=true;
-					       }
-						
-						if(!igs->contNL)
-							PintarLineaSuspensiva=false;
-					}
-					else
-					   {
-						ManejadorForms->Sub("radioButtomNewLine",ManejadorForms);
-			            PintarLineaSuspensiva=false;   
-			           }
-			   }
-					if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)))
-		                RadioButtonRestriccion=ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->GetChecket();   
-					 ///////////RADIO BUTTOM//////////////
-					if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)))
-					{
-						NEWLine=ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->GetChecket()?1:0;
-						PintarLineaSuspensiva=NEWLine?0:1;
-						
-					}
-					if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)))
-					{
-						igs->CancelLastPoint(igs);
-						ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)->CambiarChecket();
-						if(!igs->cont)
-							ManejadorForms->Sub("radioButtomCrl-Z",ManejadorForms);
-						if(igs->contNP)
-					      {
-						   if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
-							   PintarLineaSuspensiva=false;
-						   else
-							   PintarLineaSuspensiva=true;
-					       }
-					}
-			  /* if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonSeguirMovim",ManejadorForms)))
-			   {
-				   if(SalvMov->Enable)
-				   {
-					   SalvMov->Enable=false;
-					   ManejadorForms->GetForm("radioButtonSeguirMovim",ManejadorForms)->CambiarEscritura("Movent");
-					   ManejadorForms->Sub("radioButtonGuardarArchivo",ManejadorForms);
-					   ManejadorForms->Sub("buttonGurdarMovents",ManejadorForms);
-					   ManejadorForms->Sub("textBoxurdarMovent",ManejadorForms);
-				   }
-				   else 
-				   {
-				   SalvMov->Enable=true;
-				   ManejadorForms->GetForm("radioButtonSeguirMovim",ManejadorForms)->CambiarEscritura("Detener");
-				   ManejadorForms->Add(new RadioButton("radioButtonGuardarArchivo",*new CRD(10,170+(18*11),0),"Guardar",wigth,height),ManejadorForms);
-				   }
-				
-		       }
-			   if(SalvMov->Enable&&Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGuardarArchivo",ManejadorForms)))
-			  {
-				  if(!SalvMov->GETCont(SalvMov))
-				     {
-				       SalvMov->Enable=false;
-					   ManejadorForms->GetForm("radioButtonSeguirMovim",ManejadorForms)->CambiarEscritura("Movent");
-					   ManejadorForms->GetForm("radioButtonSeguirMovim",ManejadorForms)->CambiarChecket();
-					   ManejadorForms->Sub("radioButtonGuardarArchivo",ManejadorForms);
-					   messeng=new MeSSenger("No hay datos para guardar",position::CENTER_TOP,wigth,height,3,1,1,0,2);
-				     }
-				  else
-				  {
-					  ManejadorForms->Add(new TextBox("textBoxurdarMovent",*new CRD(10,170+(18*11),0),100,20,wigth,height),ManejadorForms);
-					  ManejadorForms->GetForm("textBoxurdarMovent",ManejadorForms)->CambiarEscritura("mtv.mtv");
-					  ManejadorForms->Sub("radioButtonGuardarArchivo",ManejadorForms);
-					  ManejadorForms->Add(new Button("buttonGurdarMovents",Type::BUTTOMGUARDARMOVENT,*new CRD(10,170+(18*11)+20,0),0,1,0,100,10,wigth,height),ManejadorForms);
+			   
+					
+					
 
-				  }
-			  
-			  
-			  }*/
-			}
+       			}
 			else//////////////no recivir_Serie///////////////////////////////////////////////////////////////////////////////////
 			{
 			/*if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupSpeed",ManejadorForms)))
@@ -594,11 +643,10 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			  */
 		    }
 			//////////////////SIEMPRE///////////////////////////////////////////////////////////////////////////////////
-
-			if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)))
-				{
-					if(!MostrarAngules)
-					{
+			 if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)))
+				       {
+					   if(!MostrarAngules)
+					   {   
 						MostrarAngules=true;
 						ManejadorForms->Add(new Label("labelAngule0",(char*)to_string(angules[0]).c_str(),*new CRD(wigth-100,25,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	                    ManejadorForms->Add(new Label("labelAngule1",(char*)to_string(angules[1]).c_str(),*new CRD(wigth-100,40,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
@@ -607,7 +655,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	                    ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angules[4]).c_str(),*new CRD(wigth-100,85,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	                    ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angules[5]).c_str(),*new CRD(wigth-100,100,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	
-					}
+					   }
 					else
 					{
 						ManejadorForms->Sub("labelAngule0",ManejadorForms);
@@ -620,10 +668,35 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					
 					}
 				
-				}
+				}		
+			
 
 
 		   break;
+		                                       case Type::BUTTONACEPTRB:
+
+				switch (interfaz)
+					{
+					case 0:
+
+						ManejadorForms->Add(Interfaz(++interfaz),ManejadorForms);
+						break;
+					case 1:
+
+						
+						break;
+					   }
+			break;
+											   case Type::BUTTONCANCELRB:
+				switch (interfaz)
+					{
+					case 1:
+
+						ManejadorForms->Add(Interfaz(--interfaz),ManejadorForms);
+						break;
+					   }
+
+			break;
 	                                                 case Type::BUTTONCANCELSETANGULES:
 		    ManejadorForms->Sub("textBoxsSetAngules0",ManejadorForms);
 			ManejadorForms->Sub("textBoxsSetAngules1",ManejadorForms);
@@ -1092,19 +1165,20 @@ void ESE_GRS::defaul_menu(int opcion){
 			   ManejadorForms->SetColor("labelESE_GRS",0,1,0,ManejadorForms);
 			   ManejadorForms->Add(new Label("labelRecib","Esperando Reedireccionamiento...",*(new CRD((float)(wigth/2-139.5),(float)(height-40),0)),2,0.5,0.5,0.5,wigth,height),ManejadorForms); 
 			   
-		       ManejadorForms->Add(new RadioButtonGroup("radioButtonGroupProp",*new CRD(10,150,0),wigth,height),ManejadorForms);
-      	         ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton2","Puntos",true);   
-			     ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton1","Linea"); 
-	             //ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton3","Nueva Linea");
-		          //ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->SetNewProp((float)strlen("Circulo")*9);
-	              //ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton4","Superficies");
-	              //ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->AddRB("radioButton5","Curva");
-	          ManejadorForms->Add(new RadioButtonGroup("radioButtonGroupRestriccion",*new CRD(10,170+(18*5),0),wigth,height),ManejadorForms);
-		          ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton6","Sin resctricciones",true);
-	              ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton7","Plano XY");
-		          ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton8","Plano XZ");
-		          ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton9","Plano YZ");
-		      RadioButtonEstilo=RadioButtonRestriccion=0;	 
+			   ManejadorForms->Add(Interfaz(interfaz),ManejadorForms);
+			   //ManejadorForms->Add(new RadioButtonGroup("radioButtonGroupPrincipal",*new CRD(10,150,0),wigth,height),ManejadorForms);
+      	        //ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->AddRB("radioButton2","Puntos",true);   
+			    //ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->AddRB("radioButton1","Linea"); 
+	             //ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->AddRB("radioButton3","Nueva Linea");
+		          //ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->SetNewProp((float)strlen("Circulo")*9);
+	              //ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->AddRB("radioButton4","Superficies");
+	              //ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->AddRB("radioButton5","Curva");
+	         // ManejadorForms->Add(new RadioButtonGroup("radioButtonGroupRestriccion",*new CRD(10,170+(18*5),0),wigth,height),ManejadorForms);
+		    //      ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton6","Sin resctricciones",true);
+	        //      ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton7","Plano XY");
+		   //       ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton8","Plano XZ");
+		   //       ManejadorForms->GetForm("radioButtonGroupRestriccion",ManejadorForms)->AddRB("radioButton9","Plano YZ");
+		   //   radioButtonGroupPrincipal=RadioButtonRestriccion=0;	 
 			 // ManejadorForms->Add(new RadioButton("radioButtonSeguirMovim",*new CRD(10,170+(18*10),0),"Movent",wigth,height),ManejadorForms);
 			   
 
@@ -1125,7 +1199,7 @@ void ESE_GRS::defaul_menu(int opcion){
 
 
 	case -2://detengo el COM
-		ManejadorForms->Sub("radioButtonGroupProp",ManejadorForms);
+		ManejadorForms->Sub("radioButtonGroupPrincipal",ManejadorForms);
 		ManejadorForms->Sub("radioButtonGroupRestriccion",ManejadorForms);
 		ManejadorForms->Sub("laberDetener",ManejadorForms);
 		ManejadorForms->Sub("buttonInitDetener",ManejadorForms);
@@ -1274,11 +1348,11 @@ void ESE_GRS::recivirDatosCOM(){
 							   break;
 						
 						   case 15:   //////////////////////////////////CAMBIAR PROPIEDADES//////////////
-							   ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->CambiarChecket();
-							   a=ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecketPositton();
+							   ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->CambiarChecket();
+							   a=ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetChecketPositton();
 							   teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
 							   if(a[0]&&a[1])
-								   cout<<"RadioButtomProp->Checket cambiado al elemento "<< ManejadorForms->GetForm("radioButtonGroupProp",ManejadorForms)->GetChecket()<<" ";
+								   cout<<"RadioButtomProp->Checket cambiado al elemento "<< ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetChecket()<<" ";
 							   break;
 						   
 						    case 11:  //////////////////////////////////New Line//////////////////////////
@@ -1304,38 +1378,41 @@ void ESE_GRS::recivirDatosCOM(){
 			           {   
 			            if(DataProcessor::PorcesarDatos(c[i],c[i+1],angules))//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
 			              {
-						    corrdCambi=true;
-						   CalcularCoordenadas();
-						    ShowAngules();
-							if(!igs->cont)//poner el rediobutton de crl-z
-							    ManejadorForms->Add(new RadioButton("radioButtomCrl-Z",*(new CRD(100,150,0)),"Ctrl-Z",wigth,height),ManejadorForms);
-							if(cooRd->x==igs->Vertex[igs->cont-1].x&&cooRd->y==igs->Vertex[igs->cont-1].y&&cooRd->z==igs->Vertex[igs->cont-1].z)
-								cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"] No pintado";
-							else
-							   {
-							    switch (RadioButtonEstilo)
+							if(interfaz==1)
+							  {
+						       corrdCambi=true;
+						       CalcularCoordenadas();
+						       ShowAngules();
+							   if(!igs->cont)//poner el rediobutton de crl-z
+								  ManejadorForms->ActivateRB("radioButtonGroupPrincipal","radioButtomCrl-Z",ManejadorForms);
+							   if(cooRd->x==igs->Vertex[igs->cont-1].x&&cooRd->y==igs->Vertex[igs->cont-1].y&&cooRd->z==igs->Vertex[igs->cont-1].z)
+							      cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"] No pintado";
+							   else
 							      {
-							       case 0://Puntos
-								      igs->NewPOINT(igs);
-								   break;
-							       case 1://Lineas
-								      if(!igs->contNL)
-									     igs->NewLINE(igs);
-								      if(igs->cont-1==igs->NewPoint[igs->contNP-1])
-									    igs->NewLINE(igs);
-								      PintarLineaSuspensiva=true;
-								      if(NEWLine)
-								        {
-									     NEWLine=false;
-									     PintarLineaSuspensiva=false;
-									     ManejadorForms->GetForm("radioButtomNewLine",ManejadorForms)->CambiarChecket();
-									     igs->NewLINE(igs);
-								        }
-								   break;
-							     }
-							     cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"]-Pintado";
-							     igs->add(*(cooRd),igs);
-						      }
+							       switch (radioButtonGroupPrincipal)
+							         {
+							          case 0://Puntos
+								         igs->NewPOINT(igs);
+								      break;
+							          case 1://Lineas
+								         if(!igs->contNL)
+									        igs->NewLINE(igs);
+								         if(igs->cont-1==igs->NewPoint[igs->contNP-1])
+									       igs->NewLINE(igs);
+								         PintarLineaSuspensiva=true;
+								         if(NEWLine)
+								           {
+									        NEWLine=false;
+									        PintarLineaSuspensiva=false;
+										    ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->SetChecket("radioButtomNewLine",false);
+									        igs->NewLINE(igs);
+								            }
+								        break;
+							         }
+							        cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"]-Pintado";
+							        igs->add(*(cooRd),igs);
+						        }
+						     }
 			               }//end if TRUE de ProcesarDatos
 						else
 						   {

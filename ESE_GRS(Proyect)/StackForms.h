@@ -45,7 +45,6 @@ public:
 	}
 	static void DrawForms(StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
-			if(sf->forms[i]->active)
 			    sf->forms[i]->Draw();
 	}
 	static void ActivateForm(char*name,StackForms*sf){
@@ -53,10 +52,29 @@ public:
 			if(sf->ExistForm(name,sf->forms[i]))
 				sf->forms[i]->Activate(sf->forms[i]);
 	}
+	static void ActivateRB(char*RBGname,char*RBname,StackForms*sf){
+		for(unsigned i=0;i<sf->cont;i++)
+			if(sf->forms[i]->t==Type::RADIOBUTTONGROUP&&ExistForm(RBGname,sf->forms[i]))
+			{
+				sf->forms[i]->ActivDesactRB(RBname,true);
+				return;
+				
+				   
+			}
+	}
 	static void DesactivateForm(char*name,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
 			if(sf->ExistForm(name,sf->forms[i]))
 				sf->forms[i]->Desactivate(sf->forms[i]);
+	}
+	static void DesactivateRB(char*RBGname,char*RBname,StackForms*sf){
+		for(unsigned i=0;i<sf->cont;i++)
+			if(sf->forms[i]->t==Type::RADIOBUTTONGROUP&&ExistForm(RBGname,sf->forms[i]))
+			{
+				sf->forms[i]->ActivDesactRB(RBname,false);
+				return;
+				   
+			}
 	}
     static void AddText(char c,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)

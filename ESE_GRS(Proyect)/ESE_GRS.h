@@ -18,6 +18,7 @@
 #include "StackForms.h"
 #include "SalverMovement.h"
 #define PI 3.14159265
+#include "Plano.h"
 using namespace std;
 
  class ESE_GRS
@@ -33,6 +34,7 @@ public:
 	static void smallEjeCoord(GLfloat size=10);
 	static void DrawingObjectIGS();
 	static void ShowAngules();
+	static RadioButtonGroup* Interfaz(unsigned intefaz);
 	///////////DEFAULTGLUTS
 	static void movRaton(GLsizei x,GLsizei y);
 	static void teclaRaton(int boton,int state,int x,int y);
