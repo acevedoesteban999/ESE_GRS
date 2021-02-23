@@ -14,4 +14,4 @@ Formato: &  + nombre_archivo.obj  +  Red  +  Green  +  Blue
 &obj\11.obj 0.755 0.755 0.755
 &obj\12.obj 0.655 0.655 0.655
 &obj\13.obj 0.0 0.072 0.955
-/&miObj.obj 
+&miObj.obj 

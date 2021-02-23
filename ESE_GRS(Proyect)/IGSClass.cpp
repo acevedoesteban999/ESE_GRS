@@ -357,8 +357,6 @@ double* IGSClass::Media(IGSClass*igs){
 	d[2]/=igs->cont;
 	return d;
 }
-
-
 void IGSClass::CancelLastPoint(IGSClass*igs){
 if(igs->cont>0)
 		{

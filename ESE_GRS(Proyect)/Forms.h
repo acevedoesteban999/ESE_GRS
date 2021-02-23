@@ -5,6 +5,9 @@ enum Type
 {
 	FORMS,BUTTON,BUTTONACEPTRB,BUTTONCANCELRB,BUTTONINITCOM,BUTTONINITSETANGULES,BUTTONCANCELSETANGULES,BUTTONCANCELCOM,BUTTONINTICARGAMOVENTS,BUTTONCANCELCARGAMOVENTS,BUTTONINITSTOPCOM,BUTTONCANCELSTOPCOM,BUTTOMGUARDARMOVENT,TEXTBOX,LABEL,RADIOBUTTONGROUP,RADIOBUTTON
 };
+enum INTERFZType{
+	ACEPT,CANCEL,SPECIFIC
+};
 class Forms
 {
 public:
@@ -61,7 +64,7 @@ public:
 	static bool IsPulsdo(float x,float y,Forms*f){
 		if(f->t==Type::RADIOBUTTONGROUP)
 		{
-			if(x>=f->coord->x&&x<=f->coord->x+15&&y>=f->coord->y&&y<=f->coord->y+f->Height)
+			if(x>=f->coord->x&&x<=f->coord->x+f->Wigth&&y>=f->coord->y&&y<=f->coord->y+f->Height)
 			   return true;
 			return false;
 		   
@@ -110,7 +113,7 @@ public:
 		return a;};
 	virtual unsigned GetMaxChecket(){return 0;};
 	virtual void ActivDesactRB(char*name,bool activate){};
-	virtual bool IsChecket(char*name){return false;};
+	virtual bool GetRBChecket(char*name){return false;};
 	virtual void SetChecket(char*name,bool checket){};
 	//PURAS
 	virtual void Draw()=0; 

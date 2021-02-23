@@ -71,7 +71,7 @@ public:
 	void Draw(){
 	glPushMatrix();
 				  glLoadIdentity();
-				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)TotalWigth/2); 
+				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1); 
 				  glColor3f(1,1,1);
 				  glBegin(GL_POLYGON);
 				  glVertex3f(0,0,-1);

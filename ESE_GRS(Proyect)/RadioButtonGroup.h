@@ -6,6 +6,8 @@ class RadioButtonGroup:public Forms
 protected:
 	unsigned cantRB,contRB,Checket;
 	RadioButton**RB;
+	Label*TopLabel;
+	bool topLabelbool,lastChecket;
 	
 public:
 	RadioButtonGroup(){};
@@ -14,6 +16,7 @@ public:
 		cantRB=10;
 		contRB=0;
 		RB=new RadioButton*[cantRB];
+		TopLabel=new Label("","",*new CRD(0,0,0),0,0,0,0,0,0);
 };
 	~RadioButtonGroup(){};
 	void NewTotalProp(float wigth,float height){
@@ -27,16 +30,24 @@ public:
 		}
 	}	
 	void Draw(){
+		if(this->active)
+		{
+		if(topLabelbool)
+		{
+		    glPushMatrix();
+			 glTranslatef(0,25,0);
+			 TopLabel->Draw();
+			glPopMatrix();
+		}
 	glPushMatrix();
 	glLoadIdentity();
-	glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)TotalWigth/2); 
+	glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1); 
 	glColor3f(1,1,1);
-
-	glBegin(GL_LINE_LOOP);
-	glVertex3f(-5,5,0);
-	glVertex3f(Wigth,5,0);
-	glVertex3f(Wigth,-Height-5,0);
-	glVertex3f(-5,-Height-5,0);
+	glBegin(GL_POLYGON);
+	glVertex3f(-5,5,(GLfloat)-1.1);
+	glVertex3f(Wigth,5,(GLfloat)-1.1);
+	glVertex3f(Wigth,-Height-5,(GLfloat)-1.1);
+	glVertex3f(-5,-Height-5,(GLfloat)-1.1);
 	glEnd();
 
 	
@@ -45,13 +56,17 @@ public:
 	glPopMatrix();
     for(unsigned i=0;i<contRB;i++)
 	   this->RB[i]->Draw();
-	
+		}
 	}
     unsigned Click(){
 	for(unsigned i=0;i<contRB;i++)
 		if(!RB[i]->noContCheck)
 			RB[i]->NotChecket();
 	this->RB[Checket]->Click();
+
+	if(lastChecket)
+		return(unsigned)Type::RADIOBUTTON;
+
 	return(unsigned)t;
 	}
 	bool Pulsado(float x,float y)
@@ -64,9 +79,15 @@ public:
 				  if(y>=RB[i]->coord->y&&y<=RB[i]->coord->y+15&&x>=RB[i]->coord->x&&x<=RB[i]->coord->x+15)
 				   {
 					   if(!RB[i]->noContCheck)
+					   {
 					      Checket=i;
+						  lastChecket=false;
+					   }
 					   else
+					   {
 						   RB[i]->CambiarChecket();
+						   lastChecket=true;
+					   }
 					   return true;
 			       }
 			
@@ -76,15 +97,16 @@ public:
 		}
 	   return false;
 	}
-	void AddRB(char*RadioButtonName,char*escritura,bool Cheket=false){
+	void AddRB(char*RadioButtonName,char*escritura,bool Cheket=false,bool SoloLabel=false,bool contNocontChecket=false,float DesplazarX=0,float DesplazarY=0,float DesplazarZ=0){
+		
 		if(Cheket)
 		    {
 				Checket=contRB;
 			for(unsigned i=0;i<this->contRB;i++)
 				RB[i]->NotChecket();
 		     }
-		if(this->Wigth<strlen(escritura)*9+25)
-			this->Wigth=(float)strlen(escritura)*9+25;
+		if(this->Wigth<(float)(strlen(escritura)*9.5+25+DesplazarX))
+			this->Wigth=(float)(strlen(escritura)*9.5+25+DesplazarX);
 		RadioButton*rb=new RadioButton(RadioButtonName,*new CRD(this->coord->x,(double)(this->coord->y+(18*this->contRB)),this->coord->z),escritura,this->TotalWigth,this->TotalHeight,Cheket);
 		if(this->contRB>=this->cantRB)
 		{
@@ -94,7 +116,22 @@ public:
 				newRB[i]=this->RB[i];
 		 this->RB=newRB;
 		}
+
+		if(SoloLabel)
+		{
+			rb->active=false;
+			rb->SoloLabel=true;
+		}
+		rb->coord->x+=DesplazarX;
+		rb->coord->y+=DesplazarY;
+		rb->coord->z+=DesplazarZ;
+		rb->l->coord->x+=DesplazarX;
+		rb->l->coord->y+=DesplazarY;
+		rb->l->coord->z+=DesplazarZ;
+		rb->Contar_NoCont_Check(contNocontChecket,rb);
 		this->RB[this->contRB++]=rb;
+		
+		  
 		this->Height+=18;
 	}
     void SubRB(char*nameRB){
@@ -153,9 +190,9 @@ public:
 			}
 		}
 	}
-	bool IsChecket(char*name){
+	bool GetRBChecket(char*name){
 		for(unsigned i=0;i<contRB;i++)
-			if(!strcmp(name,RB[i]->name))
+			if(RB[i]->active&&!strcmp(name,RB[i]->name))
 				return RB[i]->GetChecket()?1:0;
 		return 0;
 	};
@@ -164,5 +201,13 @@ public:
 			if(!strcmp(name,RB[i]->name))
 				RB[i]->Checket=checket;
 	};
+	static void SetTopEscritura(bool active,char*escritura,RadioButtonGroup*rdg)
+	{
+	rdg->topLabelbool=active;
+	if(active)
+	{
+		rdg->TopLabel=new Label("LabelEscrituraRD",escritura,*rdg->coord,1,(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,rdg->TotalWigth,rdg->TotalHeight);
+	}
+	}
 	
 };

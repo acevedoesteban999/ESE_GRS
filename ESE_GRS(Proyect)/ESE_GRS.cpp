@@ -1,6 +1,9 @@
 #include "ESE_GRS.h"
 
-
+unsigned bocetoARemover=0;
+CRD*coordNewPlano=new CRD[3];
+unsigned contCoordNewPlano=0;
+bool OcultarMenu=false;
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -9,9 +12,8 @@ bool threaDCOM=false,MostrarAngules=false,SeguirPuntoFinal=false;
 bool corrdCambi=false,SetAngules=false;
 bool verif=false;
 bool NEWLine=false;
-bool PintarLineaSuspensiva=false;
 bool Pint=false;
-
+bool PintTodosPlanos=true;
 char byt;bool bytBool=false;
 char*escrituraCOM="COM2",*escrituraVelocidad="9600";
 char*msg,*recib="Esperando datos...";
@@ -29,18 +31,19 @@ GLfloat heightOrtho,wigthOrtho;
 GLdouble movWheel=1;
 double trasladarX=0,trasladarY=0,trasladarZ=0;
 CRD*cooRd=new CRD(0,0,0);
+
 int contt=0;
 ///////////////////OBJECTS//////////////////////////////////////
 StackLoaderObject*ManejadorObject=new StackLoaderObject();
 //LoaderObject*NewObj;
 PuertoSerie*p=new PuertoSerie();
 TimeDuration tCOM(true);
-IGSClass*igs=new IGSClass;
+StackBoceto*Proyect1=new StackBoceto();
 thread*t1=new thread();
 mutex m,m1,m2;
 MeSSenger*messeng=new MeSSenger;
 StackForms*ManejadorForms=new StackForms();
-Plano*pl=new Plano();
+Plano*PlanoCrearPlano=new Plano("PlanoCrearPlano");
 //SalverMovement*SalvMov=new SalverMovement();
 
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
@@ -87,14 +90,18 @@ ESE_GRS::ESE_GRS(){
 	ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angules[3]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angules[4]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angules[5]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelAnguleMatlab","MatLab",*new CRD(0,400,0),1,(GLfloat)1,(GLfloat)1,(GLfloat)1,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelAnguleCoordReales","OpenGL",*new CRD(0,420,0),1,(GLfloat)1,(GLfloat)1,(GLfloat)1,wigth,height),ManejadorForms);
-
-	/*igs->add(*new CRD(0,0,0),igs);
-	igs->add(*new CRD(100,0,0),igs);
-	//igs->NewLINE(igs);
-	igs->add(*new CRD(200,110,0),igs);
-	igs->add(*new CRD(300,300,0),igs);
+//	ManejadorForms->Add(new Label("labelAnguleMatlab","MatLab",*new CRD(0,400,0),1,(GLfloat)1,(GLfloat)1,(GLfloat)1,wigth,height),ManejadorForms);
+//	ManejadorForms->Add(new Label("labelAnguleCoordReales","OpenGL",*new CRD(0,420,0),1,(GLfloat)1,(GLfloat)1,(GLfloat)1,wigth,height),ManejadorForms);
+	
+	Proyect1->Add(new Plano("Boceto1"),Proyect1);
+	Proyect1->Add(new Plano("Boceto2"),Proyect1);
+	Proyect1->Add(new Plano("Boceto3"),Proyect1);
+	Proyect1->Add(new Plano("Boceto4"),Proyect1);
+	/*Proyect1->add(*new CRD(0,0,0),Proyect1);
+	Proyect1->add(*new CRD(100,0,0),Proyect1);
+	//Proyect1->NewLINE(Proyect1);
+	Proyect1->add(*new CRD(200,110,0),Proyect1);
+	Proyect1->add(*new CRD(300,300,0),Proyect1);
 	*/
 }
 ESE_GRS::~ESE_GRS(){
@@ -188,6 +195,10 @@ void ESE_GRS::InitMenu(){
 	else
 	{
 	   glutAddSubMenu("Vista",SubMenuVista);//agrego el submenu
+	   if(OcultarMenu)
+		   glutAddMenuEntry("Mostrar Menu",-5);
+	   else
+		   glutAddMenuEntry("Ocultar Menu",-5);
 	   glutAddMenuEntry("DETENER PUERTO SERIE",1);
 	}
 	
@@ -220,6 +231,8 @@ void ESE_GRS::display(){
 		IniciarCargObjetos();
 	else
 	{		
+		
+
 	   // recivirDatosCOM();//recivo y proceso la entrada del puerto serie
 		Inicializar();//iniciaizo proyeccin luces y pongo los angulos del brazo 
 		Entorno();
@@ -232,6 +245,7 @@ void ESE_GRS::display(){
 			//No inicamos el LoadIdentity porq ya la matriz llega a aki vacia,pero rotalda y escladada por whellAndRotate();
 			glPushMatrix();
 			//glTranslated(cooRd->x,cooRd->y,cooRd->z);
+			glPointSize(8);
 		    glColor3d(0,0,0);
 			glBegin(GL_POINTS);
 			glVertex3f((GLfloat)cooRd->x,(GLfloat)cooRd->y,(GLfloat)cooRd->z);
@@ -244,10 +258,11 @@ void ESE_GRS::display(){
 		//por lo tanto se cargan sin mas para q se ejecute correctamante el WheelandRotate();
 		
 			//glTranslated(ManejadorObject->CoordReales[0],ManejadorObject->CoordReales[1],ManejadorObject->CoordReales[2]);
-		glColor3d(1,1,1);
-		glBegin(GL_POINTS);
-		glVertex3f((GLfloat)ManejadorObject->CoordReales[0],(GLfloat)ManejadorObject->CoordReales[1],(GLfloat)ManejadorObject->CoordReales[2]);
-		glEnd();
+	
+	//	glColor3d(1,1,1);
+	//	glBegin(GL_POINTS);
+	//	glVertex3f((GLfloat)ManejadorObject->CoordReales[0],(GLfloat)ManejadorObject->CoordReales[1],(GLfloat)ManejadorObject->CoordReales[2]);
+	//	glEnd();
 		}
 		////Inicio los .obj y pongo el caartel de Cargando///////////////////////////////////////////
 		
@@ -313,7 +328,12 @@ void ESE_GRS::Entorno(){
 	glTranslatef((GLfloat)trasladarX,(GLfloat)trasladarY,(GLfloat)trasladarZ);//desplazamiento manual de  ejes x , y , z
 }
 void ESE_GRS::DrawingObjectIGS(){
-	igs->Draw(PintarLineaSuspensiva,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetMaxChecket(),cooRd,igs);
+	
+		Proyect1->Draw(cooRd,Proyect1);
+	
+	
+	if(contCoordNewPlano)
+		PlanoCrearPlano->Draw(cooRd,PlanoCrearPlano);
 	/*if(contCoorPint)
 	{
 	glColor3f(1,1,1);
@@ -344,24 +364,24 @@ void ESE_GRS::DrawingObjectIGS(){
 	glEnd();
 	}
 	}*/
-	/*if(igs->cont==1)
+	/*if(Proyect1->cont==1)
 	{
 		glColor3f(0,1,0);
 		glBegin(GL_POINTS);
-	    glVertex3f((GLfloat)igs->Vertex[0].x,(GLfloat)igs->Vertex[0].y,(GLfloat)igs->Vertex[0].z);
+	    glVertex3f((GLfloat)Proyect1->Vertex[0].x,(GLfloat)Proyect1->Vertex[0].y,(GLfloat)Proyect1->Vertex[0].z);
 		glEnd();
 	}
 	else
 	{
-       for(unsigned i=1;i<igs->cont;i++)
+       for(unsigned i=1;i<Proyect1->cont;i++)
 		{
-			unsigned lastNL=igs->contNL,actualNL=0;
+			unsigned lastNL=Proyect1->contNL,actualNL=0;
 			bool NEWLINE=false;
 			for(unsigned ii=0;ii<lastNL;ii++)
 			 {
-				if(igs->NewLine[ii]==i)
+				if(Proyect1->NewLine[ii]==i)
 				{
-					if(i+1==igs->cont)
+					if(i+1==Proyect1->cont)
 						break;
 					NEWLINE=true;
 					i++;
@@ -378,8 +398,8 @@ void ESE_GRS::DrawingObjectIGS(){
 		   glEnd();
 		   glBegin(GL_LINE_STRIP);
 		   }
-		glVertex3f((GLfloat)igs->Vertex[i-1].x,(GLfloat)igs->Vertex[i-1].y,(GLfloat)igs->Vertex[i-1].z);
-		glVertex3f((GLfloat)igs->Vertex[i].x,(GLfloat)igs->Vertex[i].y,(GLfloat)igs->Vertex[i].z);
+		glVertex3f((GLfloat)Proyect1->Vertex[i-1].x,(GLfloat)Proyect1->Vertex[i-1].y,(GLfloat)Proyect1->Vertex[i-1].z);
+		glVertex3f((GLfloat)Proyect1->Vertex[i].x,(GLfloat)Proyect1->Vertex[i].y,(GLfloat)Proyect1->Vertex[i].z);
 		glEnd();
 		}
 	}
@@ -440,19 +460,168 @@ void ESE_GRS::ShowAngules(){
 							  
 						}
 }
-RadioButtonGroup* ESE_GRS::Interfaz(unsigned InterfaZ){
+RadioButtonGroup* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 	RadioButtonGroup*rd=new RadioButtonGroup("radioButtonGroupPrincipal",*new CRD(10,150,0),wigth,height);
-	radioButtonGroupPrincipal=0;
 	bool desactivaAcept=false,desactiaCancel=false;
-	switch (InterfaZ)
+	string s;
+	switch(t)
+	{
+	case INTERFZType::ACEPT:
+		if(interfaz==3)
+		{
+			s="Boceto"+to_string(Proyect1->contB);
+			Proyect1->Add(new Plano((char*)s.c_str(),coordNewPlano),Proyect1);
+			contCoordNewPlano=0;
+			interfaz=1;
+			ManejadorForms->ActivateRB("radioButtonGroupPrincipal","radioButonRemoveBoceto",ManejadorForms);
+		}
+		else if(interfaz==4)
+		   {
+			   Proyect1->Sub(Proyect1->bocetos[bocetoARemover+1]->name,Proyect1);
+			   if(Proyect1->contB<=1)
+				   ManejadorForms->DesactivateRB("radioButtonGroupPrincipal","radioButonRemoveBoceto",ManejadorForms);
+			   interfaz=1;
+		   }
+		else if(interfaz<2)
+			interfaz++;
+		
+		break;
+	case INTERFZType::CANCEL:
+		if(interfaz==3)
+		{
+			interfaz=1;
+			contCoordNewPlano=0;
+		}
+		else if(interfaz==4)
+		{
+			interfaz=1;
+		}
+		else if(interfaz>0)
+			interfaz--;
+			break;
+	case INTERFZType::SPECIFIC:	
+			interfaz=interfzAponer;
+		break;
+	}
+	switch (interfaz)
 	{
 	case 0:
-		rd->AddRB("radioButtonBoceto","Crear boceto",true);
+		rd->SetTopEscritura(true,"Menu Principal",rd);
+		rd->AddRB("radioButtonProyecto1","Construccion de Bocetos",true);
 		desactiaCancel=true;
 		break;
 	case 1:
+		rd->SetTopEscritura(true,"Bocetos",rd);
+		for(unsigned i=0;i<Proyect1->contB;i++)
+		{
+			s="radioButtonBoceto"+to_string(i);
+			rd->AddRB((char*)s.c_str(),Proyect1->bocetos[i]->name,i==Proyect1->PlanoCheckeeado?1:0);
+		}
+		rd->AddRB("radioButonAddBoceto","Nuevo",false,false,true,20,0,0);
+		rd->AddRB("radioButonRemoveBoceto","Remover",false,false,true,20,0,0);
+		if(Proyect1->contB<=1)
+			rd->ActivDesactRB("radioButonRemoveBoceto",false);
+		break;
+	case 2:
+		rd->SetTopEscritura(true,Proyect1->bocetos[Proyect1->PlanoCheckeeado]->name,rd);
+		rd->AddRB("radioButonAddPunto","Agregar Puntos",true);
+		rd->AddRB("radioButonAddPunto","Agregar Lineas");
+		rd->AddRB("radioButonAddPunto","New Line",false,false,true,20,0,0);
+		rd->AddRB("radioButonCancelPunto","Cancel Ultimo",false,false,true);
+		desactivaAcept=true;
+		break;
+	case 3:
+		s=to_string(contCoordNewPlano)+"/3 Puntos";
+		rd->SetTopEscritura(true,"3 puntos para crear el plano",rd);
+		rd->AddRB("radioButtonCantPuntParaPlano",(char*)s.c_str(),1);
+		for(unsigned i=0;i<contCoordNewPlano;i++)
+		{
+			s="radioButtonCantPuntParaPlano"+to_string(i);
+			rd->AddRB((char*)s.c_str(),(char*)(new string("Punto"+to_string(i+1)))->c_str(),0,1,0,10,0,0);
+			s="radioButtonLabelPuntoX";
+			rd->AddRB((char*)s.c_str(),(char*)(new string("x:"+to_string(coordNewPlano[i].x)))->c_str(),false,true,true,20,0,0);
+			s="radioButtonLabelPuntoY";
+			rd->AddRB((char*)s.c_str(),(char*)(new string("y:"+to_string(coordNewPlano[i].y)))->c_str(),false,true,true,20,0,0);
+			s="radioButtonLabelPuntoZ";
+			rd->AddRB((char*)s.c_str(),(char*)(new string("z:"+to_string(coordNewPlano[i].z)))->c_str(),false,true,true,20,0,0);
+
 		
-			rd->AddRB("radioButton1","Puntos",true);
+		}
+		desactivaAcept=true;
+		break;
+		case 4:
+			bocetoARemover=0;
+			rd->SetTopEscritura(true,"Seleccione Boceto a remover",rd);
+			for(unsigned i=1;i<Proyect1->contB;i++)
+		    {
+			s="radioButtonBoceto"+to_string(i);
+			rd->AddRB((char*)s.c_str(),Proyect1->bocetos[i]->name,i==1?1:0);
+		    }
+		break;
+	}
+	/*if(!SetInterfazEspecifica)
+	   {
+	   unsigned tope=2;
+	   if((!InterfaZ&&!aumentDisminuy)||InterfaZ==tope&&aumentDisminuy)
+	     {
+	     }
+	   else
+		 aumentDisminuy?interfaz++:interfaz--;
+	   }
+
+	string s;
+	switch (SetInterfazEspecifica?InterfaZ:interfaz)
+	{
+	case 0:
+		rd->SetTopEscritura(true,"menu",rd);
+		rd->AddRB("radioButtonBoceto","Crear boceto",true);
+		desactiaCancel=true;
+		break;
+	case 1:	
+		s.clear();
+		s+=Proyect1->bocetos[Proyect1->PlanoCheckeeado]->name;
+		s+="-"+to_string(radioButtonGroupPrincipal);
+		rd->SetTopEscritura(true,(char*)s.c_str(),rd);
+		for(unsigned i=0;i<Proyect1->contB;i++)
+		{
+			s.clear();
+			s="radioButton";
+			s+=Proyect1->bocetos[i]->name;
+			rd->AddRB((char*)s.c_str(),Proyect1->bocetos[i]->name,i==radioButtonGroupPrincipal?1:0);
+		}
+		rd->AddRB("radioButtonCrearPlano","Crear Plano");
+	    
+		break;
+	case -1:
+		s.clear();
+		s+=Proyect1->bocetos[Proyect1->PlanoCheckeeado]->name;
+		s+="-"+to_string(radioButtonGroupPrincipal);
+		rd->SetTopEscritura(true,(char*)s.c_str(),rd);
+			for(unsigned i=0;i<Proyect1->contB;i++)
+		{
+			s.clear();
+			s="radioButton";
+			s+=Proyect1->bocetos[i]->name;
+			rd->AddRB((char*)s.c_str(),Proyect1->bocetos[i]->name);
+		}
+			s.clear();
+			s="Puntos:";
+			s+=to_string(contCoordNewPlano);
+			s+="/3";
+
+		rd->AddRB("radioButtonCrearPlano","Creando Plano",true);
+		rd->AddRB("radioButtonCantPuntos",(char*)s.c_str(),false,true);
+		rd->GetRD("radioButtonCantPuntos",rd)->coord->x=+20;
+		rd->GetRD("radioButtonCantPuntos",rd)->l->coord->x=+20;
+		desactivaAcept=true;
+		break;
+
+	case 2:
+		s.clear();
+		s+=Proyect1->bocetos[Proyect1->PlanoCheckeeado]->name;
+		s+="-"+to_string(radioButtonGroupPrincipal);
+		rd->SetTopEscritura(true,(char*)s.c_str(),rd);
+		rd->AddRB("radioButton1","Puntos",true);
 		rd->AddRB("radioButton2","Lineas");
 		rd->AddRB("radioButtomNewLine","NEW      ");
 		rd->GetRD("radioButtomNewLine",rd)->Contar_NoCont_Check(rd->GetRD("radioButtomNewLine",rd));
@@ -466,8 +635,10 @@ RadioButtonGroup* ESE_GRS::Interfaz(unsigned InterfaZ){
 		rd->GetRD("radioButtomCrl-Z",rd)->active=false;
 		desactivaAcept=true;
 		break;
-	}
 	
+	
+	}
+	*/
 	ManejadorForms->Add(new Button("buttonAceptRBPrincipal",Type::BUTTONACEPTRB,*new CRD(rd->coord->x-6,rd->coord->y+18*rd->GetCONTRB()+5,rd->coord->z),0,1,0,rd->Wigth+6,10,rd->TotalWigth,rd->TotalHeight),ManejadorForms);
 	ManejadorForms->Add(new Button("buttonCancelRBPrincipal",Type::BUTTONCANCELRB,*new CRD(rd->coord->x+rd->Wigth,rd->coord->y-6,rd->coord->z),1,0,0,10,rd->Height+21,rd->TotalWigth,rd->TotalHeight),ManejadorForms);
 	if(desactivaAcept)
@@ -509,7 +680,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	{
 	   bool eRror=false;
 	   string s;
-	   switch (ManejadorForms->PresionarForm((float)x,(float)y,ManejadorForms))
+		   switch (ManejadorForms->PresionarForm((float)x,(float)y,ManejadorForms))
 	   {
 	   case 0:
 		  
@@ -521,102 +692,113 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 				  if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)))
 			        {
 			        radioButtonGroupPrincipal=ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetChecket();
-					
-					
-					
-					if(interfaz==1)
+					switch(interfaz)
 					{
+					case 1:
+						Proyect1->SetPlanoCheckeeado(radioButtonGroupPrincipal,Proyect1);
+						ManejadorForms->Add(Interfaz(1),ManejadorForms);
+						break;
+					case 2:
+						
+						break;
+					case 4:
+						bocetoARemover=ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetChecket();
+						break;
+					}
+					
+					/*
+					switch(interfaz)
+					{
+					case 1:
+						if(radioButtonGroupPrincipal>=Proyect1->contB)
+						   {
+							  ManejadorForms->Add(Interfaz(-1,0,1),ManejadorForms);
+							  contCoordNewPlano=0;
+						   }
+						else
+						{
+					       Proyect1->SetPlanoCheckeeado(radioButtonGroupPrincipal,Proyect1);
+                           ManejadorForms->Add(Interfaz(1,0,1),ManejadorForms);
+						}  
+						   
+					case 2:
 						switch (radioButtonGroupPrincipal)
 						{
 						case 0:
 							 ManejadorForms->DesactivateRB("radioButtonGroupPrincipal","radioButtomNewLine",ManejadorForms);
-			                 PintarLineaSuspensiva=false;   
+			                 Proyect1->Pintar_NoPintar_LineaSuspensiva(false,Proyect1);  
 							break;
 				
 						case 1:
 							ManejadorForms->ActivateRB("radioButtonGroupPrincipal","radioButtomNewLine",ManejadorForms);
-						    if(igs->contNP)
-					         {
-						    if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
-							   PintarLineaSuspensiva=false;
-						    else
-							   PintarLineaSuspensiva=true;
-					        }
 						
-						   if(!igs->contNL)
-							 PintarLineaSuspensiva=false;
-
-							break;
-						
-
-							
-							
+							break;	
 						}
 
 						if(ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->IsChecket("radioButtomNewLine"))
-						{
-						NEWLine=true;
-						PintarLineaSuspensiva=NEWLine?0:1;
-						}
+						   {
+						   NEWLine=true;
+						   Proyect1->Pintar_NoPintar_LineaSuspensiva( NEWLine?0:1,Proyect1); 
+						   }
 						if(ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->IsChecket("radioButtomCrl-Z"))
-						{
-							igs->CancelLastPoint(igs);
-							ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->SetChecket("radioButtomCrl-Z",false);
-						    if(!igs->cont)
+				    	   {
+							Proyect1->bocetos[Proyect1->PlanoCheckeeado]->CancelLastPoint(Proyect1->bocetos[Proyect1->PlanoCheckeeado]);
+						    ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->SetChecket("radioButtomCrl-Z",false);
+							if(!Proyect1->bocetos[Proyect1->PlanoCheckeeado]->cont)
 							   ManejadorForms->DesactivateRB("radioButtonGroupPrincipal","radioButtomCrl-Z",ManejadorForms);
-						    if(igs->contNP)
-					          {
-						       if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
-							      PintarLineaSuspensiva=false;
+							if(Proyect1->bocetos[Proyect1->PlanoCheckeeado]->contNP)
+					         {
+						       if(Proyect1->bocetos[Proyect1->PlanoCheckeeado]->NewPoint[Proyect1->bocetos[Proyect1->PlanoCheckeeado]->contNP-1]==Proyect1->bocetos[Proyect1->PlanoCheckeeado]->cont-1)
+							      Proyect1->Pintar_NoPintar_LineaSuspensiva(false,Proyect1);  
 						       else
-							      PintarLineaSuspensiva=true;
-					       }
+						          Proyect1->Pintar_NoPintar_LineaSuspensiva(true,Proyect1);  
+							}
+					
 						}
-						/*if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetRB("radioButtomCrl-Z")))
-					   {
-						igs->CancelLastPoint(igs);
-						ManejadorForms->GetForm("radioButtomCrl-Z",ManejadorForms)->CambiarChecket();
-						if(!igs->cont)
-							ManejadorForms->DesactivateRB("radioButtonGroupPrincipal","radioButtomCrl-Z",ManejadorForms);
-						if(igs->contNP)
-					      {
-						   if(igs->NewPoint[igs->contNP-1]==igs->cont-1)
-							   PintarLineaSuspensiva=false;
-						   else
-							   PintarLineaSuspensiva=true;
-					       }
-					   }
-						if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetRB("radioButtomNewLine")))
-					    {
-							NEWLine=ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetChecket()?1:0;
-						PintarLineaSuspensiva=NEWLine?0:1;
-					    }*/
-					   if(radioButtonGroupPrincipal==1)
-					   {
-						   
-					   }
-					   else
-					      {
-							 
-			              }
-					}
+			
+					   
+					   break;
+					}*/
 			     }	
 				}
-				
-							
-					  				   							 							   
+						 							   
 														   break;
+														   case Type::BUTTONACEPTRB:
+															   ManejadorForms->Add(Interfaz(0,INTERFZType::ACEPT),ManejadorForms);
+						
+			break;
+											   case Type::BUTTONCANCELRB:
+												   ManejadorForms->Add(Interfaz(0,INTERFZType::CANCEL),ManejadorForms);
+
+			break;
 
 		                                                case Type::RADIOBUTTON:
 				/////////////////////////////////////////////////////////RADIOBUTTON//////////////////////////////////////////////////////////
 		      
 		    if(recibir_serie)/////////////////////////if recivir_serie///////////////////////////////////////////////////////////////////////////////////
 		    {
-			   
-					
-					
+				switch(interfaz)
+				{
+				case 1:
+					if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)))
+				    {
+						if(ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetRBChecket("radioButonAddBoceto"))
+						{
+							ManejadorForms->Add(Interfaz(3),ManejadorForms);
+						}
+						if(ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->GetRBChecket("radioButonRemoveBoceto"))
+						{
+							ManejadorForms->Add(Interfaz(4),ManejadorForms);
+						}
+				    }
+					break;
+				case 2:
 
-       			}
+					break;
+				}
+				
+			      
+       		}
 			else//////////////no recivir_Serie///////////////////////////////////////////////////////////////////////////////////
 			{
 			/*if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonGroupSpeed",ManejadorForms)))
@@ -673,30 +855,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 
 
 		   break;
-		                                       case Type::BUTTONACEPTRB:
-
-				switch (interfaz)
-					{
-					case 0:
-
-						ManejadorForms->Add(Interfaz(++interfaz),ManejadorForms);
-						break;
-					case 1:
-
-						
-						break;
-					   }
-			break;
-											   case Type::BUTTONCANCELRB:
-				switch (interfaz)
-					{
-					case 1:
-
-						ManejadorForms->Add(Interfaz(--interfaz),ManejadorForms);
-						break;
-					   }
-
-			break;
+		                                       
 	                                                 case Type::BUTTONCANCELSETANGULES:
 		    ManejadorForms->Sub("textBoxsSetAngules0",ManejadorForms);
 			ManejadorForms->Sub("textBoxsSetAngules1",ManejadorForms);
@@ -762,15 +921,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 		   
 		  
 
-		   break;
-	                                                  
-		   
-		  
-	 
-
-
-	  
-	                                                 
+		   break;            
 	   	                                               case Type::BUTTONINITCOM:
 		   ESE_GRS::defaul_menu(-1);
 		   break;
@@ -1015,17 +1166,17 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 				trasladarZ+=5;
 				SeguirPuntoFinal=false;
 			break;
-			case GLUT_KEY_F8:
-				if(igs->cont)
-				{
-					double*d=igs->Media(igs);
-					trasladarX=-d[0];
-					trasladarY=-d[1];
-					trasladarZ=-d[2];
-					SeguirPuntoFinal=false;
-				}
-				else
-				break;
+			//case GLUT_KEY_F8:
+			//	if(Proyect1->cont)
+			//	{
+			//		double*d=Proyect1->Media(Proyect1);
+			//		trasladarX=-d[0];
+			//		trasladarY=-d[1];
+			//		trasladarZ=-d[2];
+			//		SeguirPuntoFinal=false;
+			//	}
+				//else
+			//	break;
 	
 		
 	}
@@ -1165,7 +1316,7 @@ void ESE_GRS::defaul_menu(int opcion){
 			   ManejadorForms->SetColor("labelESE_GRS",0,1,0,ManejadorForms);
 			   ManejadorForms->Add(new Label("labelRecib","Esperando Reedireccionamiento...",*(new CRD((float)(wigth/2-139.5),(float)(height-40),0)),2,0.5,0.5,0.5,wigth,height),ManejadorForms); 
 			   
-			   ManejadorForms->Add(Interfaz(interfaz),ManejadorForms);
+			   ManejadorForms->Add(Interfaz(0),ManejadorForms);
 			   //ManejadorForms->Add(new RadioButtonGroup("radioButtonGroupPrincipal",*new CRD(10,150,0),wigth,height),ManejadorForms);
       	        //ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->AddRB("radioButton2","Puntos",true);   
 			    //ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->AddRB("radioButton1","Linea"); 
@@ -1200,6 +1351,8 @@ void ESE_GRS::defaul_menu(int opcion){
 
 	case -2://detengo el COM
 		ManejadorForms->Sub("radioButtonGroupPrincipal",ManejadorForms);
+		ManejadorForms->Sub("buttonAceptRBPrincipal",ManejadorForms);
+		ManejadorForms->Sub("buttonCancelRBPrincipal",ManejadorForms);
 		ManejadorForms->Sub("radioButtonGroupRestriccion",ManejadorForms);
 		ManejadorForms->Sub("laberDetener",ManejadorForms);
 		ManejadorForms->Sub("buttonInitDetener",ManejadorForms);
@@ -1220,6 +1373,22 @@ void ESE_GRS::defaul_menu(int opcion){
 		ESE_GRS::InitMenu();
 		cout<<endl<<"Conexion finalizada"<<endl;
 	break;
+	case -5:
+		OcultarMenu=OcultarMenu?0:1;
+		if(!OcultarMenu)
+		{
+			ManejadorForms->ActivateForm("radioButtonGroupPrincipal",ManejadorForms);
+		    ManejadorForms->ActivateForm("buttonAceptRBPrincipal",ManejadorForms);
+			ManejadorForms->ActivateForm("buttonCancelRBPrincipal",ManejadorForms);
+		}
+		else
+		{
+		   ManejadorForms->DesactivateForm("radioButtonGroupPrincipal",ManejadorForms);
+		   ManejadorForms->DesactivateForm("buttonAceptRBPrincipal",ManejadorForms);
+		   ManejadorForms->DesactivateForm("buttonCancelRBPrincipal",ManejadorForms);
+		}
+		InitMenu();
+		break;
 	}
 	
 	glutPostRedisplay();
@@ -1375,51 +1544,95 @@ void ESE_GRS::recivirDatosCOM(){
 				       cout<<"Esperando Redireccionamiento"<<endl;
 					   }
 			        else/////////////PINTAR Y/O MOVER
-			           {   
-			            if(DataProcessor::PorcesarDatos(c[i],c[i+1],angules))//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
-			              {
-							if(interfaz==1)
-							  {
-						       corrdCambi=true;
+			           {
+						   bool pintar=DataProcessor::PorcesarDatos(c[i],c[i+1],angules);//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
+			                   corrdCambi=true;
 						       CalcularCoordenadas();
 						       ShowAngules();
-							   if(!igs->cont)//poner el rediobutton de crl-z
-								  ManejadorForms->ActivateRB("radioButtonGroupPrincipal","radioButtomCrl-Z",ManejadorForms);
-							   if(cooRd->x==igs->Vertex[igs->cont-1].x&&cooRd->y==igs->Vertex[igs->cont-1].y&&cooRd->z==igs->Vertex[igs->cont-1].z)
-							      cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"] No pintado";
-							   else
-							      {
-							       switch (radioButtonGroupPrincipal)
-							         {
-							          case 0://Puntos
-								         igs->NewPOINT(igs);
-								      break;
-							          case 1://Lineas
-								         if(!igs->contNL)
-									        igs->NewLINE(igs);
-								         if(igs->cont-1==igs->NewPoint[igs->contNP-1])
-									       igs->NewLINE(igs);
-								         PintarLineaSuspensiva=true;
-								         if(NEWLine)
-								           {
-									        NEWLine=false;
-									        PintarLineaSuspensiva=false;
-										    ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->SetChecket("radioButtomNewLine",false);
-									        igs->NewLINE(igs);
-								            }
-								        break;
-							         }
-							        cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"]-Pintado";
-							        igs->add(*(cooRd),igs);
-						        }
+						   if(pintar) 
+						   { 
+							   if(interfaz==3&&contCoordNewPlano<3)
+							   {
+								   coordNewPlano[contCoordNewPlano].x=cooRd->x;
+								   coordNewPlano[contCoordNewPlano].y=cooRd->y;
+								   coordNewPlano[contCoordNewPlano++].z=cooRd->z;
+								   ManejadorForms->Add(Interfaz(3),ManejadorForms);
+								   if(contCoordNewPlano==3)
+								   {
+									   ManejadorForms->ActivateForm("buttonAceptRBPrincipal",ManejadorForms);
+								   
+								   }
+							   }
+							/*if(interfaz==1)
+							  {
+   							   if(radioButtonGroupPrincipal==Proyect1->contB)
+								 {
+								   coordNewPlano[contCoordNewPlano].x=cooRd->x;
+								   coordNewPlano[contCoordNewPlano].y=cooRd->y;
+								   coordNewPlano[contCoordNewPlano++].z=cooRd->z;
+								   if(contCoordNewPlano==3)
+								       {
+										   string s;
+										   s="NewPlano";
+										   s+=to_string(contPlanos++);
+									   contCoordNewPlano=0;
+									   Proyect1->Add(new Plano((char*)s.c_str(),coordNewPlano),Proyect1);	  
+									   Proyect1->SetPlanoCheckeeado(Proyect1->contB-1,Proyect1);
+									   ManejadorForms->Add(Interfaz(1,0,1),ManejadorForms);
+									   PlanoCrearPlano->Clear(PlanoCrearPlano);				   
+									   }
+									   else
+									   {
+										  PlanoCrearPlano->NewPOINT(PlanoCrearPlano);
+										  PlanoCrearPlano->add(*cooRd,PlanoCrearPlano);
+									      ManejadorForms->Add(Interfaz(-1,0,1),ManejadorForms);
+									   }
+								  }
+							  // if(!Proyect1->cont)//poner el rediobutton de crl-z
+							//	  ManejadorForms->ActivateRB("radioButtonGroupPrincipal","radioButtomCrl-Z",ManejadorForms);
+							  //if(cooRd->x==Proyect1->Vertex[Proyect1->cont-1].x&&cooRd->y==Proyect1->Vertex[Proyect1->cont-1].y&&cooRd->z==Proyect1->Vertex[Proyect1->cont-1].z)
+							   //   cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"] No pintado";
+							   //else
+							     // {
+							//       switch (radioButtonGroupPrincipal)
+							 //        {
+							    //      case 0://Puntos
+								 //        Proyect1->NewPOINT(Proyect1);
+							//	      break;
+							//          case 1://Lineas
+								   //      if(!Proyect1->contNL)
+									//        Proyect1->NewLINE(Proyect1);
+								   //      if(Proyect1->cont-1==Proyect1->NewPoint[Proyect1->contNP-1])
+									//       Proyect1->NewLINE(Proyect1);
+									//	 Proyect1->Pintar_NoPintar_LineaSuspensiva(true,Proyect1);
+								    //     if(NEWLine)
+								    //       {
+									//        NEWLine=false;
+									//        Proyect1->Pintar_NoPintar_LineaSuspensiva(false,Proyect1);
+									//	    ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->SetChecket("radioButtomNewLine",false);
+									//        Proyect1->NewLINE(Proyect1);
+								    //        }
+								 //       break;
+							  //       }
+							      //  cout<<"["<<cooRd->x<<";"<<cooRd->y<<";"<<cooRd->z<<"]-Pintado";
+							      //  Proyect1->add(*(cooRd),Proyect1);
+						     //   }
 						     }
-			               }//end if TRUE de ProcesarDatos
-						else
-						   {
-						    corrdCambi=true;
-						    CalcularCoordenadas();
-						    ShowAngules();
-						   }
+							else if(interfaz==2)
+							   {
+								   ManejadorForms->ActivateRB("radioButtonGroupPrincipal","radioButtomCrl-Z",ManejadorForms);
+								   if(radioButtonGroupPrincipal==0)
+									   Proyect1->AddPoint(*cooRd,Proyect1,true,false);
+								   if(NEWLine)
+								   {
+									   NEWLine=false;
+									   Proyect1->AddPoint(*cooRd,Proyect1,false,true);
+									   ManejadorForms->GetForm("radioButtonGroupPrincipal",ManejadorForms)->SetChecket("radioButtomNewLine",false);
+								   }
+							   Proyect1->AddPoint(*cooRd,Proyect1);
+							   }*/
+			               }//end if(pintar)
+						
 			          }//end else
 					  cout<<"("<<tCOM.Incrementa(&tCOM)<<")"<<endl;
 		              tCOM.ResettIncrementa(&tCOM);

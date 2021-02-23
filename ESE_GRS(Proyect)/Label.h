@@ -6,7 +6,7 @@ private:
 	GLfloat R,G,B;
 	unsigned LetterSize;
 public:
-	Label();
+	Label(){};
 	Label(char*name,char*escritura,CRD coord,unsigned LetterSize,GLfloat R,GLfloat G,GLfloat B,float TotalWigth,float TotalHeight):Forms(name,coord, 0, 20, TotalWigth, TotalHeight)
 	{
 		this->t=Type::LABEL;

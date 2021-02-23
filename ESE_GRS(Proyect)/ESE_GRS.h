@@ -18,7 +18,10 @@
 #include "StackForms.h"
 #include "SalverMovement.h"
 #define PI 3.14159265
+#include "Sistema_Cartesiano.h"
 #include "Plano.h"
+#include "StackBoceto.h"
+
 using namespace std;
 
  class ESE_GRS
@@ -34,7 +37,7 @@ public:
 	static void smallEjeCoord(GLfloat size=10);
 	static void DrawingObjectIGS();
 	static void ShowAngules();
-	static RadioButtonGroup* Interfaz(unsigned intefaz);
+	static RadioButtonGroup* Interfaz(unsigned interfz=0,INTERFZType Buttom=INTERFZType::SPECIFIC);
 	///////////DEFAULTGLUTS
 	static void movRaton(GLsizei x,GLsizei y);
 	static void teclaRaton(int boton,int state,int x,int y);
