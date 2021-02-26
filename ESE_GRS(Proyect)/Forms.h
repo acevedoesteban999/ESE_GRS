@@ -3,7 +3,7 @@
 #include "ESE_GRS.h"
 enum Type
 {
-	FORMS,BUTTON,BUTTONACEPTRB,BUTTONCANCELRB,BUTTONINITCOM,BUTTONINITSETANGULES,BUTTONCANCELSETANGULES,BUTTONCANCELCOM,BUTTONINTICARGAMOVENTS,BUTTONCANCELCARGAMOVENTS,BUTTONINITSTOPCOM,BUTTONCANCELSTOPCOM,BUTTOMGUARDARMOVENT,TEXTBOX,LABEL,RADIOBUTTONGROUP,RADIOBUTTON
+	FORMS,BUTTON,BUTTONACEPTRB,BUTTONCANCELRB,BUTTONINITCOM,BUTTONINITSETANGULES,BUTTONCANCELSETANGULES,BUTTONCANCELCOM,BUTTONINTICARGAMOVENTS,BUTTONCANCELCARGAMOVENTS,BUTTONINITSTOPCOM,BUTTONCANCELSTOPCOM,BUTTOMGUARDARMOVENT,TEXTBOX,LABEL,RADIOBUTTONGROUP,RADIOBUTTON,BOX
 };
 enum INTERFZType{
 	ACEPT,CANCEL,SPECIFIC
@@ -16,7 +16,7 @@ public:
 	char*name;
 	CRD*coord;
 	float Wigth,Height,TotalWigth,TotalHeight;
-	bool active;
+	bool active,NoDraw;
 
 
 public:
@@ -24,7 +24,7 @@ public:
 		t=Type::FORMS;
 		coord=new CRD();
 		name=new char;
-		active=false;
+		active=NoDraw=false;
 	};
 	Forms(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight){
 		this->name=new char[strlen(name)+1];
@@ -37,14 +37,14 @@ public:
 		this->Height=height;
 		this->coord=new CRD(coord);
 		this->active=true;
+		this->NoDraw=false;
 	};
 	~Forms(){delete name,coord;};
-	static void Activate(Forms*f){
-		f->active=true;
+	
+	virtual void ActivateDesactivate(bool ActDesact){
+		this->active=ActDesact;
 	};
-	static void Desactivate(Forms*f){
-		f->active=false;
-	};
+	bool GetActiveDesavt(){return active;};
 	static void teXt(char*c,GLfloat x,GLfloat y,GLfloat R,GLfloat G,GLfloat B,unsigned LetterSize,Forms*f){
 	//dibujo el char c en la posicion x,y,z con color RGB
 	
@@ -58,26 +58,21 @@ public:
 		else if(LetterSize==0)
 	 	    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c[i]);
 		
-		
 	}
 }
 	static bool IsPulsdo(float x,float y,Forms*f){
-		if(f->t==Type::RADIOBUTTONGROUP)
-		{
-			if(x>=f->coord->x&&x<=f->coord->x+f->Wigth&&y>=f->coord->y&&y<=f->coord->y+f->Height)
-			   return true;
-			return false;
-		   
-		}
-		else if(x>=f->coord->x&&x<=f->coord->x+f->Wigth&&y>=f->coord->y&&y<=f->coord->y+f->Height)			
+		if(x>=f->coord->x&&x<=f->coord->x+f->Wigth&&y>=f->coord->y&&y<=f->coord->y+f->Height)			
 			return true;
 		return false;
+	}
+	static void SetDraw(bool noDraw,Forms*f){
+		f->NoDraw=noDraw;
 	}
 	virtual void NewTotalProp(float wigth,float height){
 		this->TotalWigth=wigth;
 		this->TotalHeight=height;
 	}
-	virtual  bool Pulsado(float x,float y){
+	virtual bool Pulsado(float x,float y){
 		if(x>=this->coord->x&&x<=this->coord->x+this->Wigth&&y>=this->coord->y&&y<=this->coord->y+this->Height)
 			return true;
 		return false;
@@ -88,16 +83,23 @@ public:
 	virtual char*GetEscritura(){
 		return "NULL";};
 	virtual bool GetEstoyEscribindo(){return false;}
-	virtual unsigned GetChecket(){return 0;};
-	virtual void NewText(char*newText){};
+	
 	virtual void NewCRD(CRD*crd){};
-	virtual void AddRB(char*name,char*escritura,bool Checket=false){};
-	virtual void SubRB(char*nameRB){};
+	
 	virtual void AddText(char letra){};
 	virtual void AddNewText(char*newTexts){};
 	virtual void SubText(){};
 	virtual void NoClick(){};
+	virtual void SetCoord(float x,float y,float z){
+		this->coord->x=x;
+		this->coord->y=y;
+		this->coord->z=z;
+	}
+	virtual void SetCoord(CRD*coord){
+		this->coord=new CRD(*coord);
+	}
 	virtual void SetColor(GLfloat R,GLfloat G,GLfloat B){};
+	virtual void SetLabelColor(GLfloat R,GLfloat G,GLfloat B){};
 	virtual void SetNewProp(float Wigth=0,float Height=0){
 		if(Wigth)
 		this->Wigth=Wigth;
@@ -106,15 +108,32 @@ public:
 	} 
 	virtual void CambiarEscritura(char*newText){};
 	virtual void CambiarChecket(){}
-	virtual double* GetChecketPositton(){
+	//RadBut
+	virtual bool RBGetCheket(){return false;};
+	//RadButGroup
+	virtual unsigned RBGGetChecket(){return 0;};
+	virtual void RBGActivDesactRB(char*name,bool activate){};
+	virtual double* RBGGetChecketPositton(){
 		double*a=new double[2];
 		a[0]=this->coord->x;
 		a[1]=this->coord->y;
 		return a;};
-	virtual unsigned GetMaxChecket(){return 0;};
-	virtual void ActivDesactRB(char*name,bool activate){};
-	virtual bool GetRBChecket(char*name){return false;};
-	virtual void SetChecket(char*name,bool checket){};
+	virtual unsigned RBGGetMaxChecket(){return 0;};
+	virtual bool RBGGetRBChecket(char*name){return false;};
+	virtual void RBGSetRBChecket(char*RBname,bool checket){};
+	virtual void RBGAddRB(char*name,char*escritura,bool Checket=false){};
+	virtual void RBGSubRB(char*nameRB){};
+	virtual bool RBGGetRBActiveDesavt(char*nameRB){return false;};
+	//Box
+	virtual unsigned BoxGetElemChecket(){return 0;};
+	virtual unsigned BoxGetRBG_RBChecket(char*RBGname,char*RBname){return 0;};
+	virtual bool BoxGetRBChecket(char*RBname){return false;};
+	virtual unsigned BoxGetRBGChecket(char*RBGname){return 0;};
+	virtual bool BoxGetActiveDesact(char*ElementName){return false;};
+	virtual bool BoxGetRBGActiveDesact(char*RBGName,char*RBName){return false;};
+	virtual void BoxCambiarChecketRB(char*RBname){};
+	virtual void BoxSetActivateDesactivate(char*ElementName,bool actvDesact){};
+	
 	//PURAS
 	virtual void Draw()=0; 
 	virtual unsigned Click()=0;

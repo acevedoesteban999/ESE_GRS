@@ -9,7 +9,6 @@ private:
 public:
 	bool Checket,SoloLabel;
 	Label*l;
-	bool noContCheck;
 	RadioButton(){};
 	RadioButton(char*RadioButtonName,CRD coord,char*escritura,float TotalWigth,float TotalHeight,bool Checket=false):Forms(RadioButtonName,coord,15,15,TotalWigth,TotalHeight){
 		SoloLabel=false;
@@ -19,11 +18,13 @@ public:
 		forma=0;
 		R=B=0;
 		G=1;
-		noContCheck=false;
+		this->Wigth=(float)(strlen(escritura)*10+20);
+		this->Height=20;
 	};
 	~RadioButton(){};
 	void Draw(){
-
+		if(!this->NoDraw)
+		{
 
 	     glPushMatrix();
 	     glLoadIdentity();
@@ -73,13 +74,18 @@ public:
 	         }
 		  glPopMatrix();
 	      l->Draw();
+		 
+		}
 	};
 	void NotChecket(){Checket=false;}
 	void NewTotalProp(float wigth,float height){
 		Forms::NewTotalProp(wigth,height);
 		l->NewTotalProp(wigth,height);
 	}
-	void CambiarEscritura(char*newText){l->NewText(newText);};
+	void AddNewText(char*newText){
+		l->AddNewText(newText);
+		this->Wigth=(float)(strlen(newText)*10+20);
+	};
 	void CambiarChecket(){Checket?Checket=false:Checket=true;};
 	void NewCRD(CRD*crd){
 		coord=new CRD(*crd);
@@ -91,16 +97,31 @@ public:
 		rb->G=G;
 		rb->B=B;
 	};
-	static bool IsChecket(RadioButton*rb){return rb->Checket;};	
-	unsigned GetChecket(){
-		return IsChecket(this);
-	}
+	bool RBGetCheket(){return this->Checket;};	
 	unsigned Click(){
 		if(!Checket)
 		   Checket=true;
 		else
 		   Checket=false;
 	return (unsigned)t;};
-	static void Contar_NoCont_Check(bool contNoCont,RadioButton*rb){rb->noContCheck=contNoCont;};
+	void SetCoord(float x,float y,float z){
+		this->coord->x=x;
+		this->coord->y=y;
+		this->coord->z=z;
+		this->l->coord->x=x+20;
+		this->l->coord->y=y;
+		this->l->coord->z=z;
+	}
+	 void SetCoord(CRD*coord){
+		this->coord=new CRD(*coord);
+		this->l->coord=new CRD(*coord);
+	}
+	void SetColor(GLfloat R,GLfloat G,GLfloat B){
+	this->R=R;
+	this->B=B;
+	this->G=G;};
+	void SetLabelColor(GLfloat R,GLfloat G,GLfloat B){
+		this->l->SetColor(R,G,B);
+	}
 	static void SetSoloLabel(bool SoloLabeL,RadioButton*rb){rb->SoloLabel=SoloLabeL;};
 };

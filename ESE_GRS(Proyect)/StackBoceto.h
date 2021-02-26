@@ -3,6 +3,7 @@
 class StackBoceto{
 public:
 	Plano**bocetos;
+	CRD*coord;
 	unsigned cantB,contB,PlanoCheckeeado;
 
 	StackBoceto(){
@@ -11,6 +12,7 @@ public:
 		bocetos=new Plano*[cantB];
 		bocetos[contB++]=new Plano("Boceto Libre");
 		PlanoCheckeeado=0;
+		coord=new CRD(0,0,0);
 	};
 	~StackBoceto(){delete []bocetos;};
 	static void Add(Plano*p,StackBoceto*b)
@@ -36,6 +38,13 @@ public:
 	static void Pintar_NoPintar_LineaSuspensiva(bool pintarNoPintar,StackBoceto*b){
 		b->bocetos[b->PlanoCheckeeado]->Pintar_NoPintar_LineaSuspensiva(pintarNoPintar,b->bocetos[b->PlanoCheckeeado]);
 	}
+	static void ActualizaPinarLineasSuspensivas(CRD*coord,StackBoceto*b){
+		b->coord=new CRD(*coord);
+		if(b->BocetoActual(b)->cont-1==b->BocetoActual(b)->NewPoint[b->BocetoActual(b)->contNP-1]||b->BocetoActual(b)->cont-1==b->BocetoActual(b)->NewLine[b->BocetoActual(b)->contNP-1])
+			b->BocetoActual(b)->Pintar_NoPintar_LineaSuspensiva(false,b->BocetoActual(b));
+		else if(!b->BocetoActual(b)->PintLinSusp)
+			b->BocetoActual(b)->Pintar_NoPintar_LineaSuspensiva(true,b->BocetoActual(b));
+	}
 	static void AddPoint(CRD coord,StackBoceto*b,bool NEWPOINT=false,bool NEWLINE=false){
 		if(NEWPOINT||NEWLINE)
 		{
@@ -44,7 +53,6 @@ public:
 		if(NEWPOINT)
 			b->bocetos[b->PlanoCheckeeado]->NewPOINT(b->bocetos[b->PlanoCheckeeado]);
 		}
-		else
 		  b->bocetos[b->PlanoCheckeeado]->add(coord,b->bocetos[b->PlanoCheckeeado]);
 	}
 	static void Sub(char*name,StackBoceto*b)
@@ -60,16 +68,17 @@ public:
 			}
 		}
 	}
-	static void Draw(CRD*coord,StackBoceto*b){
+	static void Draw(StackBoceto*b){
 		if(!b->PlanoCheckeeado)
 		 for(unsigned i=0;i<b->contB;i++)
-			b->bocetos[i]->Draw(coord,b->bocetos[i]);
+			b->bocetos[i]->Draw(b->coord,b->bocetos[i]);
 		else
-			b->bocetos[b->PlanoCheckeeado]->Draw(coord,b->bocetos[b->PlanoCheckeeado],true);
+			b->bocetos[b->PlanoCheckeeado]->Draw(b->coord,b->bocetos[b->PlanoCheckeeado],true);
 	};
 	static void SetPlanoCheckeeado(unsigned plano,StackBoceto*b){
 		b->PlanoCheckeeado=plano;
 	};
+	static Plano*BocetoActual(StackBoceto*sb){return sb->bocetos[sb->PlanoCheckeeado];};
 
 
 

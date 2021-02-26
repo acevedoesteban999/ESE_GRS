@@ -50,13 +50,13 @@ public:
 	static void ActivateForm(char*name,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
 			if(sf->ExistForm(name,sf->forms[i]))
-				sf->forms[i]->Activate(sf->forms[i]);
+				sf->forms[i]->ActivateDesactivate(true);
 	}
 	static void ActivateRB(char*RBGname,char*RBname,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
 			if(sf->forms[i]->t==Type::RADIOBUTTONGROUP&&ExistForm(RBGname,sf->forms[i]))
 			{
-				sf->forms[i]->ActivDesactRB(RBname,true);
+				sf->forms[i]->RBGActivDesactRB(RBname,true);
 				return;
 				
 				   
@@ -65,20 +65,20 @@ public:
 	static void DesactivateForm(char*name,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
 			if(sf->ExistForm(name,sf->forms[i]))
-				sf->forms[i]->Desactivate(sf->forms[i]);
+				sf->forms[i]->ActivateDesactivate(false);
 	}
 	static void DesactivateRB(char*RBGname,char*RBname,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
 			if(sf->forms[i]->t==Type::RADIOBUTTONGROUP&&ExistForm(RBGname,sf->forms[i]))
 			{
-				sf->forms[i]->ActivDesactRB(RBname,false);
+				sf->forms[i]->RBGActivDesactRB(RBname,false);
 				return;
 				   
 			}
 	}
     static void AddText(char c,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
-			if(sf->forms[i]->active&&sf->forms[i]->t==Type::TEXTBOX&&sf->forms[i]->Escribiendo())
+			if(sf->forms[i]->active&&(sf->forms[i]->t==Type::TEXTBOX||sf->forms[i]->t==Type::BOX)&&sf->forms[i]->Escribiendo())
 				sf->forms[i]->AddText(c);
 	}
 	static void AddNewText(char*FormsName,char*newText,StackForms*sf)
@@ -87,7 +87,7 @@ public:
 		{
 			if(sf->ExistForm(FormsName,sf->forms[i]))
 			{
-				sf->forms[i]->NewText(newText);
+				sf->forms[i]->AddNewText(newText);
 				break;
 			}
 		}
@@ -105,13 +105,20 @@ public:
 	}
     static void SubText(StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
-			if(sf->forms[i]->active&&sf->forms[i]->t==Type::TEXTBOX&&sf->forms[i]->Escribiendo())
+			if(sf->forms[i]->active&&(sf->forms[i]->t==Type::TEXTBOX||sf->forms[i]->t==Type::BOX)&&sf->forms[i]->Escribiendo())
 				sf->forms[i]->SubText();
 
 }
 	static void SetColor(char*name,GLfloat R,GLfloat G,GLfloat B,StackForms*sf){
 		sf->GetForm(name,sf)->SetColor(R,G,B);
 	
+	}
+	static void SetlabelColor(char*name,GLfloat R,GLfloat G,GLfloat B,StackForms*sf){
+		sf->GetForm(name,sf)->SetLabelColor(R,G,B);
+	
+	}
+	static void SetDraw(bool noDraw,char*name,StackForms*sf){
+		sf->GetForm(name,sf)->SetDraw(noDraw,sf->GetForm(name,sf));
 	}
 	static unsigned PresionarForm(float x,float y,StackForms*sf){
 		unsigned a=0;

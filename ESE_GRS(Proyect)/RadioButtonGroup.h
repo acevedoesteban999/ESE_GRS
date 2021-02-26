@@ -6,8 +6,6 @@ class RadioButtonGroup:public Forms
 protected:
 	unsigned cantRB,contRB,Checket;
 	RadioButton**RB;
-	Label*TopLabel;
-	bool topLabelbool,lastChecket;
 	
 public:
 	RadioButtonGroup(){};
@@ -16,7 +14,6 @@ public:
 		cantRB=10;
 		contRB=0;
 		RB=new RadioButton*[cantRB];
-		TopLabel=new Label("","",*new CRD(0,0,0),0,0,0,0,0,0);
 };
 	~RadioButtonGroup(){};
 	void NewTotalProp(float wigth,float height){
@@ -30,15 +27,8 @@ public:
 		}
 	}	
 	void Draw(){
-		if(this->active)
+		if(!this->NoDraw)
 		{
-		if(topLabelbool)
-		{
-		    glPushMatrix();
-			 glTranslatef(0,25,0);
-			 TopLabel->Draw();
-			glPopMatrix();
-		}
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1); 
@@ -56,17 +46,14 @@ public:
 	glPopMatrix();
     for(unsigned i=0;i<contRB;i++)
 	   this->RB[i]->Draw();
+	
 		}
+		
 	}
     unsigned Click(){
 	for(unsigned i=0;i<contRB;i++)
-		if(!RB[i]->noContCheck)
-			RB[i]->NotChecket();
+		RB[i]->NotChecket();
 	this->RB[Checket]->Click();
-
-	if(lastChecket)
-		return(unsigned)Type::RADIOBUTTON;
-
 	return(unsigned)t;
 	}
 	bool Pulsado(float x,float y)
@@ -78,26 +65,16 @@ public:
 		      {
 				  if(y>=RB[i]->coord->y&&y<=RB[i]->coord->y+15&&x>=RB[i]->coord->x&&x<=RB[i]->coord->x+15)
 				   {
-					   if(!RB[i]->noContCheck)
-					   {
-					      Checket=i;
-						  lastChecket=false;
-					   }
-					   else
-					   {
-						   RB[i]->CambiarChecket();
-						   lastChecket=true;
-					   }
+					   RB[i]->CambiarChecket();		   
+					   this->Checket=i;
 					   return true;
 			       }
-			
-		
 		      }
 		  
 		}
 	   return false;
 	}
-	void AddRB(char*RadioButtonName,char*escritura,bool Cheket=false,bool SoloLabel=false,bool contNocontChecket=false,float DesplazarX=0,float DesplazarY=0,float DesplazarZ=0){
+	void RBGAddRB(char*RadioButtonName,char*escritura,bool Cheket=false){
 		
 		if(Cheket)
 		    {
@@ -105,9 +82,9 @@ public:
 			for(unsigned i=0;i<this->contRB;i++)
 				RB[i]->NotChecket();
 		     }
-		if(this->Wigth<(float)(strlen(escritura)*9.5+25+DesplazarX))
-			this->Wigth=(float)(strlen(escritura)*9.5+25+DesplazarX);
-		RadioButton*rb=new RadioButton(RadioButtonName,*new CRD(this->coord->x,(double)(this->coord->y+(18*this->contRB)),this->coord->z),escritura,this->TotalWigth,this->TotalHeight,Cheket);
+		if(this->Wigth<(float)(strlen(escritura)*10+20))
+			this->Wigth=(float)(strlen(escritura)*10+20);
+		RadioButton*rb=new RadioButton(RadioButtonName,*new CRD(this->coord->x,(double)(this->coord->y+this->Height),this->coord->z),escritura,this->TotalWigth,this->TotalHeight,Cheket);
 		if(this->contRB>=this->cantRB)
 		{
 			RadioButton**newRB=new RadioButton*[this->cantRB+10];
@@ -117,24 +94,10 @@ public:
 		 this->RB=newRB;
 		}
 
-		if(SoloLabel)
-		{
-			rb->active=false;
-			rb->SoloLabel=true;
-		}
-		rb->coord->x+=DesplazarX;
-		rb->coord->y+=DesplazarY;
-		rb->coord->z+=DesplazarZ;
-		rb->l->coord->x+=DesplazarX;
-		rb->l->coord->y+=DesplazarY;
-		rb->l->coord->z+=DesplazarZ;
-		rb->Contar_NoCont_Check(contNocontChecket,rb);
 		this->RB[this->contRB++]=rb;
-		
-		  
-		this->Height+=18;
+		this->Height+=rb->Height;
 	}
-    void SubRB(char*nameRB){
+    void RBGSubRB(char*nameRB){
 		
 			for(unsigned i=0;i<this->contRB;i++)
 			{
@@ -148,12 +111,40 @@ public:
 			this->contRB--;
 			this->Height-=18;
 }
+	void Activate(){
+		this->active=true;
+		for(unsigned i=0;i<contRB;i++)
+			RB[i]->ActivateDesactivate(true);
+	};
+	void Desactivate(){
+		this->active=false;
+		for(unsigned i=0;i<contRB;i++)
+			RB[i]->ActivateDesactivate(false);
+	};
 	static RadioButton* GetRD(char*name,RadioButtonGroup*rbg){
 		for(unsigned i=0;i<rbg->contRB;i++)
 			if(!strcmp(rbg->RB[i]->name,name))
 				return rbg->RB[i];
 		return new RadioButton("GETRDError",*(new CRD(0,0,0)),"Error",0,0);
 	
+	}
+	void SetCoord(float x,float y,float z){
+		this->coord->x=x;
+		this->coord->y=y;
+		this->coord->z=z;
+		for(unsigned i=0;i<contRB;i++)
+		{
+			RB[i]->SetCoord(x,y,z);
+			y+=RB[0]->Height;
+		}
+	}
+	void SetCoord(CRD*coord){
+		this->coord=new CRD(*coord);
+		for(unsigned i=0;i<contRB;i++)
+		{
+			RB[i]->SetCoord(coord);
+			coord->y+=RB[0]->Height;
+		}
 	}
 	void SetNewProp(float wigth,float height){
 		if(wigth)
@@ -162,25 +153,23 @@ public:
 			this->Height=height;
 	
 	}
-	unsigned GetChecket(){
+	unsigned RBGGetChecket(){
 		return Checket;};
 	void CambiarChecket(){
 		RB[Checket]->NoClick();
-		do{
 		Checket==contRB-1?Checket=0:Checket++;
-		}while((RB[Checket]->noContCheck));
 		RB[Checket]->Click();
 
 	}
-	double* GetChecketPositton(){
+	double* RBGGetChecketPositton(){
 	   double*a=new double[2];
 	   a[0]=RB[Checket]->coord->x;
 	   a[1]=RB[Checket]->coord->y;
 	   return a;
 	}
-	unsigned GetMaxChecket(){return this->contRB;};
+	unsigned RBGGetMaxChecket(){return this->contRB;};
 	unsigned GetCONTRB(){return contRB;};
-	void ActivDesactRB(char*name,bool activate){
+	void RBGActivDesactRB(char*name,bool activate){
 		for(unsigned i=0;i<contRB;i++)
 		{
 			if(!strcmp(RB[i]->name,name))
@@ -193,21 +182,24 @@ public:
 	bool GetRBChecket(char*name){
 		for(unsigned i=0;i<contRB;i++)
 			if(RB[i]->active&&!strcmp(name,RB[i]->name))
-				return RB[i]->GetChecket()?1:0;
+				return RB[i]->RBGetCheket()?1:0;
 		return 0;
 	};
-	void SetChecket(char*name,bool checket){
+	void RBGSetRBChecket(char*RBname,bool checket){
 		for(unsigned i=0;i<contRB;i++)
 			if(!strcmp(name,RB[i]->name))
 				RB[i]->Checket=checket;
 	};
-	static void SetTopEscritura(bool active,char*escritura,RadioButtonGroup*rdg)
-	{
-	rdg->topLabelbool=active;
-	if(active)
-	{
-		rdg->TopLabel=new Label("LabelEscrituraRD",escritura,*rdg->coord,1,(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,rdg->TotalWigth,rdg->TotalHeight);
+	void ActivateDesactivate(bool ActDesact){
+	      for(unsigned i=0;i<contRB;i++)
+			  RB[i]->ActivateDesactivate(ActDesact);
 	}
+	bool RBGGetRBActiveDesavt(char*nameRB)
+	{
+	  for(unsigned i=0;i<contRB;i++)
+		  if(!strcmp(RB[i]->name,nameRB))
+			  return RB[i]->GetActiveDesavt();
+	  return false;
 	}
 	
 };

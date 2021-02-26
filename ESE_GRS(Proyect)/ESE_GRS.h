@@ -21,6 +21,7 @@
 #include "Sistema_Cartesiano.h"
 #include "Plano.h"
 #include "StackBoceto.h"
+#include "Box.h"
 
 using namespace std;
 
@@ -37,7 +38,7 @@ public:
 	static void smallEjeCoord(GLfloat size=10);
 	static void DrawingObjectIGS();
 	static void ShowAngules();
-	static RadioButtonGroup* Interfaz(unsigned interfz=0,INTERFZType Buttom=INTERFZType::SPECIFIC);
+	static Box* Interfaz(unsigned interfz=0,INTERFZType Buttom=INTERFZType::SPECIFIC);
 	///////////DEFAULTGLUTS
 	static void movRaton(GLsizei x,GLsizei y);
 	static void teclaRaton(int boton,int state,int x,int y);

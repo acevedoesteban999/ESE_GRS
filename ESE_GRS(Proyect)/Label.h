@@ -14,26 +14,22 @@ public:
 		this->G=G;
 		this->B=B;
 		this->LetterSize=LetterSize;
-		this->escritura=new char[strlen(escritura)+1];
-		this->escritura[strlen(escritura)]=0;
-		for(unsigned i=0;i<strlen(escritura);i++)
-			this->escritura[i]=escritura[i];
+		this->AddNewText(escritura);
 	}
 	~Label(){delete escritura;};
-	void CambiarEscritura(char*NewEscritutra){
-		NewText(NewEscritutra);
-	}
-	void NewText(char*newTexts){
+	void AddNewText(char*newTexts){
 		escritura=new char[strlen(newTexts)+1];
 		escritura[strlen(newTexts)]=0;
 		for(unsigned i=0;i<strlen(newTexts);i++)
 			escritura[i]=newTexts[i];
+		this->Wigth=(float)(strlen(escritura)*10);
 		}
 	void NewCRD(CRD*crd){
 		coord=new CRD(*crd);
 	}
 	void Draw()
 	{
+		if(!this->NoDraw)
 		Forms::teXt(escritura,(GLfloat)coord->x,(GLfloat)coord->y,(GLfloat)R,(GLfloat)G,(GLfloat)B,LetterSize,this);
 	}
 	void SetColor(GLfloat R,GLfloat G,GLfloat B){
