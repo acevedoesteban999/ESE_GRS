@@ -19,12 +19,7 @@ public:
 	void NewTotalProp(float wigth,float height){
 		Forms::NewTotalProp(wigth,height);
 		for(unsigned i=0;i<contRB;i++)
-		{
-			RB[i]->TotalWigth=wigth;
-			RB[i]->TotalHeight=height;
-			RB[i]->l->TotalWigth=wigth;
-			RB[i]->l->TotalHeight=height;
-		}
+			RB[i]->NewTotalProp(wigth,height);
 	}	
 	void Draw(){
 		if(!this->NoDraw)

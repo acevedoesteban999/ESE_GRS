@@ -3,16 +3,19 @@
 class StackBoceto{
 public:
 	Plano**bocetos;
-	CRD*coord;
-	unsigned cantB,contB,PlanoCheckeeado;
+	CRD*coord,*coorNewPlano;
+	unsigned contNPl,cantB,contB,PlanoCheckeeado;
+	bool draw;
 
 	StackBoceto(){
-		contB=0;
+		contB=contNPl=0;
 		cantB=10;
 		bocetos=new Plano*[cantB];
-		bocetos[contB++]=new Plano("Boceto Libre");
+		bocetos[contB++]=new Plano("Boceto general");
 		PlanoCheckeeado=0;
 		coord=new CRD(0,0,0);
+		coorNewPlano=new CRD[3];
+		draw=true;
 	};
 	~StackBoceto(){delete []bocetos;};
 	static void Add(Plano*p,StackBoceto*b)
@@ -68,18 +71,62 @@ public:
 			}
 		}
 	}
-	static void Draw(StackBoceto*b){
+	static void Draw(StackBoceto*b,bool proyectpunt=false){
+		if(b->contNPl)
+		{
+			glColor3f(1,1,1);
+			glPointSize(4);
+			glLineWidth(3);
+			if(b->contNPl==1)
+			{
+			   glBegin(GL_POINTS);
+				glVertex3f((GLfloat)b->coorNewPlano[0].x,(GLfloat)b->coorNewPlano[0].y,(GLfloat)b->coorNewPlano[0].z);
+			}
+			else
+			{
+			glBegin(GL_LINE_LOOP);
+			for(unsigned i=0;i<b->contNPl;i++)
+				glVertex3f((GLfloat)b->coorNewPlano[i].x,(GLfloat)b->coorNewPlano[i].y,(GLfloat)b->coorNewPlano[i].z);
+			}
+			glEnd();
+			glPointSize(1);
+			glLineWidth(1);
+			
+		}
+		if(b->draw)
+		{
 		if(!b->PlanoCheckeeado)
 		 for(unsigned i=0;i<b->contB;i++)
-			b->bocetos[i]->Draw(b->coord,b->bocetos[i]);
+			 b->bocetos[i]->Draw(b->coord,b->bocetos[i]);
 		else
-			b->bocetos[b->PlanoCheckeeado]->Draw(b->coord,b->bocetos[b->PlanoCheckeeado],true);
+			b->bocetos[b->PlanoCheckeeado]->Draw(b->coord,b->bocetos[b->PlanoCheckeeado],true,proyectpunt);
+		}
 	};
 	static void SetPlanoCheckeeado(unsigned plano,StackBoceto*b){
 		b->PlanoCheckeeado=plano;
 	};
 	static Plano*BocetoActual(StackBoceto*sb){return sb->bocetos[sb->PlanoCheckeeado];};
-
-
-
+	static void SetDraw(bool draw,StackBoceto*sb)
+	{
+		sb->draw=draw;
+	}
+	static void AddPuntoNewPlano(CRD*coord,StackBoceto*sb){
+		switch (sb->contNPl)
+		{
+		case 0:
+			sb->coorNewPlano=new CRD[3];
+			sb->coorNewPlano[sb->contNPl++]=*coord;
+			break;
+		case 1:
+			sb->coorNewPlano[sb->contNPl++]=*coord;
+			break;
+		case 2:
+			sb->coorNewPlano[sb->contNPl++]=*coord;
+			break;
+		}
+		
+	};
+	static void ResetNewPlano(StackBoceto*sb){
+		sb->contNPl=0;
+	};
 };

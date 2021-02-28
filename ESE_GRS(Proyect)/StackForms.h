@@ -13,10 +13,13 @@ public:
 	StackForms(){cont=0;cant=10;forms=new Forms*[cant];};
 	~StackForms(){delete[]forms;};
 	static void Add(Forms*form,StackForms*sf){
-		
+		if(form->Cancel)
+			return;
 		for(unsigned i=0;i<sf->cont;i++)
 			if(sf->ExistForm(form->name,sf->forms[i]))
 		         sf->Sub(form->name,sf);
+		if(form->destruir)
+			return;
 	
 	if(sf->cont>=sf->cant)
 	{
@@ -161,5 +164,17 @@ public:
 			if(forms[i]->Escribiendo())
 				return true;
 			return false;
+	}
+	static void MoveOnReshape(char*formsName,bool rechape,StackForms*sf)
+	{
+		for(unsigned i=0;i<sf->cont;i++)
+		{
+			if(!strcmp(sf->forms[i]->name,formsName))
+			{
+				sf->forms[i]->MoveOnReshape(rechape,sf->forms[i]);
+				return;
+			}
+		}
+	
 	}
 };

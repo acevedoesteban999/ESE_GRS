@@ -3,7 +3,7 @@
 #include "ESE_GRS.h"
 enum Type
 {
-	FORMS,BUTTON,BUTTONACEPTRB,BUTTONCANCELRB,BUTTONINITCOM,BUTTONINITSETANGULES,BUTTONCANCELSETANGULES,BUTTONCANCELCOM,BUTTONINTICARGAMOVENTS,BUTTONCANCELCARGAMOVENTS,BUTTONINITSTOPCOM,BUTTONCANCELSTOPCOM,BUTTOMGUARDARMOVENT,TEXTBOX,LABEL,RADIOBUTTONGROUP,RADIOBUTTON,BOX
+	ANIMACION,FORMS,BUTTON,BUTTONACEPTRB,BUTTONCANCELRB,BUTTONINITCOM,BUTTONINITSETANGULES,BUTTONCANCELSETANGULES,BUTTONCANCELCOM,BUTTONINTICARGAMOVENTS,BUTTONCANCELCARGAMOVENTS,BUTTONINITSTOPCOM,BUTTONCANCELSTOPCOM,BUTTOMGUARDARMOVENT,TEXTBOX,LABEL,RADIOBUTTONGROUP,RADIOBUTTON,BOX
 };
 enum INTERFZType{
 	ACEPT,CANCEL,SPECIFIC
@@ -17,14 +17,16 @@ public:
 	CRD*coord;
 	float Wigth,Height,TotalWigth,TotalHeight;
 	bool active,NoDraw;
-
+	bool destruir;
+	bool Cancel;
+	bool reshapeBool;
 
 public:
 	Forms(){
 		t=Type::FORMS;
 		coord=new CRD();
 		name=new char;
-		active=NoDraw=false;
+		active=NoDraw=destruir=Cancel=reshapeBool=false;
 	};
 	Forms(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight){
 		this->name=new char[strlen(name)+1];
@@ -38,9 +40,14 @@ public:
 		this->coord=new CRD(coord);
 		this->active=true;
 		this->NoDraw=false;
+		destruir=Cancel=reshapeBool=false;
 	};
 	~Forms(){delete name,coord;};
-	
+	static void Cancelar(Forms*f){f->Cancel=true;};
+	static void Destruir(Forms*f){f->destruir=true;};
+	static void MoveOnReshape(bool reshape,Forms*f){
+		f->reshapeBool=reshape;
+	}
 	virtual void ActivateDesactivate(bool ActDesact){
 		this->active=ActDesact;
 	};
@@ -69,6 +76,11 @@ public:
 		f->NoDraw=noDraw;
 	}
 	virtual void NewTotalProp(float wigth,float height){
+		if(reshapeBool)
+			{
+				this->coord->x=(this->coord->x*wigth)/this->TotalWigth;
+		        this->coord->y=(this->coord->y*height)/this->TotalHeight;
+		    }
 		this->TotalWigth=wigth;
 		this->TotalHeight=height;
 	}
@@ -106,7 +118,6 @@ public:
 		if(Height)
 		this->Height=Height;
 	} 
-	virtual void CambiarEscritura(char*newText){};
 	virtual void CambiarChecket(){}
 	//RadBut
 	virtual bool RBGetCheket(){return false;};
@@ -133,7 +144,7 @@ public:
 	virtual bool BoxGetRBGActiveDesact(char*RBGName,char*RBName){return false;};
 	virtual void BoxCambiarChecketRB(char*RBname){};
 	virtual void BoxSetActivateDesactivate(char*ElementName,bool actvDesact){};
-	
+	virtual char* BoxGetEscritura(char*TextBoxname){return new char(0);};
 	//PURAS
 	virtual void Draw()=0; 
 	virtual unsigned Click()=0;

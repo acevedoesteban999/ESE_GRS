@@ -25,15 +25,16 @@ public:
 	    sc->PintLinSusp=PintLinSusP;
 	};
 	static void NoPintarLineaSuspensiva(Sistema_Cartesiano*sc){sc->PintLinSusp=false;}; 
-	static void Draw(CRD*cooRd,Sistema_Cartesiano*sc)
+	static void Draw(CRD*cooRd,Sistema_Cartesiano*sc,bool restring=false,CRD*coorDRestring=new CRD(0,0,0),bool proyectpunto=false)
 	{
 	if(sc->cont)
 	   {
 
+		   glPushMatrix();
         glColor3f(1,1,1);
 	   
 	    //Puntos//////////////////////////
-			  glPointSize(5);
+			  glPointSize(4);
 	          glBegin(GL_POINTS);
 			  for(unsigned i=0;i<sc->cont;i++)//PUNTOS//Siempre pinto todos los puntos
 	             {
@@ -41,7 +42,7 @@ public:
 	             }
 	          glEnd();
 	      //Lineas///////////////////////////
-			  glPointSize(3);
+			  glLineWidth(3);
 		     glBegin(GL_LINE_STRIP);
 	         for(unsigned i=0;i<sc->cont;i++)//LINEAS
 	           {
@@ -70,19 +71,65 @@ public:
 		     glEnd();
 	         if(sc->PintLinSusp)//LINEAS SUSPENSIVAS
 	           {
-	            glBegin(GL_LINES);
+				    
+				    glBegin(GL_LINES);
 	            double a,b,c,d,e,f;
-	            a=sc->Vertex[sc->cont-1].x;
-	            b=sc->Vertex[sc->cont-1].y;
-	            c=sc->Vertex[sc->cont-1].z;
-	            d=cooRd->x-sc->Vertex[sc->cont-1].x;
-	            e=cooRd->y-sc->Vertex[sc->cont-1].y;
-	            f=cooRd->z-sc->Vertex[sc->cont-1].z;
-	            for(unsigned i=0;i<=9;i++)
-	               glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
+				if(restring)
+				   {
+					  glColor3f(0,1,0);
+					  a=sc->Vertex[sc->cont-1].x;
+	                  b=sc->Vertex[sc->cont-1].y;
+	                  c=sc->Vertex[sc->cont-1].z;
+					  d=coorDRestring->x-a;
+	                  e=coorDRestring->y-b;
+	                  f=coorDRestring->z-c;
+					  for(unsigned i=0;i<=9;i++)
+	                     glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
+					  glColor3f(1,1,1);
+					  a=coorDRestring->x;
+	                  b=coorDRestring->y;
+	                  c=coorDRestring->z;
+					  d=cooRd->x-a;
+					  e=cooRd->y-b;
+					  f=cooRd->z-c;
+					  for(unsigned i=0;i<=9;i++)
+	                     glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
+				   }
+				   else
+				{
+				   glColor3f(0,1,0);
+	               a=sc->Vertex[sc->cont-1].x;
+	               b=sc->Vertex[sc->cont-1].y;
+	               c=sc->Vertex[sc->cont-1].z;
+	               d=cooRd->x-a;
+	               e=cooRd->y-b;
+	               f=cooRd->z-c;
+				   for(unsigned i=0;i<=9;i++)
+	                  glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
+			    }
+	           
 	            glEnd();
 	           }
+			 else if(proyectpunto)
+			 {
+				 glColor3f(0,1,0);
+				 glBegin(GL_POINTS);
+				 glVertex3f((GLfloat)coorDRestring->x,(GLfloat)coorDRestring->y,(GLfloat)coorDRestring->z);
+				 glEnd();
+			 }
+			  glPointSize(1);
+			  glLineWidth(1);
+			 glPopMatrix();
 	    } 
+	else if(proyectpunto)
+	{
+		 glPointSize(4);
+		 glColor3f(0,1,0);
+			glBegin(GL_POINTS);
+			glVertex3f((GLfloat)coorDRestring->x,(GLfloat)coorDRestring->y,(GLfloat)coorDRestring->z);
+			glEnd();
+		glPointSize(1);
+	}
 	
 	};
 	static void add(CRD vertex,Sistema_Cartesiano*sc){

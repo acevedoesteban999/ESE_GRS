@@ -7,55 +7,49 @@ class Plano:public Sistema_Cartesiano
 public:
 	char*name;
 	CRD*Punto1;
-	CRD*aaa;
+	CRD*PuntosCrearPlano;
 	double A,B,C,D;//Secuencia Ax+By+Cz+D=0
-	bool RestringirAlPlano;
+	bool RestringirAlPlano,pintarPlano;
 	Plano(char*name){
+		pintarPlano=true;
 	 this->name=new char[strlen(name)+1];
 		this->name[strlen(name)]=0;
 		for(unsigned i=0;i<strlen(name);i++)
 			this->name[i]=name[i];
 	  Punto1=new CRD;
+	  PuntosCrearPlano=new CRD[4];
 	  RestringirAlPlano=false;
 	};
-	Plano(char*name,CRD*punts){
-		aaa=punts;
+	Plano(char*name,CRD Punt1,CRD Punt2,CRD Punt3,bool restring=false){
+		pintarPlano=true;
+		PuntosCrearPlano=new CRD[4];
+		CRD vectorA,vectorB,vectorProyect,vectorC,vectorD;
+		CRD pnt4,puntofinal;
+		vectorD=Punt2-Punt1;
+		//PuntosCrearPlano[0]=Punt1;
+		PuntosCrearPlano[1]=Punt2+vectorD;
+		vectorD=Punt3-Punt2;
+		PuntosCrearPlano[2]=Punt3+vectorD;
+		vectorA=Punt3-Punt1;
+        vectorB=Punt2-Punt1;
+		double a_punt_b=vectorA.x*vectorB.x+vectorA.y*vectorB.y+vectorA.z*vectorB.z;
+		double long_a=sqrt(pow(vectorA.x,2)+pow(vectorA.y,2)+pow(vectorA.z,2));
+		vectorProyect=vectorA*(a_punt_b/pow(long_a,2));
+		pnt4=Punt1+vectorProyect;
+		vectorC=pnt4-Punt2;
+		vectorC=vectorC*2;
+		puntofinal=Punt2+vectorC;
+		vectorD=puntofinal-Punt3;
+		PuntosCrearPlano[3]=puntofinal+vectorD;
+		vectorD= Punt1-puntofinal;
+		PuntosCrearPlano[0]=Punt1+vectorD;
+		
+		
 		this->name=new char[strlen(name)+1];
 		this->name[strlen(name)]=0;
 		for(unsigned i=0;i<strlen(name);i++)
 			this->name[i]=name[i];
-	RestringirAlPlano=true;
-	CRD Punt1=punts[0],Punt2=punts[1],Punt3=punts[2];
-	Punto1=new CRD(Punt1);
-	CRD v1,v2;
-	double d1,d2,d3,d4,d5,d6;
-	v1.x=Punt1.x-Punt2.x;
-	v1.y=Punt1.y-Punt2.y;
-	v1.z=Punt1.z-Punt2.z;
-	v2.x=Punt1.x-Punt3.x;
-	v2.y=Punt1.y-Punt3.y;
-	v2.z=Punt1.z-Punt3.z;
-	d1=v1.y*v2.z;
-	d2=v1.z*v2.y;
-	d3=v1.x*v2.z;
-	d4=v1.z*v2.x;
-	d5=v1.x*v2.y;
-	d6=v1.y*v2.x;
-	this->A=d1-d2;
-	this->B=-(d3-d4);
-	this->C=-(d5-d6);
-	this->D=-(A+B+C);
-};
-	Plano(char*name,CRD Punt1,CRD Punt2,CRD Punt3){
-		aaa=new CRD[3];
-		aaa[0]=Punt1;
-		aaa[1]=Punt2;
-		aaa[2]=Punt3;
-		this->name=new char[strlen(name)+1];
-		this->name[strlen(name)]=0;
-		for(unsigned i=0;i<strlen(name);i++)
-			this->name[i]=name[i];
-	RestringirAlPlano=true;
+		RestringirAlPlano=restring;
 	Punto1=new CRD(Punt1);
 	CRD v1,v2;
 	double d1,d2,d3,d4,d5,d6;
@@ -121,18 +115,30 @@ public:
 		else
 		   Sistema_Cartesiano::add(vertex,p);
 	};
-	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false){
-		if(p->RestringirAlPlano&&pintarPlano)
+	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false,bool proyectpunt=false){
+		if(p->RestringirAlPlano&&pintarPlano&&p->pintarPlano)
 		{
 
 		glColor3f((GLfloat)0.5,(GLfloat)0.5,(GLfloat)0.5);
 		glBegin(GL_POLYGON);
-		glVertex3f((GLfloat)p->aaa[0].x,(GLfloat)p->aaa[0].y,(GLfloat)p->aaa[0].z);
-		glVertex3f((GLfloat)p->aaa[1].x,(GLfloat)p->aaa[1].y,(GLfloat)p->aaa[1].z);
-		glVertex3f((GLfloat)p->aaa[2].x,(GLfloat)p->aaa[2].y,(GLfloat)p->aaa[2].z);
+		for(unsigned i=0;i<4;i++)
+		  glVertex3f((GLfloat)p->PuntosCrearPlano[i].x,(GLfloat)p->PuntosCrearPlano[i].y,(GLfloat)p->PuntosCrearPlano[i].z);
+		//glVertex3f((GLfloat)p->PuntosCrearPlano[0].x,(GLfloat)p->PuntosCrearPlano[0].y,(GLfloat)p->PuntosCrearPlano[0].z);
+		glVertex3f((GLfloat)p->PuntosCrearPlano[1].x,(GLfloat)p->PuntosCrearPlano[1].y,(GLfloat)p->PuntosCrearPlano[1].z);
+		//glVertex3f((GLfloat)p->PuntosCrearPlano[2].x,(GLfloat)p->PuntosCrearPlano[2].y,(GLfloat)p->PuntosCrearPlano[2].z);
 		glEnd();
 		}
-		Sistema_Cartesiano::Draw(cooRd,p);
+		Sistema_Cartesiano::Draw(cooRd,p,p->RestringirAlPlano,p->RestringirAlPlano?&Plano::CoordRestringida(*cooRd,p):new CRD(0,0,0),proyectpunt);
 	}
+	static char*EcucaionPlano(Plano*p){
+		string s;
+		char*a;
+		s=to_string(p->A)+"A"+(p->B>0?"+":"")+to_string(p->B)+"B"+(p->C>0?"+":"")+to_string(p->C)+"D";
+		a=new char[s.length()+1];
+		a[s.length()]=0;
+		for(unsigned i=0;i<s.length();i++)
+			a[i]=s[i];
+		return a;
+	};
 };
 

@@ -12,5 +12,23 @@ public:
 	}
 	double x,y,z;
 	static void set(float x,float y,float z,CRD*crd){crd->x=x;crd->y=y;crd->z=z;}
+	CRD operator +(const CRD c)
+	{
+		return CRD(this->x+c.x,this->y+c.y,this->z+c.z); 
+	};
+	CRD operator -(const CRD c)
+	{
+		return CRD(this->x-c.x,this->y-c.y,this->z-c.z); 
+	};
+	CRD operator *(const double c)
+	{
+		return CRD(this->x*c,this->y*c,this->z*c); 
+	};
+	CRD operator /(const double c)
+	{
+		if(c==0)
+			return CRD(0,0,0); 
+		return CRD(this->x/c,this->y/c,this->z/c); 
+	};
 };
 

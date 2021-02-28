@@ -22,6 +22,7 @@
 #include "Plano.h"
 #include "StackBoceto.h"
 #include "Box.h"
+#include "Animacion.h"
 
 using namespace std;
 

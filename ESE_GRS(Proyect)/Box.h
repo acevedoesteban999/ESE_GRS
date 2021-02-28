@@ -186,4 +186,18 @@ public:
 		if(!strcmp(forms[i]->name,ElementName))
 			forms[i]->ActivateDesactivate(actvDesact);
 	};
+	void NewTotalProp(float wigth,float height)
+	{
+	   Forms::NewTotalProp(wigth,height);
+	   for(unsigned i=0;i<cont;i++)
+		   forms[i]->NewTotalProp(wigth,height);
+	}
+	char* BoxGetEscritura(char*TextBoxname){
+		for(unsigned i=0;i<cont;i++)
+			if(!strcmp(forms[i]->name,TextBoxname))
+				return forms[i]->GetEscritura();
+		return new char(0);
+		
+	};
+	
 };
