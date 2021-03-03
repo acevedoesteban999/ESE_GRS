@@ -1,18 +1,25 @@
 #pragma once
 #include "Forms.h"
 #include "TimeDuration.h"
-
+enum TextBoxType
+{
+  DEFAULT,UNSIGNEDCONTENT,INTCONTENT,FLOATCONTENT,CHARCONTENT
+};
 class TextBox:public Forms
 {
 public:
 	bool escribiendo;
+	bool punt;
 	char*escritura;
 	unsigned max,cont;
 	float Tope;
 	TimeDuration tim;
+	TextBoxType tbt;
 	bool dosClicks;
 	TextBox(){};
-	TextBox(char*name,CRD crd,float wigth,float TotalWigth,float TotalHeight,char*Escritura="",unsigned max=0):Forms(name,crd,0,20,TotalWigth,TotalHeight){
+	TextBox(char*name,CRD crd,float wigth,float TotalWigth,float TotalHeight,char*Escritura="",unsigned max=0,TextBoxType tBt=TextBoxType::DEFAULT):Forms(name,crd,0,20,TotalWigth,TotalHeight){
+	    punt=false;
+		this->tbt=tBt;
 		if(wigth<15)
 		{
 			this->Wigth=15;
@@ -64,6 +71,37 @@ public:
 	void AddText(char letra){
 		if(cont<max)
 		{
+			switch(this->tbt)
+			{
+			case TextBoxType::UNSIGNEDCONTENT:
+			    if(!isdigit(letra))
+				{
+					return;
+				}
+				break;
+			case TextBoxType::INTCONTENT:
+				 if(!isdigit(letra))
+				{
+					if(letra!='-'||cont!=0)
+						return;
+				}
+				break;
+			case TextBoxType::FLOATCONTENT:
+				if(!isdigit(letra))
+				{
+					if(letra=='.'&&!this->punt)
+						this->punt=true;
+					else if(letra=='.'&&this->punt)
+						return;
+                    else if(letra!='-'||cont!=0)
+						return;
+				}
+				break;
+			case TextBoxType::CHARCONTENT:
+				if(!isalpha(letra))
+					return;
+				break;	
+			}
 			escritura[cont++]=letra;
 			escritura[cont]=0;
 		}
@@ -72,6 +110,8 @@ public:
 	{
 		if(cont>0)
 		{	
+			if(this->tbt==TextBoxType::FLOATCONTENT&&this->escritura[cont-1]=='.')
+				this->punt=false;
                escritura[--cont]=0;
 		}
 		

@@ -15,9 +15,14 @@ public:
 	static void Add(Forms*form,StackForms*sf){
 		if(form->Cancel)
 			return;
-		for(unsigned i=0;i<sf->cont;i++)
+		for(int i=(int)sf->cont-1;i>=0;i--)
+		   {
 			if(sf->ExistForm(form->name,sf->forms[i]))
-		         sf->Sub(form->name,sf);
+			{
+		       sf->Sub(form->name,sf);
+			   break;
+			}
+		}
 		if(form->destruir)
 			return;
 	
@@ -158,6 +163,13 @@ public:
 			if(!strcmp(f->name,name))
 				return true;
 	     return false;
+	}
+	static bool ExisteInStackForm(char*name,StackForms*sf)
+	{
+		for(unsigned i=0;i<sf->cont;i++)
+			if(sf->ExistForm(name,sf->forms[i]))
+				return true;
+		return false;
 	}
 	bool GetEstoyEscribindo(){
 		for(unsigned i=0;i<this->cont;i++)

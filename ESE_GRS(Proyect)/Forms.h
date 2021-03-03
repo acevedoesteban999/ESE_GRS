@@ -3,7 +3,7 @@
 #include "ESE_GRS.h"
 enum Type
 {
-	ANIMACION,FORMS,BUTTON,BUTTONACEPTRB,BUTTONCANCELRB,BUTTONINITCOM,BUTTONINITSETANGULES,BUTTONCANCELSETANGULES,BUTTONCANCELCOM,BUTTONINTICARGAMOVENTS,BUTTONCANCELCARGAMOVENTS,BUTTONINITSTOPCOM,BUTTONCANCELSTOPCOM,BUTTOMGUARDARMOVENT,TEXTBOX,LABEL,RADIOBUTTONGROUP,RADIOBUTTON,BOX
+	ANIMACION,FORMS,BUTTON,BUTTONACEPTRB,BUTTONCANCELRB,BUTTONINITSETANGULES,BUTTONCANCELSETANGULES,TEXTBOX,LABEL,RADIOBUTTONGROUP,RADIOBUTTON,BOX
 };
 enum INTERFZType{
 	ACEPT,CANCEL,SPECIFIC
@@ -47,6 +47,16 @@ public:
 	static void Destruir(Forms*f){f->destruir=true;};
 	static void MoveOnReshape(bool reshape,Forms*f){
 		f->reshapeBool=reshape;
+	}
+	static void SetName(char*name,Forms*f)
+	{
+		f->name=new char[strlen(name)+1];
+		f->name[strlen(name)]=0;
+		for(unsigned i=0;i<strlen(name);i++)
+			f->name[i]=name[i];
+	}
+	static void SetCRD(CRD*coord,Forms*f){
+		f->coord=new CRD(*coord);
 	}
 	virtual void ActivateDesactivate(bool ActDesact){
 		this->active=ActDesact;

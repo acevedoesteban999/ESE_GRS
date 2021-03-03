@@ -8,7 +8,7 @@
 #include <string.h>
 #include "LoaderObject.h"
 #include "StackLoaderObject.h"
-#include "PuertoSerie.h"
+//#include "PuertoSerie.h"
 #include <string>
 #include "CRD.h"
 #include "DataProcessor.h"
@@ -23,6 +23,7 @@
 #include "StackBoceto.h"
 #include "Box.h"
 #include "Animacion.h"
+#include "Connection.h"
 
 using namespace std;
 
