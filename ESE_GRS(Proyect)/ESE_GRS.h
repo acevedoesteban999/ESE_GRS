@@ -38,7 +38,6 @@ public:
 	static void Entorno();
 	static void text(char*c,GLfloat x,GLfloat y,GLfloat z,GLfloat R=1.0,GLfloat G=1.0,GLfloat B=1.0,bool big=false,bool moreBig=false);
 	static void smallEjeCoord(GLfloat size=10);
-	static void DrawingObjectIGS();
 	static void ShowAngules();
 	static Box* Interfaz(unsigned interfz=0,INTERFZType Buttom=INTERFZType::SPECIFIC);
 	///////////DEFAULTGLUTS
@@ -46,7 +45,7 @@ public:
 	static void teclaRaton(int boton,int state,int x,int y);
 	static void reshape(int x,int y);
 	static void initProyecc();
-	static void wheelAndRotate(bool a=false);
+	static void wheelAndRotate();
 	static void Idle();
 	static void Inicializar();
 	static bool IniciarCargObjetos();

@@ -56,7 +56,7 @@ public:
 		if(NEWPOINT)
 			b->bocetos[b->PlanoCheckeeado]->NewPOINT(b->bocetos[b->PlanoCheckeeado]);
 		}
-		  b->bocetos[b->PlanoCheckeeado]->add(coord,b->bocetos[b->PlanoCheckeeado]);
+		  b->bocetos[b->PlanoCheckeeado]->add(&coord,b->bocetos[b->PlanoCheckeeado]);
 	}
 	static void Sub(char*name,StackBoceto*b)
 	{
