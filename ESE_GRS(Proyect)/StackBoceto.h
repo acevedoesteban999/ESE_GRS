@@ -39,23 +39,14 @@ public:
 	
 	}
 	static void Pintar_NoPintar_LineaSuspensiva(bool pintarNoPintar,StackBoceto*b){
-		b->bocetos[b->PlanoCheckeeado]->Pintar_NoPintar_LineaSuspensiva(pintarNoPintar,b->bocetos[b->PlanoCheckeeado]);
+//		b->bocetos[b->PlanoCheckeeado]->Pintar_NoPintar_LineaSuspensiva(pintarNoPintar,b->bocetos[b->PlanoCheckeeado]);
 	}
-	static void ActualizaPinarLineasSuspensivas(CRD*coord,StackBoceto*b){
-		b->coord=new CRD(*coord);
-		if(b->BocetoActual(b)->cont-1==b->BocetoActual(b)->NewPoint[b->BocetoActual(b)->contNP-1]||b->BocetoActual(b)->cont-1==b->BocetoActual(b)->NewLine[b->BocetoActual(b)->contNP-1])
-			b->BocetoActual(b)->Pintar_NoPintar_LineaSuspensiva(false,b->BocetoActual(b));
-		else if(!b->BocetoActual(b)->PintLinSusp)
-			b->BocetoActual(b)->Pintar_NoPintar_LineaSuspensiva(true,b->BocetoActual(b));
+	static void ActualizaLastCood(CRD*coord,StackBoceto*b){
+	b->coord=new CRD(*coord);
+	if(b->contB)
+	   b->BocetoActual(b)->ActualiWidthHeight(&Plano::CoordRestringida(b->coord,b->BocetoActual(b)),b->BocetoActual(b));
 	}
-	static void AddPoint(CRD coord,StackBoceto*b,bool NEWPOINT=false,bool NEWLINE=false){
-		if(NEWPOINT||NEWLINE)
-		{
-		if(NEWLINE)
-			b->bocetos[b->PlanoCheckeeado]->NewLINE(b->bocetos[b->PlanoCheckeeado]);
-		if(NEWPOINT)
-			b->bocetos[b->PlanoCheckeeado]->NewPOINT(b->bocetos[b->PlanoCheckeeado]);
-		}
+	static void AddPoint(CRD coord,StackBoceto*b){
 		  b->bocetos[b->PlanoCheckeeado]->add(&coord,b->bocetos[b->PlanoCheckeeado]);
 	}
 	static void Sub(char*name,StackBoceto*b)

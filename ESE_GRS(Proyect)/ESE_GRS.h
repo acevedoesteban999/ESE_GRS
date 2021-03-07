@@ -24,7 +24,6 @@
 #include "Box.h"
 #include "Animacion.h"
 #include "Connection.h"
-
 using namespace std;
 
  class ESE_GRS

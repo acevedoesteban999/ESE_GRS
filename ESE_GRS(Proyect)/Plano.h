@@ -1,15 +1,19 @@
 #pragma once
 #include "CRD.h"
 #include <math.h>
-#include "Sistema_Cartesiano.h"
-class Plano:public Sistema_Cartesiano
+#include "Items.h"
+class Plano
 {
 public:
+	Items**items;
+	unsigned contItems,cantItems;
 	char*name;
+	bool NewItem;
+	ItemsType NextitType;
 	CRD*PuntoCentro;
 	CRD*PuntosCrearPlano;
 	CRD*puNt1,*puNt2,*puNt3,*puNt4;
-	float distmax;
+	float distmax,trasladarplano;
 	double A,B,C,D;//Secuencia Ax+By+Cz+D=0
 	bool RestringirAlPlano,pintarPlano;
 	Plano(char*name){
@@ -21,8 +25,18 @@ public:
 	  PuntoCentro=new CRD;
 	  PuntosCrearPlano=new CRD[4];
 	  RestringirAlPlano=false;
+	  contItems=0;
+	  cantItems=100;
+	  items=new Items*[cantItems];
+	  NewItem=true;
+	  trasladarplano=0;
 	};
 	Plano(char*name,CRD*Punt1,CRD*Punt2,CRD*Punt3,bool restring=false){
+		contItems=0;
+		cantItems=100;
+		items=new Items*[cantItems];
+		NewItem=true;
+		trasladarplano=0;
 		pintarPlano=true;
 		PuntosCrearPlano=new CRD[4];
 		CRD vectorA,vectorB,vectorProyect,vectorC,vectorD;
@@ -125,93 +139,90 @@ public:
 		return a;
 	}
 	static void add(CRD*vertex,Plano*p){
-		if(p->RestringirAlPlano)
+		//if(p->RestringirAlPlano)
+		//{
+		//	Sistema_Cartesiano::add(CoordRestringida(vertex,p),p);
+		//	p->ActualiWidthHeight(&CoordRestringida(vertex,p),p);
+		//}
+		//else
+		//  Sistema_Cartesiano::add(*vertex,p);
+		if(p->NewItem)
 		{
-			Sistema_Cartesiano::add(CoordRestringida(vertex,p),p);
-			p->ActualiWidthHeight(&CoordRestringida(vertex,p),p);
+			p->NewItem=false;
+			p->contItems++;
+			if(p->contItems>=p->cantItems)
+			{
+				Items**newItems=new Items*[p->cantItems+100];
+				p->cantItems+=100;
+				for(unsigned i=0;i<p->contItems;i++)
+					newItems[i]=p->items[i];
+				delete[] p->items;
+				p->items=newItems;
+			}
+		   
+		   switch (p->NextitType)
+		   {
+		    case ItemsType::POINTSS:
+			   p->items[p->contItems-1]=new Points();
+			break;
+		    case ItemsType::LINE_STRIP:
+			   p->items[p->contItems-1]=new Strip_Line();
+			break;
+		   }
 		}
-		else
-		   Sistema_Cartesiano::add(*vertex,p);
+		p->items[p->contItems-1]->Add(&Plano::CoordRestringida(vertex,p));
 	};
 	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false,bool proyectpunt=false){
 		if(p->RestringirAlPlano&&pintarPlano&&p->pintarPlano)
 		{
-		
-	//	punt1=Plano::CoordRestringida(punt1,p);
-	//	punt2=Plano::CoordRestringida(punt2,p);
-	//	punt3=Plano::CoordRestringida(punt3,p);
-	//	punt4=Plano::CoordRestringida(punt4,p);
-
 		glColor3f((GLfloat)0.5,(GLfloat)0.5,(GLfloat)0.5);
 		glBegin(GL_QUAD_STRIP);
-		glVertex3f((GLfloat)p->puNt1->x,(GLfloat)p->puNt1->y,(GLfloat)p->puNt1->z);
-		glVertex3f((GLfloat)p->puNt2->x,(GLfloat)p->puNt2->y,(GLfloat)p->puNt2->z);
-		glVertex3f((GLfloat)p->puNt3->x,(GLfloat)p->puNt3->y,(GLfloat)p->puNt3->z);
-		glVertex3f((GLfloat)p->puNt4->x,(GLfloat)p->puNt4->y,(GLfloat)p->puNt4->z);
+		glVertex3f((GLfloat)p->puNt1->x+p->trasladarplano,(GLfloat)p->puNt1->y+p->trasladarplano,(GLfloat)p->puNt1->z+p->trasladarplano);
+		glVertex3f((GLfloat)p->puNt2->x+p->trasladarplano,(GLfloat)p->puNt2->y+p->trasladarplano,(GLfloat)p->puNt2->z+p->trasladarplano);
+		glVertex3f((GLfloat)p->puNt3->x+p->trasladarplano,(GLfloat)p->puNt3->y+p->trasladarplano,(GLfloat)p->puNt3->z+p->trasladarplano);
+		glVertex3f((GLfloat)p->puNt4->x+p->trasladarplano,(GLfloat)p->puNt4->y+p->trasladarplano,(GLfloat)p->puNt4->z+p->trasladarplano);
 		glEnd();
 		glColor3f((GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7);
 		glBegin(GL_LINES);
 		glVertex3f((GLfloat)p->PuntoCentro->x+(GLfloat)p->A/10,(GLfloat)p->PuntoCentro->y+(GLfloat)p->B/10,(GLfloat)p->PuntoCentro->z+(GLfloat)p->C/10);
 		glVertex3f((GLfloat)p->PuntoCentro->x-(GLfloat)p->A/10,(GLfloat)p->PuntoCentro->y-(GLfloat)p->B/10,(GLfloat)p->PuntoCentro->z-(GLfloat)p->C/10);
 		glEnd();
-		/*
-		b=new CRD(p->CoordRestringida(*new CRD(100,100,-100),p));
 		
-		c=new CRD(p->CoordRestringida(*new CRD(100,-100,100),p));
-		
-		d=new CRD(p->CoordRestringida(*new CRD(100,-100,-100),p));
-		
-		e=new CRD(p->CoordRestringida(*new CRD(-100,100,100),p));
-			
-		f=new CRD(p->CoordRestringida(*new CRD(-100,100,-100),p));
-		
-		g=new CRD(p->CoordRestringida(*new CRD(-100,-100,100),p));
-
-		h=new CRD(p->CoordRestringida(*new CRD(-100,-100,-100),p));
-		
-
-		glVertex3f((GLfloat)a->x,(GLfloat)a->y,(GLfloat)a->z);
-		glVertex3f((GLfloat)b->x,(GLfloat)b->y,(GLfloat)b->z);
-		glVertex3f((GLfloat)c->x,(GLfloat)c->y,(GLfloat)c->z);
-		glVertex3f((GLfloat)d->x,(GLfloat)d->y,(GLfloat)d->z);
-		glVertex3f((GLfloat)e->x,(GLfloat)e->y,(GLfloat)e->z);
-		glVertex3f((GLfloat)f->x,(GLfloat)f->y,(GLfloat)f->z);
-		glVertex3f((GLfloat)g->x,(GLfloat)g->y,(GLfloat)g->z);
-		glVertex3f((GLfloat)h->x,(GLfloat)h->y,(GLfloat)h->z);
-
-		glColor3f((GLfloat)1,(GLfloat)0,(GLfloat)0);
-		glVertex3f(100,100,100);
-		glVertex3f(100,100,-100);
-		glVertex3f(100,-100,100);
-		glVertex3f(100,-100,-100);
-		glVertex3f(-100,100,100);
-		glVertex3f(-100,100,-100);
-		glVertex3f(-100,-100,100);
-		glVertex3f(-100,-100,-100);
-		glEnd();
-		glColor3f((GLfloat)0.5,(GLfloat)0.5,(GLfloat)0.5);*/
-		/*for(unsigned i=0;i<4;i++)
-		  glVertex3f((GLfloat)p->PuntosCrearPlano[i].x,(GLfloat)p->PuntosCrearPlano[i].y,(GLfloat)p->PuntosCrearPlano[i].z);
-		//glVertex3f((GLfloat)p->PuntosCrearPlano[0].x,(GLfloat)p->PuntosCrearPlano[0].y,(GLfloat)p->PuntosCrearPlano[0].z);
-		glVertex3f((GLfloat)p->PuntosCrearPlano[1].x,(GLfloat)p->PuntosCrearPlano[1].y,(GLfloat)p->PuntosCrearPlano[1].z);
-		//glVertex3f((GLfloat)p->PuntosCrearPlano[2].x,(GLfloat)p->PuntosCrearPlano[2].y,(GLfloat)p->PuntosCrearPlano[2].z);
-		glEnd();
-		glColor3f(1,1,0);
-		glBegin(GL_LINES);
-		glVertex3f(p->PuntoCentro->x,p->PuntoCentro->y,p->PuntoCentro->z);
-		glVertex3f(p->PuntoCentro->x+p->A/100,p->PuntoCentro->y+p->B/100,p->PuntoCentro->z+p->C/100);
-		glVertex3f(p->PuntoCentro->x,p->PuntoCentro->y,p->PuntoCentro->z);
-		glVertex3f(p->PuntoCentro->x-p->A/100,p->PuntoCentro->y-p->B/100,p->PuntoCentro->z-p->C/100);
-		glEnd();
-		glPointSize(5);
-		glBegin(GL_POINTS);
-		glVertex3f(p->PuntoCentro->x+p->A/100,p->PuntoCentro->y+p->B/100,p->PuntoCentro->z+p->C/100);
-		glVertex3f(p->PuntoCentro->x-p->A/100,p->PuntoCentro->y-p->B/100,p->PuntoCentro->z-p->C/100);
-		glEnd();
-		glPointSize(1);
-		*/
 		}
-		Sistema_Cartesiano::Draw(cooRd,p,p->RestringirAlPlano,p->RestringirAlPlano?&Plano::CoordRestringida(cooRd,p):new CRD(0,0,0),proyectpunt);
+		if(proyectpunt)
+		{
+			glPointSize(2);
+			glColor3f(0,1,0);
+	        CRD puntVerd=p->CoordRestringida(cooRd,p);
+	        glBegin(GL_POINTS);
+  	          glVertex3f((GLfloat)puntVerd.x,(GLfloat)puntVerd.y,(GLfloat)puntVerd.z);
+		    glEnd();
+		    glPointSize(1);
+			if(p->contItems&&!p->NewItem)
+			{
+			   if(p->items[p->contItems-1]->t==ItemsType::LINE_STRIP)
+			   {
+				  
+				  glLineWidth(2);
+			      glColor3f(0,1,0);
+			      glBegin(GL_LINES);
+	              double a,b,c,d,e,f;
+			      a=p->items[p->contItems-1]->PoIntS[p->items[p->contItems-1]->cont-1].x;
+	              b=p->items[p->contItems-1]->PoIntS[p->items[p->contItems-1]->cont-1].y;
+	              c=p->items[p->contItems-1]->PoIntS[p->items[p->contItems-1]->cont-1].z;
+	              d=p->CoordRestringida(cooRd,p).x-a;
+	              e=p->CoordRestringida(cooRd,p).y-b;
+	              f=p->CoordRestringida(cooRd,p).z-c;
+	    	      for(unsigned i=0;i<=9;i++)
+	                 glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
+			      glEnd();
+				   glLineWidth(1);
+			   }
+			}
+		 }
+		//Sistema_Cartesiano::Draw(cooRd,p,p->RestringirAlPlano,p->RestringirAlPlano?&Plano::CoordRestringida(cooRd,p):new CRD(0,0,0),proyectpunt);
+	  	for(unsigned i=0;i<p->contItems;i++)
+		  p->items[i]->Draw();
 	}
 	static char*EcucaionPlano(Plano*p){
 		string s;
@@ -269,9 +280,9 @@ public:
 	if(dist>p->distmax+50)
 		p->distmax=dist;
 	CRD*a=new CRD[3],vectorAltura,vectorAncho;
-	a[0]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x+p->distmax+100,p->PuntoCentro->y,p->PuntoCentro->z),p));
-	a[1]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y+p->distmax+100,p->PuntoCentro->z),p));
-	a[2]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y,p->PuntoCentro->z+p->distmax+100),p));
+	a[0]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x+p->distmax+50,p->PuntoCentro->y,p->PuntoCentro->z),p));
+	a[1]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y+p->distmax+50,p->PuntoCentro->z),p));
+	a[2]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y,p->PuntoCentro->z+p->distmax+50),p));
 	unsigned mayor=2,mediano=1;
 	for(unsigned i=0;i<3;i++)
 	{
@@ -283,16 +294,34 @@ public:
 	}
 	vectorAltura=a[mayor]-*p->PuntoCentro;
 	vectorAncho=a[mediano]-*p->PuntoCentro;
-	
 	p->puNt1=new CRD(*p->PuntoCentro+vectorAltura+vectorAncho);
 	p->puNt2=new CRD(*p->PuntoCentro+vectorAltura-vectorAncho);
 	p->puNt3=new CRD(*p->PuntoCentro+(vectorAltura*-1)+vectorAncho);
 	p->puNt4=new CRD(*p->PuntoCentro+(vectorAltura*-1)-vectorAncho);
-
-
-
-
-
+	}
+	static void ActualizaItem(ItemsType it,Plano*p)
+	{
+	p->NextitType=it;
+	p->NewItem=true;
+	}
+	static void verPlanoRotado(float cant,Plano*p)
+	{
+		 p->trasladarplano=cant;
+	}
+	static void CancelLastPoint(Plano*p){
+		if(p->contItems==0)
+		{
+			p->NewItem=true;
+			return;
+		}
+		if(p->items[p->contItems-1]->cont==0)
+		{
+			p->contItems--;
+			if(p->contItems==0)
+			   p->NewItem=true;
+			return;
+		}
+		p->items[p->contItems-1]->cont--;
 	}
     
 };
