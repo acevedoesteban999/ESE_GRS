@@ -189,4 +189,25 @@ public:
 		}
 	
 	}
+	static void NextFocus(char*formName,StackForms*sf)
+	{
+	    for(unsigned i=0;i<sf->cont;i++)
+		{
+			if(!strcmp(sf->forms[i]->name,formName))
+			{
+				sf->forms[i]->BoxNextFocus();
+			    return;
+			}
+		}
+	}
+	static double* FocusClick(char*formName,StackForms*sf)
+	{
+	    for(unsigned i=0;i<sf->cont;i++)
+			if(!strcmp(sf->forms[i]->name,formName))
+				return sf->forms[i]->BoxFocusClick();
+		double*toReturn=new double[2];
+		toReturn[0]=0;
+		toReturn[1]=0;
+		return toReturn;
+	}
 };

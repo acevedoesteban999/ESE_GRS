@@ -138,7 +138,7 @@ public:
 		a.z+=b.z;
 		return a;
 	}
-	static void add(CRD*vertex,Plano*p){
+	static void add(CRD*vertex,Plano*p,bool BocetoGeneral=false){
 		//if(p->RestringirAlPlano)
 		//{
 		//	Sistema_Cartesiano::add(CoordRestringida(vertex,p),p);
@@ -170,9 +170,12 @@ public:
 			break;
 		   }
 		}
-		p->items[p->contItems-1]->Add(&Plano::CoordRestringida(vertex,p));
+		if(BocetoGeneral)
+			  p->items[p->contItems-1]->Add(vertex);
+		else
+		   p->items[p->contItems-1]->Add(&Plano::CoordRestringida(vertex,p));
 	};
-	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false,bool proyectpunt=false){
+	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false,bool proyectpunt=false,bool BocetoGenral=false){
 		if(p->RestringirAlPlano&&pintarPlano&&p->pintarPlano)
 		{
 		glColor3f((GLfloat)0.5,(GLfloat)0.5,(GLfloat)0.5);
@@ -220,6 +223,31 @@ public:
 			   }
 			}
 		 }
+		if(BocetoGenral)
+		{
+		if(p->contItems&&!p->NewItem)
+			{
+			if(p->items[p->contItems-1]->t==ItemsType::LINE_STRIP)
+			   {
+				  
+				  glLineWidth(2);
+			      glColor3f(1,1,1);
+			      glBegin(GL_LINES);
+	              double a,b,c,d,e,f;
+			      a=p->items[p->contItems-1]->PoIntS[p->items[p->contItems-1]->cont-1].x;
+	              b=p->items[p->contItems-1]->PoIntS[p->items[p->contItems-1]->cont-1].y;
+	              c=p->items[p->contItems-1]->PoIntS[p->items[p->contItems-1]->cont-1].z;
+				  d=cooRd->x-a;
+	              e=cooRd->y-b;
+	              f=cooRd->z-c;
+	    	      for(unsigned i=0;i<=9;i++)
+	                 glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
+			      glEnd();
+				   glLineWidth(1);
+			   }
+		   }
+		}
+
 		//Sistema_Cartesiano::Draw(cooRd,p,p->RestringirAlPlano,p->RestringirAlPlano?&Plano::CoordRestringida(cooRd,p):new CRD(0,0,0),proyectpunt);
 	  	for(unsigned i=0;i<p->contItems;i++)
 		  p->items[i]->Draw();

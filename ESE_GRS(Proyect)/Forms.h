@@ -58,6 +58,7 @@ public:
 	static void SetCRD(CRD*coord,Forms*f){
 		f->coord=new CRD(*coord);
 	}
+	static CRD*GetCoord(Forms*f){return f->coord;};
 	virtual void ActivateDesactivate(bool ActDesact){
 		this->active=ActDesact;
 	};
@@ -105,9 +106,7 @@ public:
 	virtual char*GetEscritura(){
 		return "NULL";};
 	virtual bool GetEstoyEscribindo(){return false;}
-	
 	virtual void NewCRD(CRD*crd){};
-	
 	virtual void AddText(char letra){};
 	virtual void AddNewText(char*newTexts){};
 	virtual void SubText(){};
@@ -139,6 +138,7 @@ public:
 		a[0]=this->coord->x;
 		a[1]=this->coord->y;
 		return a;};
+	virtual void RBGNextChecket(){};
 	virtual unsigned RBGGetMaxChecket(){return 0;};
 	virtual bool RBGGetRBChecket(char*name){return false;};
 	virtual void RBGSetRBChecket(char*RBname,bool checket){};
@@ -155,6 +155,8 @@ public:
 	virtual void BoxCambiarChecketRB(char*RBname){};
 	virtual void BoxSetActivateDesactivate(char*ElementName,bool actvDesact){};
 	virtual char* BoxGetEscritura(char*TextBoxname){return new char(0);};
+	virtual void BoxNextFocus(){};
+	virtual double* BoxFocusClick(){ double*a=new double[2];a[0]=0;a[1]=0;return a;};
 	//PURAS
 	virtual void Draw()=0; 
 	virtual unsigned Click()=0;

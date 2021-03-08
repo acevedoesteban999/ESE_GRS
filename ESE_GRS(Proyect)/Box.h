@@ -5,6 +5,7 @@ private:
 	Forms**forms;
 	unsigned cant,cont;
 	unsigned PulsadO;
+	int Focus;
 public:
 	Box():Forms("DefaultNameBox",*new CRD(0,0,0),0,0,0,0)
 	{ 
@@ -13,6 +14,7 @@ public:
 	   forms=new Forms*[cant];
 	   this->t=Type::BOX;
 	   PulsadO=0;
+	   this->Focus=-1;
 	}
 	Box(char*name,CRD coord,float TotalWigth,float TotalHeight):Forms(name,coord,0,0,TotalWigth,TotalHeight)
 	{
@@ -21,6 +23,7 @@ public:
 	   forms=new Forms*[cant];
 	   this->t=Type::BOX;
 	   PulsadO=0;
+	   this->Focus=-1;
 	}
 	~Box(){delete[]forms;};
 	void ChecketCont(Box*b){
@@ -82,8 +85,13 @@ public:
 			float ContHeigth=0;
 			for(unsigned i=0;i<cont;i++)
 			{
-				
-				glColor3f(0,0,0);
+				if(this->Focus==(int)i)
+				{
+					glLineWidth(3);
+					glColor3f(0,0,1);
+				}
+				else
+				   glColor3f(0,0,0);
 			    glBegin(GL_LINE_LOOP);
 				glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
 				glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
@@ -91,6 +99,8 @@ public:
 				glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
 				glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
 	            glEnd();
+				if(this->Focus==i)
+					glLineWidth(1);
 			}
 
 			glPopMatrix();
@@ -198,6 +208,32 @@ public:
 				return forms[i]->GetEscritura();
 		return new char(0);
 		
+	};
+	void BoxNextFocus(){
+		if(this->Focus==cont-1)
+		   this->Focus=-1;
+		else
+		   this->Focus++;	
+	};
+	double* BoxFocusClick(){
+		double*toReturn=new double[2];
+		toReturn[0]=0;
+		toReturn[1]=0;
+		if(this->Focus>=0)
+		{
+			if(this->forms[Focus]->t==Type::RADIOBUTTON)
+			{
+				toReturn[0]=this->forms[Focus]->coord->x;
+				toReturn[1]=this->forms[Focus]->coord->y;
+			}
+			if(this->forms[Focus]->t==Type::RADIOBUTTONGROUP)
+			{
+				forms[Focus]->RBGNextChecket();
+				toReturn=forms[Focus]->RBGGetChecketPositton();
+			}
+		
+		}
+		return  toReturn;
 	};
 	
 };

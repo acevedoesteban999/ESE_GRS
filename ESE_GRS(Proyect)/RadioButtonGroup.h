@@ -196,5 +196,12 @@ public:
 			  return RB[i]->GetActiveDesavt();
 	  return false;
 	}
+	void RBGNextChecket(){
+		if(this->Checket==this->contRB-1)
+	 	   this->Checket=0;
+		else
+			this->Checket++;
+		this->Click();
+	};
 	
 };

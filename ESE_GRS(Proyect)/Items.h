@@ -2,7 +2,7 @@
 #include "CRD.h"
 #include "ESE_GRS.h"
 enum ItemsType{
- ITEMS,POINTSS,LINE_STRIP
+ ITEMS,POINTSS,LINE_STRIP,CURVE
 };
 class Items
 {
@@ -84,4 +84,14 @@ public:
 		 }
 
 	};
+};
+class Curve:public Items
+{
+	Curve():Items(){
+		t=ItemsType::CURVE;
+	}
+	~Curve(){};
+	void Draw(){
+
+	}
 };
