@@ -2,7 +2,6 @@
 DataProcessor::DataProcessor()
 {
 }
-
 bool DataProcessor::BitData(char Byte,unsigned posttion)
 {
 	if((Byte & 0x01<<posttion)==0)
@@ -56,9 +55,9 @@ bool DataProcessor::PorcesarDatos(char ByteLow,char ByteHigh,GLfloat*angules)
 			    if(BitData(ByteLow,i)==1)
 			       {
 				     if(BitData(ByteHigh,i)==1)
-						 angules[i-2]+=0.9;
+						 angules[i-2]+=(GLfloat)0.9;
 					 else
-						 angules[i-2]-=0.9;
+						 angules[i-2]-=(GLfloat)0.9;
 					 RectificarAngules(angules);
 			       }	
 		         break;      	

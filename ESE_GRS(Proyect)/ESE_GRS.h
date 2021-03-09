@@ -58,7 +58,6 @@ public:
 	static void MenuToDraw(int caso);
 	static void defaul_menu(int opcion);
 	//////////////DATOS
-	static void cargarDatosFromTXT();
     static void SaveObj(char*address,LoaderObject*l);
 	static void cargarInitDatos();
 	static void slavarInitDatos();
@@ -68,8 +67,5 @@ public:
 	//HILOS
 	static void ThreadCOM();
 	static void ThreadCargObject();
-	static void ThreadCargMovent();
-	static void ThreadGuardarMovent();
-	static void ThreadSimular();
  };
 
