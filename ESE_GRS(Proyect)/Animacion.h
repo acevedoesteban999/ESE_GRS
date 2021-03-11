@@ -3,11 +3,11 @@
 class Animacion:public Forms
 {
 private:
-	float x,y;
+	float x,y,speed;
 	bool movY,subirBajar;
 	GLfloat R,B,G;
 public:
-	Animacion(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight,float x=0,float R=1,float G=1,float B=1):Forms(name,coord,wigth,height,TotalWigth,TotalHeight)
+	Animacion(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight,float x=0,float R=1,float G=1,float B=1,float speed=1):Forms(name,coord,wigth,height,TotalWigth,TotalHeight)
 	{
 
 		if(wigth<30)
@@ -19,13 +19,14 @@ public:
 		this->R=(GLfloat)R;
 		this->G=(GLfloat)G;
 		this->B=(GLfloat)B;
+		this->speed=speed;
 	}
 	~Animacion(){};
 	void Draw()
 	{
 		if(!movY&&(x<this->Wigth/2&&x>=-this->Wigth/2))
 		{
-			x+=(float)0.7;
+			x+=(float)(0.7*speed);
 			if(x>this->Wigth)
 				x=this->Wigth;
 		}
@@ -38,7 +39,7 @@ public:
 		{
 			if(x>-this->Wigth/2)
 		    {
-				x-=(float)0.7;
+				x-=(float)(0.7*speed);
 				if(subirBajar)
 			       y=PuntoCincunferencia(x);
 				else
@@ -73,3 +74,4 @@ public:
 	}
 
 };
+

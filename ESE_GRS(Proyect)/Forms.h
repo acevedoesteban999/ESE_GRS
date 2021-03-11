@@ -45,9 +45,7 @@ public:
 	~Forms(){delete name,coord;};
 	static void Cancelar(Forms*f){f->Cancel=true;};
 	static void Destruir(Forms*f){f->destruir=true;};
-	static void MoveOnReshape(bool reshape,Forms*f){
-		f->reshapeBool=reshape;
-	}
+	
 	static void SetName(char*name,Forms*f)
 	{
 		f->name=new char[strlen(name)+1];
@@ -128,6 +126,11 @@ public:
 		this->Height=Height;
 	} 
 	virtual void CambiarChecket(){}
+	virtual void MoveOnReshape(bool reshape){
+		this->reshapeBool=reshape;
+	}
+	//StackAnimation
+	virtual void STANSetAnimation(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight,float x,float R,float G,float B,float speed){};
 	//RadBut
 	virtual bool RBGetCheket(){return false;};
 	//RadButGroup

@@ -183,7 +183,7 @@ public:
 		{
 			if(!strcmp(sf->forms[i]->name,formsName))
 			{
-				sf->forms[i]->MoveOnReshape(rechape,sf->forms[i]);
+				sf->forms[i]->MoveOnReshape(rechape);
 				return;
 			}
 		}

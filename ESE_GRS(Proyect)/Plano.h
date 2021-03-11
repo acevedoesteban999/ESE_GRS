@@ -146,6 +146,9 @@ public:
 		//}
 		//else
 		//  Sistema_Cartesiano::add(*vertex,p);
+		
+		
+		
 		if(p->NewItem)
 		{
 			p->NewItem=false;
@@ -347,7 +350,6 @@ public:
 			p->contItems--;
 			if(p->contItems==0)
 			   p->NewItem=true;
-			return;
 		}
 		p->items[p->contItems-1]->cont--;
 	}

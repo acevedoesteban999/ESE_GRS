@@ -23,7 +23,9 @@
 #include "StackBoceto.h"
 #include "Box.h"
 #include "Animacion.h"
+#include "StackAnimation.h"
 #include "Connection.h"
+#include "MiCurva.h"
 using namespace std;
 
  class ESE_GRS

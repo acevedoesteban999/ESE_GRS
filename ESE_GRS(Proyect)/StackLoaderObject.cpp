@@ -148,39 +148,42 @@ void StackLoaderObject::draw(StackLoaderObject*slo,int i){
 	//posiciono,pinto y trasaldo(para q el proximo se pueda posicionar)ademas pinto los ejes de coordenadas de guia
 	glPushMatrix();
 	if(i==-1)
-	    {
-			for(int ii=0;ii<slo->contLoaderObject;ii++)
-			   {   
-				    slo->RotateAndMoveArtic(ii,slo);
-	   				slo->Stack[ii]->pintarse(slo->Stack[ii]);
-				}
-			  slo->RotateAndMoveArtic(slo->contLoaderObject,slo);
-				
+    {
+		for(int ii=0;ii<slo->contLoaderObject;ii++)
+		{   
+		   slo->RotateAndMoveArtic(ii,slo);
+   		   slo->Stack[ii]->pintarse(slo->Stack[ii]);
 		}
+		slo->RotateAndMoveArtic(slo->contLoaderObject,slo);			
+	}
 		
-	else if(i<=slo->contLoaderObject) 
-		{
-			slo->Stack[i]->pintarse(slo->Stack[i]);
-			ESE_GRS::smallEjeCoord(20);
-	     }
+	else if(i<=slo->contLoaderObject&&i>=0) 
+	{
+		slo->Stack[i]->pintarse(slo->Stack[i]);
+		ESE_GRS::smallEjeCoord(20);
+    }
+	else if(i==-2)
+	{
+	
+	}
 	glPopMatrix();
-	glPushMatrix();
-	///////////////////////////////////////////////////////////////////
-	glLoadIdentity();
-	//Explicacion:la coordenada q me devuelve la matrx de modelview tiene q ser sacada ahora
-	//porq la matriz ya viene de antes;del dispaly con una rotacion y un whell distintas de la del 00
-	//por eso se carga la identidad,no se puede cargar antes,debido a q los objetos se pintarian esaticos en la palntalla
-	//por lo tanto se sacan las coordenadas ahora;
-	for(int ii=0;ii<=slo->contLoaderObject;ii++)
-			   {   
-				    slo->RotateAndMoveArtic(ii,slo);
-	           }
-	GLdouble mModel[16];
-	glGetDoublev(GL_MODELVIEW_MATRIX,mModel);
-	slo->CoordReales[0]=(double)mModel[12];
-	slo->CoordReales[1]=(double)mModel[13];
-	slo->CoordReales[2]=(double)mModel[14];
-	glPopMatrix();
+	//glPushMatrix();
+	/////////////////////////////////////////////////////////////////////
+	//glLoadIdentity();
+	////Explicacion:la coordenada q me devuelve la matrx de modelview tiene q ser sacada ahora
+	////porq la matriz ya viene de antes;del dispaly con una rotacion y un whell distintas de la del 00
+	////por eso se carga la identidad,no se puede cargar antes,debido a q los objetos se pintarian esaticos en la palntalla
+	////por lo tanto se sacan las coordenadas ahora;
+	//for(int ii=0;ii<=slo->contLoaderObject;ii++)
+	//		   {   
+	//			    slo->RotateAndMoveArtic(ii,slo);
+	//           }
+	//GLdouble mModel[16];
+	//glGetDoublev(GL_MODELVIEW_MATRIX,mModel);
+	//slo->CoordReales[0]=(double)mModel[12];
+	//slo->CoordReales[1]=(double)mModel[13];
+	//slo->CoordReales[2]=(double)mModel[14];
+	//glPopMatrix();
 	//37.481040954589844 361.38070678710937 472.38644409179687
 }
 
