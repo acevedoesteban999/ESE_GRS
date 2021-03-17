@@ -10,6 +10,7 @@ public:
 		cant=10;
 		animations=new Animacion*[cant];
 	};
+	~StackAnimation(){};
 	void Draw()
 	{
 		for(unsigned i=0;i<cont;i++)
@@ -52,6 +53,6 @@ public:
 		for(unsigned i=0;i<cont;i++)
 			animations[i]->reshapeBool=reshape;
 	}
-	~StackAnimation(){delete[]animations;};
+	
 
 };

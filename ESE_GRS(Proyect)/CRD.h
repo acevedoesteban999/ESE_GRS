@@ -10,6 +10,7 @@ public:
 	this->z=coords[2];
 	
 	}
+	~CRD(){};
 	double x,y,z;
 	static void set(float x,float y,float z,CRD*crd){crd->x=x;crd->y=y;crd->z=z;}
 	CRD operator +(const CRD c)

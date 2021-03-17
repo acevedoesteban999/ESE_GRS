@@ -25,7 +25,7 @@
 #include "Animacion.h"
 #include "StackAnimation.h"
 #include "Connection.h"
-#include "MiCurva.h"
+#include "Plinomio_Lagrange.h"
 using namespace std;
 
  class ESE_GRS
@@ -58,7 +58,7 @@ public:
 	static void MenuPuertoSeie(int caso);
 	static void MenuVista(int opcion);
 	static void MenuToDraw(int caso);
-	static void defaul_menu(int opcion);
+	static void default_menu(int opcion);
 	//////////////DATOS
     static void SaveObj(char*address,LoaderObject*l);
 	static void cargarInitDatos();

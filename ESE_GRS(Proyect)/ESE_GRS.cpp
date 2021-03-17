@@ -1,5 +1,4 @@
 #include "ESE_GRS.h"
-
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -24,10 +23,10 @@ float movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 float velGiro=3;
 float &movESE_GRSX=movRatX,&movESE_GRSY=movRatY,movESE_GRSZ=25;
 float height,wigth;
+double trasladarX=0,trasladarY=0,trasladarZ=0;
 GLfloat angules[6]={0,0,55,0,0,0};
 GLfloat heightOrtho,wigthOrtho;
 GLdouble movWheel=1;
-double trasladarX=0,trasladarY=0,trasladarZ=0;
 CRD*cooRd=new CRD(0,0,0);
 ///////////////////OBJECTS//////////////////////////////////////
 StackLoaderObject*ManejadorObject=new StackLoaderObject();
@@ -41,7 +40,8 @@ StackForms*ManejadorForms=new StackForms();
 Plano*PlanoCrearPlano=new Plano("PlanoCrearPlano");
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
 
-//MiCurva mc;
+//Items*sc;
+//unsigned conttta=0;
 ////////////////CONTRUCTOR Y DESTRUCTOR//////////////////////////////////////////////
 ESE_GRS::ESE_GRS(){
 	//Constructor
@@ -54,7 +54,7 @@ ESE_GRS::ESE_GRS(){
 	glutInitWindowSize(Initwigth-100,Initheight-100);//tamaño de la ventana
 	height=(float)Initheight-100;
 	wigth=(float)Initheight-100;
-	glutCreateWindow("Mi Proyecto");//creo e inicio la ventana
+	glutCreateWindow("ESE_GRS");//creo e inicio la ventana
 	glEnable(GL_DEPTH_TEST);//acivo el buffer de profundidad
 
 	
@@ -77,7 +77,7 @@ ESE_GRS::ESE_GRS(){
 	t1=new thread(ThreadCargObject);
 	ManejadorForms->Add(new Label("labelESE_GRS","ESE_GRS",*(new CRD(0,0,0)),1,(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new RadioButton("radioButtonMostrarAngules",*new CRD(0,0,0),"Details",wigth,height,true),ManejadorForms);
-	ManejadorForms->SetlabelColor("radioButtonMostrarAngules",1,1,1,ManejadorForms);
+	ManejadorForms->SetlabelColor("radioButtonMostrarAngules",(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,ManejadorForms);
 	MostrarAngules=true;
 	ManejadorForms->Add(new Label("labelAngule0",(char*)to_string(angules[0]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelAngule1",(char*)to_string(angules[1]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
@@ -119,12 +119,16 @@ ESE_GRS::~ESE_GRS(){
 	   recibir_serie=false;
 	   p->CloseConnection();
 	   ManejadorObject->Salir=true;
-	  // t1->join();
+	   t1->join();
 	}
+	delete PlanoCrearPlano,messeng,Proyect1,cooRd;
 	delete[]ManejadorObject;
 	delete[]ManejadorForms;
 	if(p->EstaConectado())
+	{
+		p->CloseConnection();
 		delete p;
+	}
 }
 ////////////////INICIALIZADORES//////////////////////////////////////////////////////
 void ESE_GRS::initProyecc(){
@@ -158,8 +162,8 @@ bool ESE_GRS::IniciarCargObjetos(){
 		string g=string("Cargando Objetos ")+to_string(ManejadorObject->contLoaderObject)+string("/13 (")+to_string(ManejadorObject->contLoaderObject*100/13)+string("%)");
 		ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->NewTotalProp(0,0);
 		ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->Draw();
-		text("ESE_GRS",-20,150,0,0.9,0.9,0.9,true,true);
-		text((char*)g.c_str(),-70,100,0,0.8,0.8,0.8,true,true);
+		text("ESE_GRS",-20,150,0,(GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9,true,true);
+		text((char*)g.c_str(),-55,100,0,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,true);
 		glutPostRedisplay();
 		return false;
 	}   
@@ -197,7 +201,7 @@ void ESE_GRS::InitMenu(){
 	for (int ii=0;ii<ManejadorObject->contLoaderObject;ii++)
 	glutAddMenuEntry(ManejadorObject->Stack[ii]->nameStr.c_str(),ii);
 
-	glutCreateMenu(defaul_menu);//aqui creo el menu general donde van todos los submenus
+	glutCreateMenu(default_menu);//aqui creo el menu general donde van todos los submenus
 	if(!recibir_serie)
 	{
 			glutAddMenuEntry("INICIAR PUERTO SERIE",0);
@@ -230,24 +234,49 @@ void ESE_GRS::display(){
 	if(!CargObjct||!cargMenu)
 		IniciarCargObjetos();
 	else
-	{		
+	{
+	//	cout<<conttta++<<endl;
+	//	sc=new SplineCubico();
+	//	sc->Add(new CRD(0,0,0));
+	//	sc->Add(new CRD(5,20,0));
+	//	sc->Add(new CRD(10,30,0));
+	//	sc->Add(new CRD(15,10,0));
+	//	sc->Add(new CRD(20,25,0));
+	//	sc->Add(new CRD(25,20,0));
+	//	sc->Add(new CRD(30,10,0));
 
-	  /*  glColor3f(1,1,1);
-		glBegin(GL_LINE_STRIP);
-		for(float i=0;i<15.1;i+=0.1)
-			glVertex3f(i,mc.Response(i),0);
-		glEnd();
-		glPointSize(5);
-		glBegin(GL_POINTS);
-		glColor3f(0,1,0);
-		for(unsigned i=1;i<mc.cont-1;i++)
-		   glVertex3f(mc.points[i].x,mc.points[i].y,0);
-		glColor3f(1,0,0);
-		glVertex3f(mc.points[mc.cont-1].x,mc.points[mc.cont-1].y,0);
-		glVertex3f(mc.points[0].x,mc.points[0].y,0);
-		glEnd();
-		glPointSize(1);*/
+	//	/*sc->Add(new CRD(35,45,0));
+	//	sc->Add(new CRD(40,0,0));*/
+	//	sc->Draw();
 
+	////	MiCurva mc;
+	////	mc.AddPoint(new CRD(50,0,0));
+	////	mc.AddPoint(new CRD(55,20,0));
+	////	mc.AddPoint(new CRD(60,30,0));
+	////	mc.AddPoint(new CRD(65,10,0));
+	////	mc.AddPoint(new CRD(70,25,0));
+	////	mc.AddPoint(new CRD(75,20,0));
+ ////   	mc.AddPoint(new CRD(80,10,0));
+	//////	mc.AddPoint(new CRD(85,35,0));
+	////	
+	////    glLineWidth(2);
+	////	glColor3f(1,1,1);
+	////	glBegin(GL_LINE_STRIP);
+	////	for(unsigned i=50;i<81;i++)
+	////	{
+	////		float acasdsad=mc.Response(i);
+	////		glVertex3f(i,acasdsad,0);
+	////	}
+	////	glEnd();
+	////	glLineWidth(1);
+	////	glPointSize(5);
+	////	glBegin(GL_POINTS);
+	////	glColor3f(1,0,0);
+	////	for(unsigned i=0;i<mc.cont;i++)
+	////	   glVertex3f(mc.points[i].x,mc.points[i].y,0);
+	////	glEnd();
+	////	glPointSize(1);
+	//	
 
 	    // recivirDatosCOM();//recivo y proceso la entrada del puerto serie
 		Inicializar();//iniciaizo proyeccin luces y pongo los angulos del brazo 
@@ -325,7 +354,7 @@ void ESE_GRS::text(char*c,GLfloat x,GLfloat y,GLfloat z,GLfloat R,GLfloat G,GLfl
 	//dibujo el char c en la posicion x,y,z con color RGB
 	
 	glColor3f(R,G,B);
-	glRasterPos3f(x,y,z);
+	glRasterPos3f(x,y,z);					  
 	for(unsigned int i=0;i<strlen(c);i++){
         if(moreBig)
 			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c[i]);
@@ -408,24 +437,24 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		break;
 
 		case 3:////////////////INIT CONNECTION///////////////
-			defaul_menu(-1);
+			default_menu(-1);
 		    box->SetName("BoxInterfazConnections",box);
 		    box->Destruir(box);
 		    ManejadorForms->Sub("BoxInterfazConnectionsButtonAcept",ManejadorForms);
 		    ManejadorForms->Sub("BoxInterfazConnectionsButtonCancel",ManejadorForms);
 		    ManejadorForms->Add(Interfaz(0),ManejadorForms);
-			defaul_menu(-5);
+			default_menu(-5);
 		    return box;
 		break;
 
 		case 4:////////////////STOP CONNECTION///////////////
-			defaul_menu(-2);
+			default_menu(-2);
 		    box->SetName("BoxInterfazDetenerConnection",box);
 		    box->Destruir(box);
 	 	    ManejadorForms->Sub("BoxInterfazDetenerConnectionButtonAcept",ManejadorForms);
 		    ManejadorForms->Sub("BoxInterfazDetenerConnectionButtonCancel",ManejadorForms);
 		    ManejadorForms->Add(Interfaz(0),ManejadorForms);
-			defaul_menu(-5);
+			default_menu(-5);
 			messeng=new MeSSenger("Conexion Finalizada",position::CENTER_TOP,wigth,height,3,1,1,0,2);
 		    return box;
 		break;
@@ -454,7 +483,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			ManejadorForms->Sub("BoxInterfazConnectionsButtonAcept",ManejadorForms);
 		    ManejadorForms->Sub("BoxInterfazConnectionsButtonCancel",ManejadorForms);
 			ManejadorForms->Add(Interfaz(0),ManejadorForms);
-			defaul_menu(-5);
+			default_menu(-5);
 			return box;
 			break;
 
@@ -464,7 +493,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			ManejadorForms->Sub("BoxInterfazDetenerConnectionButtonAcept",ManejadorForms);
 		    ManejadorForms->Sub("BoxInterfazDetenerConnectionButtonCancel",ManejadorForms);
 			ManejadorForms->Add(Interfaz(0),ManejadorForms);
-			defaul_menu(-5);
+			default_menu(-5);
 			return box;
 			break;
 
@@ -782,7 +811,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			break;
 
 	        case Type::BUTTONCANCELSETANGULES:
-			defaul_menu(3);
+			default_menu(3);
 		   break;
 
 	       case Type::BUTTONINITSETANGULES:
@@ -976,7 +1005,6 @@ void ESE_GRS::wheel(int boton,int direcc,int x,int y){
 
 }
 void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
-	
 	switch (tecla)
 	{
 	case -1:
@@ -1105,11 +1133,11 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 	glutPostRedisplay();//refresco y ejecuto el displayFunc()
 }
 //////////////////////////MENUS////////////////////////////////////////////////////////
-void ESE_GRS::defaul_menu(int opcion){
+void ESE_GRS::default_menu(int opcion){
 	switch (opcion)
 	{
 	case 4:///SET angules
-	    defaul_menu(-6);
+	    default_menu(-6);
 		ManejadorForms->Add(new TextBox("textBoxsSetAngules0",*(new CRD(0,175,0)),110,wigth,height,(char*)to_string(angules[0]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
 		ManejadorForms->Add(new TextBox("textBoxsSetAngules1",*(new CRD(0,200,0)),110,wigth,height,(char*)to_string(angules[1]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
 		ManejadorForms->Add(new TextBox("textBoxsSetAngules2",*(new CRD(0,225,0)),110,wigth,height,(char*)to_string(angules[2]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
@@ -1121,61 +1149,24 @@ void ESE_GRS::defaul_menu(int opcion){
 		SetAngules=true;
 		break;
 	case 3://Cancel setangules
-		    defaul_menu(-5);
-		    ManejadorForms->Sub("textBoxsSetAngules0",ManejadorForms);
-			ManejadorForms->Sub("textBoxsSetAngules1",ManejadorForms);
-			ManejadorForms->Sub("textBoxsSetAngules2",ManejadorForms);
-			ManejadorForms->Sub("textBoxsSetAngules3",ManejadorForms);
-			ManejadorForms->Sub("textBoxsSetAngules4",ManejadorForms);
-			ManejadorForms->Sub("textBoxsSetAngules5",ManejadorForms);
-			ManejadorForms->Sub("buttonInitSetAngules",ManejadorForms);
-			ManejadorForms->Sub("buttonCancelSetAngules",ManejadorForms);
-			SetAngules=false;
+		    default_menu(-5);
 		break;
 
 	case 0://inicializo botones para INIT CONNECTION
-		if(SetAngules)
-		   {
-		   ManejadorForms->Sub("textBoxsSetAngules0",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules1",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules2",ManejadorForms);
-	   	   ManejadorForms->Sub("textBoxsSetAngules3",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules4",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules5",ManejadorForms);
-		   ManejadorForms->Sub("buttonInitSetAngules",ManejadorForms);
-		   ManejadorForms->Sub("buttonCancelSetAngules",ManejadorForms);
-		   SetAngules=false;
-		   }   
+		  default_menu(-5);
 		  ManejadorForms->Add(Interfaz(3),ManejadorForms);
-		  defaul_menu(-6);
-		   
-		  
-		   
+		  default_menu(-6); 
 	break;
 
 
 	case 1://inicializo botonos para el STOP CONNECTION
 		    ManejadorForms->Add(Interfaz(4),ManejadorForms);
-			defaul_menu(-6);
+			default_menu(-6);
 	break;
 
 
 	case -1://Inicio la conexion
-		if(SetAngules)
-		   {
-		   ManejadorForms->Sub("textBoxsSetAngules0",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules1",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules2",ManejadorForms);
-	   	   ManejadorForms->Sub("textBoxsSetAngules3",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules4",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules5",ManejadorForms);
-		   ManejadorForms->Sub("buttonInitSetAngules",ManejadorForms);
-		   ManejadorForms->Sub("buttonCancelSetAngules",ManejadorForms);
-		   SetAngules=false;
-		   defaul_menu(-5);
-		   }   
-
-
+		default_menu(-5);
 		if(p->GetType()==ConnectionType::SERIAL_PORT)
 		{
 		   p=new PuertoSerie();
@@ -1240,20 +1231,36 @@ void ESE_GRS::defaul_menu(int opcion){
 		ManejadorForms->SetColor("labelESE_GRS",(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,ManejadorForms);	
 		EsperandoReedireccionar=true;
 		ESE_GRS::InitMenu();
-		defaul_menu(-5);
+		default_menu(-5);
 		cout<<endl<<"Conexion finalizada"<<endl;
 	break;
-	case -6:	//Mustro Menu
+	case -5:    //Muestro Menu
+		    default_menu(-7);
+			ManejadorForms->SetDraw(false,"BoxInterfazPricipal",ManejadorForms);
+			ManejadorForms->SetDraw(false,"BoxInterfazPricipalButtonAcept",ManejadorForms);
+			ManejadorForms->SetDraw(false,"BoxInterfazPricipalButtonCancel",ManejadorForms);
+		    InitMenu();
+		break;
+
+	case -6:	//Oculto Menu
 			ManejadorForms->SetDraw(true,"BoxInterfazPricipal",ManejadorForms);
 			ManejadorForms->SetDraw(true,"BoxInterfazPricipalButtonAcept",ManejadorForms);
 			ManejadorForms->SetDraw(true,"BoxInterfazPricipalButtonCancel",ManejadorForms);
 		    InitMenu();
 		break;
-	case -5:    //Oculto menu
-			ManejadorForms->SetDraw(false,"BoxInterfazPricipal",ManejadorForms);
-			ManejadorForms->SetDraw(false,"BoxInterfazPricipalButtonAcept",ManejadorForms);
-			ManejadorForms->SetDraw(false,"BoxInterfazPricipalButtonCancel",ManejadorForms);
-		    InitMenu();
+	case -7:	//Oculto SetAngules
+		if(SetAngules)
+		   {
+		   ManejadorForms->Sub("textBoxsSetAngules0",ManejadorForms);
+		   ManejadorForms->Sub("textBoxsSetAngules1",ManejadorForms);
+		   ManejadorForms->Sub("textBoxsSetAngules2",ManejadorForms);
+	   	   ManejadorForms->Sub("textBoxsSetAngules3",ManejadorForms);
+		   ManejadorForms->Sub("textBoxsSetAngules4",ManejadorForms);
+		   ManejadorForms->Sub("textBoxsSetAngules5",ManejadorForms);
+		   ManejadorForms->Sub("buttonInitSetAngules",ManejadorForms);
+		   ManejadorForms->Sub("buttonCancelSetAngules",ManejadorForms);
+		   SetAngules=false;
+		   }
 		break;
 	}
 	glutPostRedisplay();
@@ -1337,7 +1344,7 @@ void ESE_GRS::recivirDatosCOM(){
 			{
 				cout<<p->ErrorStr()<<endl;
 				messeng=new MeSSenger(p->ErrorStr(),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,1,1,0,2);
-				defaul_menu(-2);
+				default_menu(-2);
 				ManejadorForms->Add(Interfaz(0),ManejadorForms);
 				ManejadorForms->Sub("BoxInterfazDetenerConnection",ManejadorForms);
 	 	        ManejadorForms->Sub("BoxInterfazDetenerConnectionButtonAcept",ManejadorForms);

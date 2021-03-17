@@ -17,7 +17,7 @@ public:
 		coorNewPlano=new CRD[3];
 		draw=true;
 	};
-	~StackBoceto(){delete []bocetos;};
+	~StackBoceto(){};
 	static void Add(Plano*p,StackBoceto*b)
 	{
 

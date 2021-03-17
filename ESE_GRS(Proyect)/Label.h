@@ -16,7 +16,7 @@ public:
 		this->LetterSize=LetterSize;
 		this->AddNewText(escritura);
 	}
-	~Label(){delete escritura;};
+	~Label(){};
 	void AddNewText(char*newTexts){
 		escritura=new char[strlen(newTexts)+1];
 		escritura[strlen(newTexts)]=0;

@@ -42,7 +42,7 @@ public:
 		this->NoDraw=false;
 		destruir=Cancel=reshapeBool=false;
 	};
-	~Forms(){delete name,coord;};
+	virtual ~Forms(){};
 	static void Cancelar(Forms*f){f->Cancel=true;};
 	static void Destruir(Forms*f){f->destruir=true;};
 	

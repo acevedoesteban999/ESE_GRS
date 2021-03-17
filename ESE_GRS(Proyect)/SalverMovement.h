@@ -17,7 +17,7 @@ public:
 	   movimientos[0]=0;
 	   Enable=errorCarga=false;
 	};
-	~SalverMovement(void){delete movimientos;};
+	~SalverMovement(void){};
 	static void Add(char movemt,SalverMovement*sm){
 		if(sm->cont+1>=sm->cant)
 		{

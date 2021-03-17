@@ -106,9 +106,7 @@ public:
 
 	
 };
-	~Plano(void){
-		delete PuntoCentro;
-	};
+	~Plano(void){};
 	static CRD Distncia(CRD*punt,Plano*p){
 	CRD puntPlano,V;
 	double A=p->A,B=p->B,C=p->C,D=p->D;

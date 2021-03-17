@@ -30,7 +30,7 @@ public:
 		message=new char(0);
 		Port=0;
 	};
-	~Connection(){delete errorstr,ip;};
+	virtual ~Connection(){};
 	virtual void CloseConnection(){};
 	virtual bool inicializa(const char*Ip, unsigned long Port){return false;};
 	virtual char* Recibir(){

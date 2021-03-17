@@ -25,7 +25,7 @@ public:
 	   PulsadO=0;
 	   this->Focus=-1;
 	}
-	~Box(){delete[]forms;};
+	~Box(){};
 	void ChecketCont(Box*b){
 		if(b->cont>=b->cant)
 		{

@@ -6,6 +6,5 @@ int main(int argv,char*argc[]){
 	ESE_GRS Proyect;
 	glutMainLoop();//le digo q se quede esperando eventos 
 	return 0;
-
 }
 

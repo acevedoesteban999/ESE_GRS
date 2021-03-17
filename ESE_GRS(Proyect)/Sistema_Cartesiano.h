@@ -20,7 +20,7 @@ public:
 	NewPoint=new unsigned[cantNP];
 	PintLinSusp=false;
 	};
-	~Sistema_Cartesiano(){delete NewLine,NewPoint,Vertex;};
+	~Sistema_Cartesiano(){};
 	static void Pintar_NoPintar_LineaSuspensiva(bool PintLinSusP,Sistema_Cartesiano*sc){
 	    sc->PintLinSusp=PintLinSusP;
 	};

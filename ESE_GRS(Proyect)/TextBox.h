@@ -40,7 +40,7 @@ public:
 		t=Type::TEXTBOX;
 	
 	};
-	~TextBox(){delete escritura;};
+	~TextBox(){};
 	bool Escribiendo(){
 		if(active)
 		   return escribiendo;
@@ -117,6 +117,25 @@ public:
 		
 	}
 	void CambiarEscritura(char*Newescritura){AddNewText(Newescritura);};
+	void NoClick(){
+		if(escribiendo)
+			escribiendo=false;
+	}
+	void TextAlignCenter(char*c,GLfloat x,GLfloat y,GLfloat R,GLfloat G,GLfloat B,unsigned LetterSize,Forms*f)
+	{
+	   glColor3f(R,G,B);
+	   glRasterPos3f((GLfloat)-f->TotalWigth/2+x,(GLfloat)((f->TotalHeight/2)-y-f->Height*4/5),(GLfloat)2*f->TotalWigth-1);
+	   for(unsigned int i=0;i<strlen(c);i++)
+	   {
+		if(LetterSize==2)
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c[i]);
+		 else if(LetterSize==1)
+			  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c[i]);
+		 else if(LetterSize==0)
+	 	      glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c[i]);
+	   }
+
+   }
 
 	//PURAS///
 	void Draw(){
@@ -178,23 +197,5 @@ public:
 
 		return t;
 	}
-	void NoClick(){
-		if(escribiendo)
-			escribiendo=false;
-	}
-	void TextAlignCenter(char*c,GLfloat x,GLfloat y,GLfloat R,GLfloat G,GLfloat B,unsigned LetterSize,Forms*f)
-	{
-	   glColor3f(R,G,B);
-	   glRasterPos3f((GLfloat)-f->TotalWigth/2+x,(GLfloat)((f->TotalHeight/2)-y-f->Height*4/5),(GLfloat)2*f->TotalWigth-1);
-	   for(unsigned int i=0;i<strlen(c);i++)
-	   {
-		if(LetterSize==2)
-			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c[i]);
-		 else if(LetterSize==1)
-			  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c[i]);
-		 else if(LetterSize==0)
-	 	      glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c[i]);
-	   }
-
-   }
+	
 };

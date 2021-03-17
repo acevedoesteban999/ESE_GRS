@@ -5,7 +5,7 @@ class Button:public Forms
 private:
 	GLfloat R,G,B;
 public:
-	Button();
+	Button(){};
 	Button(char*name,Type bt,CRD crd,GLfloat R,GLfloat G,GLfloat B,float wigth,float height,float TotalWigth,float TotalHeight):Forms(name,crd,wigth,height,TotalWigth,TotalHeight){
     this->R=R;
 	this->G=G;
@@ -13,7 +13,7 @@ public:
 	this->t=bt;
 	this->t=bt;
 	}
-	~Button();
+	~Button(){};
 	void Draw(){
 		if(!this->NoDraw)
 		{
