@@ -1,14 +1,19 @@
 #pragma once
-#include "GL\freeglut.h"
 #include "ESE_GRS.h"
 #include <iostream>
 #include <fstream>
-#include "VERTs.h"
 using namespace std;
 
 class LoaderObject
 {
 public:
+	class VERTs
+    {
+    public:
+		GLfloat *v;
+    	VERTs(){};
+    	~VERTs(){};
+    };
 	//////////////////////////////////////////////VARIABLES//////////////////////////////////
 	GLdouble R,G,B;
 	//int contHastak,contvf,contvn;
@@ -19,8 +24,6 @@ public:
 	/////DINAMICOS/////
 	GLfloat *vertvCargX,*vertvCargY,*vertvCargZ;
 	VERTs*veRts;
-    //GLfloat *vertvnCargX,*vertvnCargY,*vertvnCargZ;
-    //GLfloat *vertvfCargX,*vertvfCargY,*vertvfCargZ;
 	////////////////////////////////////////////////METODOS//////////////////////
 
 	///////////////CONSTRUCTORES Y DESTUCTOR//////

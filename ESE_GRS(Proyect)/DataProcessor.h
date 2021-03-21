@@ -1,4 +1,4 @@
-#include "GL\freeglut.h"
+#include "ESE_GRS.h"
 class DataProcessor
 {
 public:

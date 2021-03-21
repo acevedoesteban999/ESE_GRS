@@ -9,15 +9,16 @@ bool Pint=false;
 bool RotarAlPlanoContrar=false;
 bool errInitMenubool=false;
 bool boolMenuToDraw=false;
+bool cursor=false;
 char byt;bool bytBool=false;
 char*toSaveCOM="COM2",*toSaveIp="127.0.0.1";
-char*msg,*recib="Esperando datos...";
 unsigned toSaveSpeed=9600,toSavePort=55555;
 unsigned STRLEN,BoxInterfazPricipal=0,RadioButtonRestriccion=0;
 unsigned bocetoARemover=0,RadioButtomPintar=0,PlanoChecket=0;
 int interfaz=0;
 int contMenuToDraw=-1;
 int contt=0;
+int Window=0;
 int Initheight,Initwigth;
 float movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 float velGiro=3;
@@ -27,34 +28,51 @@ double trasladarX=0,trasladarY=0,trasladarZ=0;
 GLfloat angules[6]={0,0,55,0,0,0};
 GLfloat heightOrtho,wigthOrtho;
 GLdouble movWheel=1;
-CRD*cooRd=new CRD(0,0,0);
 ///////////////////OBJECTS//////////////////////////////////////
+CRD*cooRd=new CRD(0,0,0);
 StackLoaderObject*ManejadorObject=new StackLoaderObject();
 Connection*p=new PuertoSerie();
 TimeDuration tCOM(true);
 StackBoceto*Proyect1=new StackBoceto();
 thread*t1=new thread();
-mutex m,m1,m2;
+mutex m;
 MeSSenger*messeng=new MeSSenger;
 StackForms*ManejadorForms=new StackForms();
-Plano*PlanoCrearPlano=new Plano("PlanoCrearPlano");
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
 
-//Items*sc;
-//unsigned conttta=0;
+///////////////////DESTRUCTOR GLOBAL/////////////////////////////////////////////////
+void DestruirVariablesGlobales()
+{
+	if(recibir_serie||!ManejadorObject->Salir)
+	{
+		recibir_serie=false;
+		p->CloseConnection();
+		ManejadorObject->Salir=true;
+		t1->join();   
+	}
+	delete ManejadorForms;
+	delete messeng;
+	delete Proyect1;
+	if(p->EstaConectado())
+		p->CloseConnection();	
+	delete p;
+	delete ManejadorObject;
+	delete cooRd;
+	delete toSaveCOM,toSaveIp;
+}	
 ////////////////CONTRUCTOR Y DESTRUCTOR//////////////////////////////////////////////
 ESE_GRS::ESE_GRS(){
 	//Constructor
 
 	//funciones d inicialiacion del GLUT(OPENGL)
 	glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH);//inicio con cloes del rgb,doble buffer y buffer de profundidad
-	Initheight=GetSystemMetrics (SM_CYSCREEN);//obtener tamaño y de pantalla
-	Initwigth=GetSystemMetrics (SM_CXSCREEN);//obtener tamaño x de pantalla
+	Initheight=GetSystemMetrics (SM_CYSCREEN);//obtener tamaï¿½o y de pantalla
+	Initwigth=GetSystemMetrics (SM_CXSCREEN);//obtener tamaï¿½o x de pantalla
 	glutInitWindowPosition(0,0);//inicio de ventana de glut en 0,0 
-	glutInitWindowSize(Initwigth-100,Initheight-100);//tamaño de la ventana
+	glutInitWindowSize(Initwigth-100,Initheight-100);//tamaï¿½o de la ventana
 	height=(float)Initheight-100;
 	wigth=(float)Initheight-100;
-	glutCreateWindow("ESE_GRS");//creo e inicio la ventana
+	Window=glutCreateWindow("ESE_GRS");//creo e inicio la ventana
 	glEnable(GL_DEPTH_TEST);//acivo el buffer de profundidad
 
 	
@@ -64,12 +82,13 @@ ESE_GRS::ESE_GRS(){
 	glutDisplayFunc(display);//refescar pantalla
 	glutMotionFunc(movRaton);//movimiento del raton
 	glutMouseFunc(teclaRaton);//clics del raton
-	glutReshapeFunc(reshape);//cambiar tamaño de pantalla
+	glutReshapeFunc(reshape);//cambiar tamaï¿½o de pantalla
 	glutMouseWheelFunc(wheel);//ruedita del mouse
 	glutKeyboardFunc(keyboard);//teclado con teclas ASCLL
 	glutSpecialFunc(SpecialKeys);//teclado con teclas speciales(Contl,Space,flechitas entre otras)
 	glutIdleFunc(Idle);//al no recivir eventos
-	glutCloseFunc(slavarInitDatos);//al cerrarse
+	glutCloseFunc(salvarInitDatos);//al cerrarse
+	glutPassiveMotionFunc(movPasiveRaton);	//al moverse pasivamente el mause(al desplazar emouse por la ventana de la app)
 	//////////////////////////INICIO MATRISES///////////////////////////////
 	initProyecc();//inicializo el tipo de proyeccion y sus dimenciones
 	cargarInitDatos();//cargar datos q se guardaron en un archivo .onrn q se guarda al cerrarse y hace q inicie donde lo dejastes(inicie el rotado lo demas tengo q programarlo)
@@ -93,7 +112,6 @@ ESE_GRS::ESE_GRS(){
 	Plano*pl=new Plano("BocetoEjemplo",&a,&b,&c,true);
 	Proyect1->Add(pl,Proyect1);
 
-
 	StackAnimation*sa=new StackAnimation("StackAnimation1");
 	sa->STANSetAnimation("InitAnimation1",CRD(0,100,0),150,100,0,0,-50,0,0,0,1);
 	sa->STANSetAnimation("InitAnimation2",CRD(0,100,0),150,100,0,0,-25,1,0,0,1);
@@ -101,7 +119,6 @@ ESE_GRS::ESE_GRS(){
 	sa->STANSetAnimation("InitAnimation4",CRD(0,100,0),150,100,0,0,25,0,0,1,1);
 	sa->STANSetAnimation("InitAnimation5",CRD(0,100,0),150,100,0,0,50,1,1,1,1);
 	ManejadorForms->Add(sa,ManejadorForms);
-
 
 
 	/*mc.AddPoint(new CRD(0,0,0));
@@ -113,22 +130,8 @@ ESE_GRS::ESE_GRS(){
 
 }
 ESE_GRS::~ESE_GRS(){
-	//no hace falta explicar VERDAD?
-	if(recibir_serie||!ManejadorObject->Salir)
-	{
-	   recibir_serie=false;
-	   p->CloseConnection();
-	   ManejadorObject->Salir=true;
-	   t1->join();
-	}
-	delete PlanoCrearPlano,messeng,Proyect1,cooRd;
-	delete[]ManejadorObject;
-	delete[]ManejadorForms;
-	if(p->EstaConectado())
-	{
-		p->CloseConnection();
-		delete p;
-	}
+		//no hace falta explicar VERDAD?
+	DestruirVariablesGlobales();
 }
 ////////////////INICIALIZADORES//////////////////////////////////////////////////////
 void ESE_GRS::initProyecc(){
@@ -235,49 +238,6 @@ void ESE_GRS::display(){
 		IniciarCargObjetos();
 	else
 	{
-	//	cout<<conttta++<<endl;
-	//	sc=new SplineCubico();
-	//	sc->Add(new CRD(0,0,0));
-	//	sc->Add(new CRD(5,20,0));
-	//	sc->Add(new CRD(10,30,0));
-	//	sc->Add(new CRD(15,10,0));
-	//	sc->Add(new CRD(20,25,0));
-	//	sc->Add(new CRD(25,20,0));
-	//	sc->Add(new CRD(30,10,0));
-
-	//	/*sc->Add(new CRD(35,45,0));
-	//	sc->Add(new CRD(40,0,0));*/
-	//	sc->Draw();
-
-	////	MiCurva mc;
-	////	mc.AddPoint(new CRD(50,0,0));
-	////	mc.AddPoint(new CRD(55,20,0));
-	////	mc.AddPoint(new CRD(60,30,0));
-	////	mc.AddPoint(new CRD(65,10,0));
-	////	mc.AddPoint(new CRD(70,25,0));
-	////	mc.AddPoint(new CRD(75,20,0));
- ////   	mc.AddPoint(new CRD(80,10,0));
-	//////	mc.AddPoint(new CRD(85,35,0));
-	////	
-	////    glLineWidth(2);
-	////	glColor3f(1,1,1);
-	////	glBegin(GL_LINE_STRIP);
-	////	for(unsigned i=50;i<81;i++)
-	////	{
-	////		float acasdsad=mc.Response(i);
-	////		glVertex3f(i,acasdsad,0);
-	////	}
-	////	glEnd();
-	////	glLineWidth(1);
-	////	glPointSize(5);
-	////	glBegin(GL_POINTS);
-	////	glColor3f(1,0,0);
-	////	for(unsigned i=0;i<mc.cont;i++)
-	////	   glVertex3f(mc.points[i].x,mc.points[i].y,0);
-	////	glEnd();
-	////	glPointSize(1);
-	//	
-
 	    // recivirDatosCOM();//recivo y proceso la entrada del puerto serie
 		Inicializar();//iniciaizo proyeccin luces y pongo los angulos del brazo 
 		Entorno();
@@ -656,6 +616,9 @@ void ESE_GRS::reshape(int x,int y){
 	glutPostRedisplay();
 }
 void ESE_GRS::movRaton(GLsizei x,GLsizei y){
+
+	
+
    movRatY+=(float)x-movRatXinit;
    movRatX+=(float)y-movRatYinit;
    movRatXinit=(float)x;
@@ -663,6 +626,34 @@ void ESE_GRS::movRaton(GLsizei x,GLsizei y){
    Proyect1->BocetoActual(Proyect1)->verPlanoRotado(0,Proyect1->BocetoActual(Proyect1));
    glutPostRedisplay();//refresco y ejecuto el displayFunc()
 }
+void ESE_GRS::movPasiveRaton(GLsizei x,GLsizei y)
+{
+	switch (ManejadorForms->FormsPasiveMouse((int)x,(int)y,ManejadorForms))
+	{
+	case Type::BUTTONACEPTRB:
+	case Type::BUTTONINITSETANGULES:	
+	case Type::RADIOBUTTON:
+	case Type::BUTTONCANCELSETANGULES:
+	case Type::BUTTONCANCELRB:
+		if(!cursor)
+		{
+			glutSetCursor( GLUT_CURSOR_HELP);
+			cursor=true;
+		}
+	break;
+	case Type::TEXTBOX:
+		glutSetCursor( GLUT_CURSOR_TEXT);
+		cursor=true;
+		break;
+	default:
+		if(cursor)
+		{
+			glutSetCursor(GLUT_CURSOR_INHERIT);
+			cursor=false;
+		}
+	break;
+	} 
+};
 void ESE_GRS::Idle(){
    if(recibir_serie||ManejadorForms->GetEstoyEscribindo())
 	  glutPostRedisplay();
@@ -957,8 +948,12 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
 			CalcularCoordenadas();
 		break;
 	    }
+
 	    ShowAngules();
 	    DataProcessor::RectificarAngules(angules);
+
+		
+
 	 }
 	 else
      {
@@ -1176,7 +1171,7 @@ void ESE_GRS::default_menu(int opcion){
 		if(!p->inicializa( ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxChar"),atol(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxUnsigned"))))
 		  {
 			  string f=string(p->ErrorStr());
-			   msg=new char[f.length()+1];
+			   char*msg=new char[f.length()+1];
 			   msg[f.length()]=0;
 			   for(unsigned i=0;i<f.length();i++)
 				   msg[i]=f[i]; 
@@ -1184,7 +1179,7 @@ void ESE_GRS::default_menu(int opcion){
 		   }
 		else 
 		   {
-			   msg=p->GetMesage(p);
+			   char*msg=p->GetMesage(p);
 			   cout<<endl<<"Conexion establecida:"<<p->getChar()<<"::"<<p->getunsigned()<<endl;
 		      //add
 
@@ -1464,13 +1459,13 @@ void ESE_GRS::recivirDatosCOM(){
 		   }//end if(!NULL)
 	    }//end recivir serie	
 }
-void ESE_GRS::slavarInitDatos(){
+void ESE_GRS::salvarInitDatos(){
    if(recibir_serie||!ManejadorObject->Salir)
       {
 	   recibir_serie=false;
-	   p->CloseConnection();
 	   ManejadorObject->Salir=true;
-	   //t1->join();
+	   p->CloseConnection();
+	   t1->join();
       }
 	fstream f;
 	f.open("ESE_GRS.onrn",ios::out|ios::binary);
@@ -1507,6 +1502,7 @@ void ESE_GRS::slavarInitDatos(){
 	f.write((char*)a,b);
 	f.write((char*)&toSavePort,sizeof(unsigned));
 	f.close();
+	DestruirVariablesGlobales();
 }
 void ESE_GRS::cargarInitDatos(){
 	fstream f;
@@ -1625,7 +1621,7 @@ char* ESE_GRS::Verificacion(char*c,unsigned*strleN){
 			       }
 			  return cc;
 }
-void ESE_GRS:: CalcularCoordenadas()
+void ESE_GRS::CalcularCoordenadas()
   {
 	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6;
       cosFi1=cos((angules[0]+180)*PI/180);

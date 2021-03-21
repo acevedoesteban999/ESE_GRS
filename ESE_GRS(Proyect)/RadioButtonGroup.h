@@ -69,6 +69,24 @@ public:
 		}
 	   return false;
 	}
+	bool PulsadoPasivo(int x,int y)
+	{
+	  if(Forms::Pulsado((float)x,(float)y))
+		   {
+		   for(unsigned i=0;i<contRB;i++)
+		      {
+				   if(y>=RB[i]->coord->y&&y<=RB[i]->coord->y+15&&x>=RB[i]->coord->x&&x<=RB[i]->coord->x+15)
+				   {
+					   return true;
+			       }
+		      }
+		}
+	   return false;
+	};
+	Type GetPasivePulsado()
+	{
+		return  Type::RADIOBUTTON; 
+	}
 	void RBGAddRB(char*RadioButtonName,char*escritura,bool Cheket=false){
 		
 		if(Cheket)

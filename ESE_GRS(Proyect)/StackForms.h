@@ -125,6 +125,13 @@ public:
 		sf->GetForm(name,sf)->SetLabelColor(R,G,B);
 	
 	}
+	static Type FormsPasiveMouse(int x,int y,StackForms*sf)
+	{
+		for(int i=(int)sf->cont-1;i>=0;i--)
+			if(sf->forms[i]->active&&sf->forms[i]->PulsadoPasivo(x,y))
+				return sf->forms[i]->GetPasivePulsado();
+		return Type::FORMS;
+	}
 	static void SetDraw(bool noDraw,char*name,StackForms*sf){
 		sf->GetForm(name,sf)->SetDraw(noDraw,sf->GetForm(name,sf));
 	}

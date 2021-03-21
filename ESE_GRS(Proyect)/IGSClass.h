@@ -1,6 +1,6 @@
 #pragma once
 #include <fstream>
-#include "GL\freeglut.h"
+#include "ESE_GRS.h"
 #include"CRD.h"
 using namespace std;
 class IGSClass

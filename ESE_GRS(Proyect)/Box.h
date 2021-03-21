@@ -4,7 +4,7 @@ class Box:public Forms{
 private:
 	Forms**forms;
 	unsigned cant,cont;
-	unsigned PulsadO;
+	unsigned PulsadO,PasivePulsado;
 	int Focus;
 public:
 	Box():Forms("DefaultNameBox",*new CRD(0,0,0),0,0,0,0)
@@ -13,7 +13,7 @@ public:
 	   cant=10;
 	   forms=new Forms*[cant];
 	   this->t=Type::BOX;
-	   PulsadO=0;
+	   PulsadO=PasivePulsado=0;
 	   this->Focus=-1;
 	}
 	Box(char*name,CRD coord,float TotalWigth,float TotalHeight):Forms(name,coord,0,0,TotalWigth,TotalHeight)
@@ -22,7 +22,7 @@ public:
 	   cant=10;
 	   forms=new Forms*[cant];
 	   this->t=Type::BOX;
-	   PulsadO=0;
+	   PulsadO=PasivePulsado=0;
 	   this->Focus=-1;
 	}
 	~Box(){};
@@ -43,8 +43,8 @@ public:
 
 		f->SetCoord((float)(b->coord->x+x),(float)(b->coord->y+b->Height+y),(float)(b->coord->z+z));
 		b->Height+=f->Height+y+5;
-		if(f->Wigth+x>b->Wigth)
-			b->Wigth=f->Wigth+x;
+		if(f->LetterWigth()+x>b->Wigth)
+			b->Wigth=f->LetterWigth()+x;
 
 		b->forms[b->cont++]=f;
 		
@@ -66,6 +66,22 @@ public:
 		}
 	   return false;
 	}
+	bool PulsadoPasivo(int x,int y){
+		  if(Forms::Pulsado((float)x,(float)y))
+		   {
+		   for(unsigned i=0;i<cont;i++)
+		      {
+				  if(forms[i]->active&&forms[i]->PulsadoPasivo(x,y))
+				  {
+					  PasivePulsado=i;
+				      return true;
+				  }
+		      }
+		  
+		}
+		  return false;
+	}
+	Type GetPasivePulsado(){return forms[PasivePulsado]->GetPasivePulsado();};
 	void Draw(){
 		if(!this->NoDraw)
 		{

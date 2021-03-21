@@ -45,7 +45,6 @@ public:
 	virtual ~Forms(){};
 	static void Cancelar(Forms*f){f->Cancel=true;};
 	static void Destruir(Forms*f){f->destruir=true;};
-	
 	static void SetName(char*name,Forms*f)
 	{
 		f->name=new char[strlen(name)+1];
@@ -61,6 +60,7 @@ public:
 		this->active=ActDesact;
 	};
 	bool GetActiveDesavt(){return active;};
+	virtual float LetterWigth(){return Wigth;}
 	static void teXt(char*c,GLfloat x,GLfloat y,GLfloat R,GLfloat G,GLfloat B,unsigned LetterSize,Forms*f){
 	//dibujo el char c en la posicion x,y,z con color RGB
 	
@@ -99,6 +99,10 @@ public:
 		return false;
 	
 	};
+	virtual bool PulsadoPasivo(int x,int y){
+		return Pulsado((float)x,(float)y);
+	}
+	virtual Type GetPasivePulsado(){return t;};
 	virtual bool Escribiendo(){
 		return false;};
 	virtual char*GetEscritura(){

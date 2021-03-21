@@ -32,6 +32,7 @@ using namespace std;
 
 {
 public:
+
 	ESE_GRS();
 	~ESE_GRS();
 	////////////DIBUJAR
@@ -43,6 +44,7 @@ public:
 	static Box* Interfaz(unsigned interfz=0,INTERFZType Buttom=INTERFZType::SPECIFIC);
 	///////////DEFAULTGLUTS
 	static void movRaton(GLsizei x,GLsizei y);
+	static void movPasiveRaton(GLsizei x,GLsizei y);
 	static void teclaRaton(int boton,int state,int x,int y);
 	static void reshape(int x,int y);
 	static void initProyecc();
@@ -62,7 +64,7 @@ public:
 	//////////////DATOS
     static void SaveObj(char*address,LoaderObject*l);
 	static void cargarInitDatos();
-	static void slavarInitDatos();
+	static void salvarInitDatos();
 	static void recivirDatosCOM();
     static void CalcularCoordenadas();
 	static char* Verificacion(char*c,unsigned*strleN);

@@ -6,6 +6,7 @@ private:
 	
 	unsigned forma;
 	GLfloat R,G,B;
+	float letterWigtH;
 public:
 	bool Checket,SoloLabel;
 	Label*l;
@@ -18,7 +19,8 @@ public:
 		forma=0;
 		R=B=0;
 		G=1;
-		this->Wigth=(float)(strlen(escritura)*10+20);
+		this->letterWigtH=(float)(strlen(escritura)*10+20);
+		this->Wigth=20;
 		this->Height=20;
 	};
 	~RadioButton(){};
@@ -91,6 +93,7 @@ public:
 		coord=new CRD(*crd);
 		l->NewCRD(new CRD(crd[0].x+20,crd[0].y,crd[0].z));
 	}
+	float LetterWigth(){return letterWigtH;}
 	static void SetStyle(GLfloat R,GLfloat G,GLfloat B,unsigned forma,RadioButton*rb){
 		rb->forma=forma;
 		rb->R=R;
