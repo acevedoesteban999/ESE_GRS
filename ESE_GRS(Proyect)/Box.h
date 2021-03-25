@@ -251,5 +251,6 @@ public:
 		}
 		return  toReturn;
 	};
+	unsigned BoxGetCont(){return cont;};
 	
 };

@@ -11,7 +11,7 @@ public:
 		contB=contNPl=0;
 		cantB=10;
 		bocetos=new Plano*[cantB];
-		bocetos[contB++]=new Plano("Boceto general");
+		bocetos[contB++]=new Plano("Principal Sketch");
 		PlanoCheckeeado=0;
 		coord=new CRD(0,0,0);
 		coorNewPlano=new CRD[3];
@@ -105,13 +105,16 @@ public:
 		switch (sb->contNPl)
 		{
 		case 0:
-			sb->coorNewPlano=new CRD[3];
+			sb->coorNewPlano=new CRD[4];
 			sb->coorNewPlano[sb->contNPl++]=*coord;
 			break;
 		case 1:
 			sb->coorNewPlano[sb->contNPl++]=*coord;
 			break;
 		case 2:
+			sb->coorNewPlano[sb->contNPl++]=*coord;
+			break;
+		case 3:
 			sb->coorNewPlano[sb->contNPl++]=*coord;
 			break;
 		}

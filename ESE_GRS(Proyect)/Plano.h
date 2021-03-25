@@ -312,13 +312,22 @@ public:
 	a[0]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x+p->distmax+50,p->PuntoCentro->y,p->PuntoCentro->z),p));
 	a[1]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y+p->distmax+50,p->PuntoCentro->z),p));
 	a[2]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y,p->PuntoCentro->z+p->distmax+50),p));
-	unsigned mayor=2,mediano=1;
+	unsigned mayor=0,mediano=0;
 	for(unsigned i=0;i<3;i++)
 	{
 		float nor=Plano::Norma(&a[i]);
 		if(nor>=Plano::Norma(&a[mayor]))
 			mayor=i;
-		else if(nor>=Plano::Norma(&a[mediano]))
+		/*else if(nor>=Plano::Norma(&a[mediano]))
+			mediano=i;*/
+	}
+	mediano=mayor==0?1:0;
+	for(unsigned i=0;i<3;i++)
+	{
+		if(i==mayor)
+			continue;
+		float nor=Plano::Norma(&a[i]);
+		if(nor>=Plano::Norma(&a[mediano]))
 			mediano=i;
 	}
 	vectorAltura=a[mayor]-*p->PuntoCentro;

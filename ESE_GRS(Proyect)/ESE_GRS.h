@@ -26,6 +26,7 @@
 #include "StackAnimation.h"
 #include "Connection.h"
 #include "Plinomio_Lagrange.h"
+#include "XLSClass.h"
 using namespace std;
 
  class ESE_GRS

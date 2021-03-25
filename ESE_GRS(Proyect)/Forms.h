@@ -164,6 +164,7 @@ public:
 	virtual char* BoxGetEscritura(char*TextBoxname){return new char(0);};
 	virtual void BoxNextFocus(){};
 	virtual double* BoxFocusClick(){ double*a=new double[2];a[0]=0;a[1]=0;return a;};
+	virtual unsigned BoxGetCont(){return 0;};
 	//PURAS
 	virtual void Draw()=0; 
 	virtual unsigned Click()=0;
