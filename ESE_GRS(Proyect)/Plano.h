@@ -136,7 +136,7 @@ public:
 		a.z+=b.z;
 		return a;
 	}
-	static void add(CRD*vertex,Plano*p,bool BocetoGeneral=false){
+	static void add(CRD*vertex,Plano*p){
 		//if(p->RestringirAlPlano)
 		//{
 		//	Sistema_Cartesiano::add(CoordRestringida(vertex,p),p);
@@ -171,12 +171,12 @@ public:
 			break;
 		   }
 		}
-		if(BocetoGeneral)
+		if(!p->RestringirAlPlano)
 			  p->items[p->contItems-1]->Add(vertex);
 		else
 		   p->items[p->contItems-1]->Add(&Plano::CoordRestringida(vertex,p));
 	};
-	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false,bool proyectpunt=false,bool BocetoGenral=false){
+	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false,bool proyectpunt=false,bool General=false){
 		if(p->RestringirAlPlano&&pintarPlano&&p->pintarPlano)
 		{
 		glColor3f((GLfloat)0.5,(GLfloat)0.5,(GLfloat)0.5);
@@ -193,7 +193,7 @@ public:
 		glEnd();
 		
 		}
-		if(proyectpunt)
+		if(p->RestringirAlPlano&&proyectpunt)
 		{
 			glPointSize(2);
 			glColor3f(0,1,0);
@@ -224,7 +224,7 @@ public:
 			   }
 			}
 		 }
-		if(BocetoGenral)
+		if(!p->RestringirAlPlano&&!General)
 		{
 		if(p->contItems&&!p->NewItem)
 			{
@@ -352,13 +352,13 @@ public:
 			p->NewItem=true;
 			return;
 		}
+		p->items[p->contItems-1]->cont--;
 		if(p->items[p->contItems-1]->cont==0)
 		{
 			p->contItems--;
 			if(p->contItems==0)
 			   p->NewItem=true;
 		}
-		p->items[p->contItems-1]->cont--;
 	}
     
 };

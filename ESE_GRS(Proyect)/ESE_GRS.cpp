@@ -118,6 +118,7 @@ ESE_GRS::ESE_GRS(){
 	ManejadorForms->Add(sa,ManejadorForms);
 
 
+
 	/*mc.AddPoint(new CRD(0,0,0));
     mc.AddPoint(new CRD(2,4,0));
 	mc.AddPoint(new CRD(6,4,0));
@@ -371,28 +372,69 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 	bool desactivaAcept=false,desactiaCancel=false;
 	string s;
 	unsigned u1=0,cOnT,*u;
+	bool Err;
 	switch(t)
 	{
 	case INTERFZType::ACEPT:////////////////////////////////ACEPT//////////////////////////////////
 		switch (interfaz)
 		{
-		case 0:
+		case 0:	 ////////INTERFAZ0///////////
 			if(BoxInterfaz0==0)
 				interfaz=1;
 			else
 				interfaz=6;
 			break;
-		case -5:
+		case -5: /////////////Add menu bocetos////
 			if(bocetoACrear==0)
 			{
 				Proyect1->contNPl=0;
 				ManejadorForms->Add(Interfaz(-1),ManejadorForms);
 				break;
 			}
+			else if(bocetoACrear==1)
+			{
+				Err=false;
+				for(unsigned i=0;i<Proyect1->contB;i++)
+				{
+					if(!strcmp(Proyect1->bocetos[i]->name,ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")))
+					{
+						messeng=new MeSSenger("Error, name in use",CENTER_TOP,wigth,height,3,1,0,0,2);
+						ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetFocusColorTimer("textBoxNewBoceto");
+						box->Cancelar(box);
+						Err=true;
+						break;
+					}
+				}
+				if(Err)
+					break;
+
+
+				Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")),Proyect1);
+				interfaz=1;
+				ManejadorForms->ActivateRB("BoxInterfazPricipal","radioButonRemoveBoceto",ManejadorForms);
+				Proyect1->ResetNewPlano(Proyect1);
+				Proyect1->PlanoCheckeeado=Proyect1->contB-1;
+				break;
+			}
 			
 		//////No pongo break para el case -5 para q entre en el case -1 y ejecute su contenindo
 
 		case -1:////////////////ADD BOCETO///////////////
+			Err=false;
+			for(unsigned i=0;i<Proyect1->contB;i++)
+			{
+				if(!strcmp(Proyect1->bocetos[i]->name,ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")))
+				{
+					messeng=new MeSSenger("Error, name in use",CENTER_TOP,wigth,height,3,1,0,0,2);
+					ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetFocusColorTimer("textBoxNewBoceto");
+					box->Cancelar(box);
+					Err=true;
+					break;
+				}
+			}
+			if(Err)
+				break;
+
 			Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&Proyect1->coorNewPlano[0],&Proyect1->coorNewPlano[1],&Proyect1->coorNewPlano[2],true),Proyect1);
 			//contCoordNewPlano=0;
 			interfaz=1;
@@ -403,10 +445,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 
 		case -2:////////////////REMOVE BOCETO///////////////
 		 	Proyect1->Sub(Proyect1->bocetos[bocetoARemover]->name,Proyect1);
-		    if(bocetoARemover==PlanoChecket)
-			   Proyect1->PlanoCheckeeado=(--PlanoChecket);
-		    else if(bocetoARemover==Proyect1->PlanoCheckeeado)
-			   Proyect1->PlanoCheckeeado=PlanoChecket;
+			Proyect1->PlanoCheckeeado=Proyect1->contB;
 		    interfaz=1;
 		break;
 
@@ -438,7 +477,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			u1=0;
 			for(unsigned i=0;i<cOnT;i++)
 			{
-				s="RadioButtonSketsh"+i;
+				s="RadioButtonSketch"+i;
 				if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBChecket((char*)s.c_str()))
 					u[u1++]=i;
 			}
@@ -510,31 +549,37 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 	{
 	case 0://///////////////////////////INTERFAZ_0////////////////////////
 		Proyect1->SetDraw(false,Proyect1);
+		f=new Label("LabelInterfaz0","ESE_GRS:",*new CRD(0,0,0),2,0,0,0,wigth,height);
+		box->AddForm(f,box);
 		f=new RadioButtonGroup("radioButtonGroupInterfaz0",*new CRD(0,0,0),wigth,height);
-		f->RBGAddRB("radioButtonProyecto1","Edit Sketchs",BoxInterfaz0==0?true:false);
-		f->RBGAddRB("radioButtonProyecto1","Save Sketchs",BoxInterfaz0==1?true:false);
+		f->RBGAddRB("radioButtonEditSketchs","Edit Sketchs",BoxInterfaz0==0?true:false);
+		f->RBGAddRB("radioButtonSaveSketchs","Save Sketchs",BoxInterfaz0==1?true:false);
+		if(Proyect1->contB==0)
+			f->RBGActivDesactRB("radioButtonSaveSketchs",false);
 		desactiaCancel=true;
 		box->AddForm(f,box);
 		break;
 	case 1://///////////////////////////INTERFAZ_1////////////////////////
-		Proyect1->BocetoActual(Proyect1)->pintarPlano=true;
+		Proyect1->SetDrawAll(false,Proyect1);
 		Proyect1->SetDraw(true,Proyect1);
 		f=new Label("LabelInterfaz1","Sketchs:",*new CRD(0,0,0),2,0,0,0,wigth,height);
 		box->AddForm(f,box);
 		f=new RadioButtonGroup("radioButtonGroupInterfaz1",*new CRD(10,150,0),wigth,height);
+		f->RBGAddRB("RadioButtonVistaGeneral","Total View",true);
 		for(unsigned i=0;i<Proyect1->contB;i++)
 		{
 			s="radioButtonBoceto"+to_string(i);
-			f->RBGAddRB((char*)s.c_str(),Proyect1->bocetos[i]->name,i==Proyect1->PlanoCheckeeado?1:0);
+			f->RBGAddRB((char*)s.c_str(),Proyect1->bocetos[i]->name,(Proyect1->PlanoCheckeeado==i && Proyect1->PlanoCheckeeado!=Proyect1->contB)?true:false);
 		}
-		
+		if(f->RBGGetRBChecket("RadioButtonVistaGeneral"))
+			desactivaAcept=true;
 		box->AddForm(f,box);
 		f=new RadioButton("radioButtonAgregarBoceto",*new CRD(0,0,0),"Add",wigth,height);
 		if(!recibir_serie)
 		   f->ActivateDesactivate(false);
 		box->AddForm(f,box,10);
 		f=new RadioButton("radioButtonRemoverBoceto",*new CRD(0,0,0),"Sub",wigth,height);
-		if(Proyect1->contB<=1)
+		if(Proyect1->contB==0)
 			f->ActivateDesactivate(false);
 		box->AddForm(f,box,10);
 		if(!recibir_serie)
@@ -568,22 +613,24 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		break;
 	case -5://///////////////////////////////////INTERFAZ_-5/////////////////////////
 		Proyect1->SetDraw(false,Proyect1);
-		f=new Label("LabelInterfaz-5","Select:",*new CRD(0,0,0),1,0,0,0,wigth,height);
+		f=new Label("LabelInterfaz-5","To Create: ",*new CRD(0,0,0),2,0,0,0,wigth,height);
 		box->AddForm(f,box);
 		f=new RadioButtonGroup("RadioButtonInterfaz-5",*new CRD(0,0,0),wigth,height);
 		f->RBGAddRB("RadioButtonPlanoXY","New Plane",bocetoACrear==0?true:false);
-		f->RBGAddRB("RadioButtonPlanoXY","Plane XY",bocetoACrear==1?true:false);
-		f->RBGAddRB("RadioButtonPlanoXY","Plane XZ",bocetoACrear==2?true:false);
-		f->RBGAddRB("RadioButtonPlanoXY","Plane YZ",bocetoACrear==3?true:false);
+		f->RBGAddRB("RadioButtonPlanoFree","Free Plane",bocetoACrear==1?true:false);
+		f->RBGAddRB("RadioButtonPlanoXY","Plane XY",bocetoACrear==2?true:false);
+		f->RBGAddRB("RadioButtonPlanoXY","Plane XZ",bocetoACrear==3?true:false);
+		f->RBGAddRB("RadioButtonPlanoXY","Plane YZ",bocetoACrear==4?true:false);
 		box->AddForm(f,box);
 		if(bocetoACrear!=0)
 		{
-			s="Sketch_"+to_string(Proyect1->contB);
+			s=(bocetoACrear==1?"Fsketch_":"Sketch_")+to_string(Proyect1->contB);
 			f=new TextBox("textBoxNewBoceto",*new CRD(0,0,0),box->Wigth-10,wigth,height,(char*)s.c_str(),10);
 			box->AddForm(f,box);
 		}
+		box->BoxSetFocus(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetFocus());
 		break;
-	case -1:////////////////////////////////////////INTERFAZ_-1//////////////////////
+	case -1:////////////////////////////////////////INTERFAZ_-1//////////////////////Add New Specific Boceto
 		Proyect1->SetDraw(false,Proyect1);
 		s="Points:"+to_string(Proyect1->contNPl)+"/3";
 		f=new Label("LabelInterfaz-1",(char*)s.c_str(),*new CRD(0,0,0),1,0,0,0,wigth,height);
@@ -602,19 +649,19 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		}
 		desactivaAcept=true;
 		break;
-	case -2://///////////////////////////INTERFAZ_-2////////////////////////
-		bocetoARemover=1;
+	case -2://///////////////////////////INTERFAZ_-2////////////////////////REMOVE BOCETO
+		bocetoARemover=0;
 		Proyect1->SetDraw(true,Proyect1);
-		s="Select:";
-		f=new Label("LabelInterfaz-2",(char*)s.c_str(),*new CRD(0,0,0),1,0,0,0,wigth,height);
+		s="To Remove:  ";
+		f=new Label("LabelInterfaz-2",(char*)s.c_str(),*new CRD(0,0,0),2,0,0,0,wigth,height);
 		box->AddForm(f,box);
 		f=new RadioButtonGroup("radioButtonGroupInterfaz-2",*new CRD(10,150,0),wigth,height);
-		for(unsigned i=1;i<Proyect1->contB;i++)
+		for(unsigned i=0;i<Proyect1->contB;i++)
 		{
 			s="radioButtonBoceto"+to_string(i);
-			f->RBGAddRB((char*)s.c_str(),Proyect1->bocetos[i]->name,i==1?1:0);
+			f->RBGAddRB((char*)s.c_str(),Proyect1->bocetos[i]->name,i==0?1:0);
 		}
-		Proyect1->PlanoCheckeeado=1;
+		Proyect1->PlanoCheckeeado=0;
 		box->AddForm(f,box);
 		break;
 	case 3://///////////////////////////INTERFAZ_3////////////////////////
@@ -638,16 +685,14 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		break;
 	case 6:
 		Proyect1->SetDraw(false,Proyect1);
-		f=new Label("labelSelectSketsh","Select:",CRD(0,0,0),2,0,0,0,wigth,height);
+		f=new Label("labelSelectSketsh","To Save:",CRD(0,0,0),2,0,0,0,wigth,height);
 		box->AddForm(f,box);
-		for(unsigned i=1;i<Proyect1->contB;i++)
+		for(unsigned i=0;i<Proyect1->contB;i++)
 		{
-			s="RadioButtonSketsh"+i;
+			s="RadioButtonSketch"+i;
 			f=new RadioButton((char*)s.c_str(),CRD(0,0,0),Proyect1->bocetos[i]->name,wigth,height,true);
 			box->AddForm(f,box);
 		}
-		f=new RadioButton("RadioButtonSketshGEneral",CRD(0,0,0),"Principal Scketsh",wigth,height);
-		box->AddForm(f,box);
 		break;
 	}
 	//////////////////////////////////////////////////////BUTTONS////////////////////////////////////////////////////
@@ -691,7 +736,8 @@ void ESE_GRS::movRaton(GLsizei x,GLsizei y){
    movRatX+=(float)y-movRatYinit;
    movRatXinit=(float)x;
    movRatYinit=(float)y;
-   Proyect1->BocetoActual(Proyect1)->verPlanoRotado(0,Proyect1->BocetoActual(Proyect1));
+   if(Proyect1->contB)
+	   Proyect1->BocetoActual(Proyect1)->verPlanoRotado(0,Proyect1->BocetoActual(Proyect1));
    glutPostRedisplay();//refresco y ejecuto el displayFunc()
 }
 void ESE_GRS::movPasiveRaton(GLsizei x,GLsizei y)
@@ -742,7 +788,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   {
 				  if(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetElemChecket()==2)
 				  {
-					  p->SetType(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetRBGChecket("RadioButtonGroupConnectionType")?ConnectionType::SERIAL_PORT:ConnectionType::TCP_IP_CLIENT,p);
+					 p->SetType(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetRBGChecket("RadioButtonGroupConnectionType")?ConnectionType::SERIAL_PORT:ConnectionType::TCP_IP_CLIENT,p);
 				     ManejadorForms->Add(Interfaz(3),ManejadorForms);
 				  }
 			   }
@@ -754,15 +800,27 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   switch (interfaz)
 			   {
 			   case 0: //////////////////////////INTERFAZ 0
-				   BoxInterfaz0=ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("radioButtonGroupInterfaz0");
-				   break;
+					if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetElemChecket()==1)
+						BoxInterfaz0=ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("radioButtonGroupInterfaz0");
+					break;
 			   case 1://////////////////////////INTERFAZ 1
 				   switch (BoxInterfazPricipal)
 				   {
 				   case 1:////////////SELECC BOCETO
 					   PlanoChecket=ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("radioButtonGroupInterfaz1");
-					   Proyect1->PlanoCheckeeado=PlanoChecket;
-					   Proyect1->BocetoActual(Proyect1)->pintarPlano=true;
+					   if(PlanoChecket==0)
+					   {
+						    Proyect1->SetDrawAll(true,Proyect1);
+							ManejadorForms->DesactivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
+					   }
+					   else
+					   {
+						    if(recibir_serie)
+								ManejadorForms->ActivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
+							Proyect1->SetDrawAll(false,Proyect1);
+							Proyect1->PlanoCheckeeado=PlanoChecket-1;
+							Proyect1->BocetoActual(Proyect1)->pintarPlano=true;
+					   }
 					   break;
 				   case 2:///////////////////// ADD BOCETO
 					   if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetActiveDesact("radioButtonAgregarBoceto"))
@@ -799,10 +857,10 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						if(	ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetActiveDesact("RadioButtomCancelLast"))
 						{
 						Proyect1->BocetoActual(Proyect1)->CancelLastPoint(Proyect1->BocetoActual(Proyect1));
-						ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxCambiarChecketRB("RadioButtomCancelLast");
 						if(!Proyect1->BocetoActual(Proyect1)->contItems)
 							ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",false);
 						}
+						ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxCambiarChecketRB("RadioButtomCancelLast");
 						break;
 					case 3://Mostrar\ocultar Plano
 						Proyect1->Pintar_NoPintar_LineaSuspensiva(true,Proyect1);
@@ -814,7 +872,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					}
 				   break;
 			   case -2:   /////////////REMOVER BOCETO///////INTEFAZ-2////
-				    bocetoARemover=1+ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("radioButtonGroupInterfaz-2");
+				    bocetoARemover=ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("radioButtonGroupInterfaz-2");
 					Proyect1->PlanoCheckeeado=bocetoARemover;
 				break;
 			   case -5:	///////////////SELECT NEW PLANO/////////
@@ -825,9 +883,10 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						   switch (bocetoACrear)
 						   {
 							   case 0:///NEW PLANO////
+							   case 1:///FREE Plano///
 								   Proyect1->ResetNewPlano(Proyect1);
 								   break;
-							   case 1:////XY//////
+							   case 2:////XY//////
 								   Proyect1->ResetNewPlano(Proyect1);
 								   Proyect1->AddPuntoNewPlano(new CRD(200,200,0),Proyect1);
 								   Proyect1->AddPuntoNewPlano(new CRD(200,-200,0),Proyect1);
@@ -835,14 +894,14 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								   Proyect1->AddPuntoNewPlano(new CRD(-200,200,0),Proyect1);
 					   
 								   break;
-								case 2:///XZ//////
+								case 3:///XZ//////
 								  Proyect1->ResetNewPlano(Proyect1);
 								   Proyect1->AddPuntoNewPlano(new CRD(200,0,200),Proyect1);
 								   Proyect1->AddPuntoNewPlano(new CRD(200,0,-200),Proyect1);
 								   Proyect1->AddPuntoNewPlano(new CRD(-200,0,-200),Proyect1);
 								   Proyect1->AddPuntoNewPlano(new CRD(-200,0,200),Proyect1);
 								   break;
-								case 3:///YZ//////
+								case 4:///YZ//////
 								   Proyect1->ResetNewPlano(Proyect1);
 								   Proyect1->AddPuntoNewPlano(new CRD(0,200,200),Proyect1);
 								   Proyect1->AddPuntoNewPlano(new CRD(0,200,-200),Proyect1);

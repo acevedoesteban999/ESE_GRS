@@ -132,7 +132,7 @@ public:
 	virtual void CambiarChecket(){}
 	virtual void MoveOnReshape(bool reshape){
 		this->reshapeBool=reshape;
-	}
+	};
 	//StackAnimation
 	virtual void STANSetAnimation(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight,float x,float R,float G,float B,float speed){};
 	//RadBut
@@ -165,6 +165,9 @@ public:
 	virtual void BoxNextFocus(){};
 	virtual double* BoxFocusClick(){ double*a=new double[2];a[0]=0;a[1]=0;return a;};
 	virtual unsigned BoxGetCont(){return 0;};
+	virtual int BoxGetFocus(){return -1;};
+	virtual void BoxSetFocus(int focus){}
+	virtual void BoxSetFocusColorTimer(char*ElementName){};
 	//PURAS
 	virtual void Draw()=0; 
 	virtual unsigned Click()=0;

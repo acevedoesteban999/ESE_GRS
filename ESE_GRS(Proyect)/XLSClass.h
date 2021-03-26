@@ -18,16 +18,13 @@ public:
 			Sheet*sheet=book->addSheet("Sheet1");
 			if(sheet)
 			{
-				sheet->writeStr(1,0,"X");
-				sheet->writeStr(1,1,"Y");
-				sheet->writeStr(1,2,"Z");
-				unsigned row=2;
 				mkdir("ESE_GRS-XLS");
-				
-
-
 				for(unsigned i=0;i<cantElements;i++)
 				{
+					sheet->writeStr(1,0,"X");
+					sheet->writeStr(1,1,"Y");
+					sheet->writeStr(1,2,"Z");
+					unsigned row=2;
 					for(unsigned j=0;j<Planos[elements[i]]->contItems;j++)
 					{
 						for(unsigned k=0;k<Planos[elements[i]]->items[j]->cont;k++)

@@ -5,19 +5,21 @@ public:
 	Plano**bocetos;
 	CRD*coord,*coorNewPlano;
 	unsigned contNPl,cantB,contB,PlanoCheckeeado;
-	bool draw;
+	bool draw,drawAll;
 
 	StackBoceto(){
 		contB=contNPl=0;
 		cantB=10;
 		bocetos=new Plano*[cantB];
-		bocetos[contB++]=new Plano("Principal Sketch");
+		//bocetos[contB++]=new Plano("Principal Sketch");
 		PlanoCheckeeado=0;
 		coord=new CRD(0,0,0);
 		coorNewPlano=new CRD[3];
 		draw=true;
+		drawAll=false;
 	};
 	~StackBoceto(){};
+	static void SetDrawAll(bool drawall,StackBoceto*sb){sb->drawAll=drawall;};
 	static void Add(Plano*p,StackBoceto*b)
 	{
 
@@ -47,7 +49,7 @@ public:
 	   b->BocetoActual(b)->ActualiWidthHeight(&Plano::CoordRestringida(b->coord,b->BocetoActual(b)),b->BocetoActual(b));
 	}
 	static void AddPoint(CRD coord,StackBoceto*b){
-		b->bocetos[b->PlanoCheckeeado]->add(&coord,b->bocetos[b->PlanoCheckeeado],b->PlanoCheckeeado?0:1);
+		b->bocetos[b->PlanoCheckeeado]->add(&coord,b->bocetos[b->PlanoCheckeeado]);
 	}
 	static void Sub(char*name,StackBoceto*b)
 	{
@@ -86,10 +88,10 @@ public:
 		}
 		if(b->draw)
 		{
-		if(!b->PlanoCheckeeado)
-		 for(unsigned i=0;i<b->contB;i++)
-			 b->bocetos[i]->Draw(b->coord,b->bocetos[i],false,false,true);
-		else
+		if(b->drawAll)
+			 for(unsigned i=0;i<b->contB;i++)
+				 b->bocetos[i]->Draw(b->coord,b->bocetos[i],false,false,true);
+		else if(b->contB&&b->PlanoCheckeeado!=b->contB)
 			b->bocetos[b->PlanoCheckeeado]->Draw(b->coord,b->bocetos[b->PlanoCheckeeado],true,proyectpunt);
 		}
 	};

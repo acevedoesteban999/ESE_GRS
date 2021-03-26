@@ -60,9 +60,13 @@ public:
 		      {
 				  if(y>=RB[i]->coord->y&&y<=RB[i]->coord->y+15&&x>=RB[i]->coord->x&&x<=RB[i]->coord->x+15)
 				   {
-					   RB[i]->CambiarChecket();		   
-					   this->Checket=i;
-					   return true;
+					   if(RB[i]->active)
+					   {
+							RB[i]->CambiarChecket();		   
+							this->Checket=i;
+							return true;
+					   }
+					   return false;
 			       }
 		      }
 		  
@@ -77,7 +81,9 @@ public:
 		      {
 				   if(y>=RB[i]->coord->y&&y<=RB[i]->coord->y+15&&x>=RB[i]->coord->x&&x<=RB[i]->coord->x+15)
 				   {
-					   return true;
+					   if(RB[i]->active)
+					      return true;
+					   return false;
 			       }
 		      }
 		}
@@ -200,7 +206,7 @@ public:
 	};
 	void RBGSetRBChecket(char*RBname,bool checket){
 		for(unsigned i=0;i<contRB;i++)
-			if(!strcmp(name,RB[i]->name))
+			if(!strcmp(RBname,RB[i]->name))
 				RB[i]->Checket=checket;
 	};
 	void ActivateDesactivate(bool ActDesact){
@@ -221,5 +227,12 @@ public:
 			this->Checket++;
 		this->Click();
 	};
+	bool RBGGetRBChecket(char*nameRB)
+	{
+		 for(unsigned i=0;i<contRB;i++)
+		  if(!strcmp(RB[i]->name,nameRB))
+			  return RB[i]->RBGetCheket();
+		 return false;
+	}
 	
 };

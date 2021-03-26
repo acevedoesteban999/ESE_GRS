@@ -5,7 +5,9 @@ private:
 	Forms**forms;
 	unsigned cant,cont;
 	unsigned PulsadO,PasivePulsado;
-	int Focus;
+	int Focus,FocusTimeDurat;
+	TimeDuration td;
+	bool TimeDurationBool;
 public:
 	Box():Forms("DefaultNameBox",*new CRD(0,0,0),0,0,0,0)
 	{ 
@@ -13,8 +15,9 @@ public:
 	   cant=10;
 	   forms=new Forms*[cant];
 	   this->t=Type::BOX;
-	   PulsadO=PasivePulsado=0;
+	   PulsadO=PasivePulsado=FocusTimeDurat=0;
 	   this->Focus=-1;
+	   TimeDurationBool=false;
 	}
 	Box(char*name,CRD coord,float TotalWigth,float TotalHeight):Forms(name,coord,0,0,TotalWigth,TotalHeight)
 	{
@@ -22,8 +25,9 @@ public:
 	   cant=10;
 	   forms=new Forms*[cant];
 	   this->t=Type::BOX;
-	   PulsadO=PasivePulsado=0;
+	   PulsadO=PasivePulsado=FocusTimeDurat=0;
 	   this->Focus=-1;
+	   TimeDurationBool=false;
 	}
 	~Box(){};
 	void ChecketCont(Box*b){
@@ -43,8 +47,8 @@ public:
 
 		f->SetCoord((float)(b->coord->x+x),(float)(b->coord->y+b->Height+y),(float)(b->coord->z+z));
 		b->Height+=f->Height+y+5;
-		if(f->LetterWigth()+x>b->Wigth)
-			b->Wigth=f->LetterWigth()+x;
+		if(f->LetterWigth()+x>b->Wigth-25)
+			b->Wigth=f->LetterWigth()+x+25;
 
 		b->forms[b->cont++]=f;
 		
@@ -106,6 +110,20 @@ public:
 					glLineWidth(3);
 					glColor3f(0,0,1);
 				}
+				else if(TimeDurationBool&&FocusTimeDurat==i)
+				{
+					if(td.Incrementa(&td)>3)
+					{
+						TimeDurationBool=false;
+						td.ResettIncrementa(&td);
+					}
+					else
+					{
+					glLineWidth(3);
+					glColor3f(1,0,0);
+					}
+				}
+
 				else
 				   glColor3f(0,0,0);
 			    glBegin(GL_LINE_LOOP);
@@ -115,7 +133,7 @@ public:
 				glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
 				glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
 	            glEnd();
-				if(this->Focus==i)
+				if(this->Focus==i||(this->FocusTimeDurat==i&&TimeDurationBool))
 					glLineWidth(1);
 			}
 
@@ -252,5 +270,27 @@ public:
 		return  toReturn;
 	};
 	unsigned BoxGetCont(){return cont;};
+	int BoxGetFocus(){return Focus;};
+	void BoxSetFocus(int focus)
+	{
+		this->Focus=focus;
+	}
+	void BoxSetFocusColorTimer(char*ElemntName)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			if(!strcmp(ElemntName,this->forms[i]->name))
+			{
+				FocusTimeDurat=i;
+				break;
+			}
+			else if(i==cont-1)
+				return;
+		}
+		TimeDurationBool=true;
+		td.ResettIncrementa(&td);
+		td.Incrementa(&td);
+		
+	};
 	
 };
