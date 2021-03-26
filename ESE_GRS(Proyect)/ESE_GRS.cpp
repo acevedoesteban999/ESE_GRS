@@ -481,7 +481,13 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 				if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBChecket((char*)s.c_str()))
 					u[u1++]=i;
 			}
-			if(XLSClass::Salvar(Proyect1->bocetos,u,u1))
+			bool All;
+			
+			if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBChecket("RadioButtonAllSketchs"))
+				All=true;
+			else
+				All=false;
+			if(XLSClass::Salvar(Proyect1->bocetos,u,u1,All,All?Proyect1->contB:0))
 				messeng=new MeSSenger( "Guardado en .../ESE_GRS-XLS/",position::CENTER_TOP,wigth,height,3,0,1,0,2);
 			else
 				messeng=new MeSSenger( "Error al guardar los ficheros",position::CENTER_TOP,wigth,height,5,1,0,0,2);
@@ -586,7 +592,6 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			desactivaAcept=true;
 		break;
 	case 2://///////////////////////////INTERFAZ_2////////////////////////
-		Proyect1->BocetoActual(Proyect1)->ActualizaItem(ItemsType::POINTSS,Proyect1->BocetoActual(Proyect1));
 		Proyect1->ActualizaLastCood(cooRd,Proyect1); 
 		Proyect1->BocetoActual(Proyect1)->ActualiWidthHeight(cooRd,Proyect1->BocetoActual(Proyect1));
 		Proyect1->SetDraw(true,Proyect1);
@@ -596,14 +601,18 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		f=new Label("LabelInterfaz2",(char*)s.c_str(),*new CRD(0,0,0),1,0,0,0,wigth,height);
 		box->AddForm(f,box);
 		f=new RadioButtonGroup("radioButtonGroupInterfaz2",*new CRD(10,150,0),wigth,height);
-		f->RBGAddRB("radioButonAddPunto","Points",true);
-		f->RBGAddRB("radioButonAddPunto","Lines");
+		ItemsType checket;
+		checket=Proyect1->BocetoActual(Proyect1)->items->t;
+		f->RBGAddRB("radioButonAddPunto","Points",checket==ItemsType::POINTSS||checket==ItemsType::ITEMS?true:false);
+		f->RBGAddRB("radioButonAddLines","Lines",checket==ItemsType::LINES?true:false);
+		f->RBGAddRB("radioButonAddStipLine","StripLine",checket==ItemsType::LINE_STRIP?true:false);
+		f->RBGAddRB("radioButonAddSpline","Splines",checket==ItemsType::SPLINE?true:false);
 		box->AddForm(f,box);
 		f=new RadioButton("RadioButtomCancelLast",*new CRD(0,0,0),"Cancel",wigth,height);
-		if(!Proyect1->BocetoActual(Proyect1)->contItems)
+		if(!Proyect1->BocetoActual(Proyect1)->items->cont)
 			f->ActivateDesactivate(false);
 		box->AddForm(f,box,10);
-		if(Proyect1->PlanoCheckeeado!=0)
+		if(Proyect1->BocetoActual(Proyect1)->RestringirAlPlano)
 		{
 			f=new RadioButton("RadioButtomMostrarPlano",*new CRD(0,0,0),"Show",wigth,height,true);
 			box->AddForm(f,box,10);
@@ -693,6 +702,11 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			f=new RadioButton((char*)s.c_str(),CRD(0,0,0),Proyect1->bocetos[i]->name,wigth,height,true);
 			box->AddForm(f,box);
 		}
+		if(Proyect1->contB>1)
+		{
+		f=new RadioButton("RadioButtonAllSketchs",CRD(0,0,0),"All Sketchs",wigth,height);
+		box->AddForm(f,box);
+		}
 		break;
 	}
 	//////////////////////////////////////////////////////BUTTONS////////////////////////////////////////////////////
@@ -706,7 +720,6 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		ManejadorForms->DesactivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
 	if(desactiaCancel)
 		ManejadorForms->DesactivateForm("BoxInterfazPricipalButtonCancel",ManejadorForms);
-	
 	return box;
 }
 /////////////////////FUNCIONES DE GLUT A LLAMAR POR DEFECTO////////////////////////////
@@ -845,19 +858,19 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					case 1:////////////RADIOBUTTONGROUP ITEMS
 						RadioButtomPintar=ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("radioButtonGroupInterfaz2");
 						if(RadioButtomPintar==0)///POINTS
-						{
 							Proyect1->BocetoActual(Proyect1)->ActualizaItem(ItemsType::POINTSS,Proyect1->BocetoActual(Proyect1));
-						}
-						else if(RadioButtomPintar==1)//STRIP_LINE
-						{
+						else if(RadioButtomPintar==1)//LINES
+							Proyect1->BocetoActual(Proyect1)->ActualizaItem(ItemsType::LINES,Proyect1->BocetoActual(Proyect1));
+						else if(RadioButtomPintar==2)//STRIP_LINE
 							Proyect1->BocetoActual(Proyect1)->ActualizaItem(ItemsType::LINE_STRIP,Proyect1->BocetoActual(Proyect1));
-						}
+						else if(RadioButtomPintar==3)//SPLINE
+							Proyect1->BocetoActual(Proyect1)->ActualizaItem(ItemsType::SPLINE,Proyect1->BocetoActual(Proyect1));
 						break;
 					case 2:///////CANCEL Point
 						if(	ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetActiveDesact("RadioButtomCancelLast"))
 						{
 						Proyect1->BocetoActual(Proyect1)->CancelLastPoint(Proyect1->BocetoActual(Proyect1));
-						if(!Proyect1->BocetoActual(Proyect1)->contItems)
+						if(!Proyect1->BocetoActual(Proyect1)->items->cont)
 							ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",false);
 						}
 						ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxCambiarChecketRB("RadioButtomCancelLast");
@@ -1193,7 +1206,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 	break;
 
 	case GLUT_KEY_F3:	  //Girar al Plano(Solo interfaz 2 && boceto!=0)
-		if(interfaz==2&&Proyect1->PlanoCheckeeado)
+		if(interfaz==2&&Proyect1->BocetoActual(Proyect1)->RestringirAlPlano)
 		{
 			CRD*toMove=Plano::RotarAlPlano(Proyect1->BocetoActual(Proyect1));
 			movESE_GRSX=(float)toMove->x*velGiro;

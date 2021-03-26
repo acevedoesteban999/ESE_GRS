@@ -10,7 +10,7 @@ public:
 	XLSClass(){
 	};
 	~XLSClass(){};
-	static bool Salvar(Plano**Planos,unsigned*elements,unsigned cantElements)
+	static bool Salvar(Plano**Planos,unsigned*elements,unsigned cantElements,bool All=false,unsigned allCont=0)
 	{
 		Book*book=xlCreateBook();
 		if(book)
@@ -25,14 +25,11 @@ public:
 					sheet->writeStr(1,1,"Y");
 					sheet->writeStr(1,2,"Z");
 					unsigned row=2;
-					for(unsigned j=0;j<Planos[elements[i]]->contItems;j++)
-					{
-						for(unsigned k=0;k<Planos[elements[i]]->items[j]->cont;k++)
-						{
-						sheet->writeNum(row,0,Planos[elements[i]]->items[j]->PoIntS[k].x);
-						sheet->writeNum(row,1,Planos[elements[i]]->items[j]->PoIntS[k].y);
-						sheet->writeNum(row++,2,Planos[elements[i]]->items[j]->PoIntS[k].z);
-						}
+					for(unsigned j=0;j<Planos[elements[i]]->items->cont;j++)
+					{	
+						sheet->writeNum(row,0,Planos[elements[i]]->items->PoIntS[j].x);
+						sheet->writeNum(row,1,Planos[elements[i]]->items->PoIntS[j].y);
+						sheet->writeNum(row++,2,Planos[elements[i]]->items->PoIntS[j].z);
 					}
 					
 					string s="ESE_GRS-XLS/";
@@ -43,6 +40,27 @@ public:
 					book=xlCreateBook();
 					sheet=book->addSheet("Sheet1");
 					
+				}
+				if(All)
+				{
+					sheet->writeStr(1,0,"X");
+					sheet->writeStr(1,1,"Y");
+					sheet->writeStr(1,2,"Z");
+					unsigned row=2;
+					for(unsigned i=0;i<allCont;i++)
+					{
+						for(unsigned j=0;j<Planos[i]->items->cont;j++)
+						{	
+							sheet->writeNum(row,0,Planos[elements[i]]->items->PoIntS[j].x);
+							sheet->writeNum(row,1,Planos[elements[i]]->items->PoIntS[j].y);
+							sheet->writeNum(row++,2,Planos[elements[i]]->items->PoIntS[j].z);
+						}
+					
+						string s="ESE_GRS-XLS/";
+						s+="All_Sketchs";
+						s+=".xls";
+						book->save((char*)s.c_str());
+					}
 				}
 				book->release();
 			}

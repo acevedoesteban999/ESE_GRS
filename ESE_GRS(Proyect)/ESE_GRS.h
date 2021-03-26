@@ -8,7 +8,6 @@
 #include <string.h>
 #include "LoaderObject.h"
 #include "StackLoaderObject.h"
-//#include "PuertoSerie.h"
 #include <string>
 #include "CRD.h"
 #include "DataProcessor.h"
@@ -16,16 +15,13 @@
 #include "IGSClass.h"
 #include "MeSSenger.h"
 #include "StackForms.h"
-#include "SalverMovement.h"
 #define PI 3.14159265
-#include "Sistema_Cartesiano.h"
 #include "Plano.h"
 #include "StackBoceto.h"
 #include "Box.h"
 #include "Animacion.h"
 #include "StackAnimation.h"
 #include "Connection.h"
-#include "Plinomio_Lagrange.h"
 #include "XLSClass.h"
 using namespace std;
 

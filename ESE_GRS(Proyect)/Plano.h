@@ -5,11 +5,8 @@
 class Plano
 {
 public:
-	Items**items;
-	unsigned contItems,cantItems;
+	Items*items;
 	char*name;
-	bool NewItem;
-	ItemsType NextitType;
 	CRD*PuntoCentro;
 	CRD*PuntosCrearPlano;
 	CRD*puNt1,*puNt2,*puNt3,*puNt4;
@@ -25,17 +22,11 @@ public:
 	  PuntoCentro=new CRD;
 	  PuntosCrearPlano=new CRD[4];
 	  RestringirAlPlano=false;
-	  contItems=0;
-	  cantItems=100;
-	  items=new Items*[cantItems];
-	  NewItem=true;
+	  items=new Items();
 	  trasladarplano=0;
 	};
 	Plano(char*name,CRD*Punt1,CRD*Punt2,CRD*Punt3,bool restring=false){
-		contItems=0;
-		cantItems=100;
-		items=new Items*[cantItems];
-		NewItem=true;
+		items=new Items();
 		trasladarplano=0;
 		pintarPlano=true;
 		PuntosCrearPlano=new CRD[4];
@@ -137,44 +128,10 @@ public:
 		return a;
 	}
 	static void add(CRD*vertex,Plano*p){
-		//if(p->RestringirAlPlano)
-		//{
-		//	Sistema_Cartesiano::add(CoordRestringida(vertex,p),p);
-		//	p->ActualiWidthHeight(&CoordRestringida(vertex,p),p);
-		//}
-		//else
-		//  Sistema_Cartesiano::add(*vertex,p);
-		
-		
-		
-		if(p->NewItem)
-		{
-			p->NewItem=false;
-			p->contItems++;
-			if(p->contItems>=p->cantItems)
-			{
-				Items**newItems=new Items*[p->cantItems+100];
-				p->cantItems+=100;
-				for(unsigned i=0;i<p->contItems;i++)
-					newItems[i]=p->items[i];
-				delete[] p->items;
-				p->items=newItems;
-			}
-		   
-		   switch (p->NextitType)
-		   {
-		    case ItemsType::POINTSS:
-			   p->items[p->contItems-1]=new Points();
-			break;
-		    case ItemsType::LINE_STRIP:
-			   p->items[p->contItems-1]=new Strip_Line();
-			break;
-		   }
-		}
 		if(!p->RestringirAlPlano)
-			  p->items[p->contItems-1]->Add(vertex);
+			  p->items->Add(vertex);
 		else
-		   p->items[p->contItems-1]->Add(&Plano::CoordRestringida(vertex,p));
+		   p->items->Add(&Plano::CoordRestringida(vertex,p));
 	};
 	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false,bool proyectpunt=false,bool General=false){
 		if(p->RestringirAlPlano&&pintarPlano&&p->pintarPlano)
@@ -193,7 +150,7 @@ public:
 		glEnd();
 		
 		}
-		if(p->RestringirAlPlano&&proyectpunt)
+		 /*if(p->RestringirAlPlano&&proyectpunt)
 		{
 			glPointSize(2);
 			glColor3f(0,1,0);
@@ -202,9 +159,8 @@ public:
   	          glVertex3f((GLfloat)puntVerd.x,(GLfloat)puntVerd.y,(GLfloat)puntVerd.z);
 		    glEnd();
 		    glPointSize(1);
-			if(p->contItems&&!p->NewItem)
-			{
-			   if(p->items[p->contItems-1]->t==ItemsType::LINE_STRIP)
+			
+			  if(p->items->t==ItemsType::LINE_STRIP)
 			   {
 				  
 				  glLineWidth(2);
@@ -223,8 +179,8 @@ public:
 				   glLineWidth(1);
 			   }
 			}
-		 }
-		if(!p->RestringirAlPlano&&!General)
+		 */
+		/*if(!p->RestringirAlPlano&&!General)
 		{
 		if(p->contItems&&!p->NewItem)
 			{
@@ -248,10 +204,9 @@ public:
 			   }
 		   }
 		}
-
-		//Sistema_Cartesiano::Draw(cooRd,p,p->RestringirAlPlano,p->RestringirAlPlano?&Plano::CoordRestringida(cooRd,p):new CRD(0,0,0),proyectpunt);
-	  	for(unsigned i=0;i<p->contItems;i++)
-		  p->items[i]->Draw();
+*/
+		//Sistema_Cartesiano::Draw(cooRd,p,p->RestringirAlPlano,p->RestringirAlPlano?&Plano::CoordRestringida(cooRd,p):new CRD(0,0,0),proyectpunt); 
+		  p->items->Draw();
 	}
 	static char*EcucaionPlano(Plano*p){
 		string s;
@@ -339,25 +294,17 @@ public:
 	}
 	static void ActualizaItem(ItemsType it,Plano*p)
 	{
-	p->NextitType=it;
-	p->NewItem=true;
+		p->items->t=it;
 	}
 	static void verPlanoRotado(float cant,Plano*p)
 	{
 		 p->trasladarplano=cant;
 	}
 	static void CancelLastPoint(Plano*p){
-		if(p->contItems==0)
+		if(p->items->cont>0)
 		{
-			p->NewItem=true;
-			return;
-		}
-		p->items[p->contItems-1]->cont--;
-		if(p->items[p->contItems-1]->cont==0)
-		{
-			p->contItems--;
-			if(p->contItems==0)
-			   p->NewItem=true;
+			p->items->Sub();
+		
 		}
 	}
     

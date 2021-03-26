@@ -47,6 +47,7 @@ public:
 				for(unsigned ii=i;ii<sf->cont-1;ii++)
 					sf->forms[ii]=sf->forms[ii+1];
 				sf->cont--;
+				
 				break;
 			}
 		}

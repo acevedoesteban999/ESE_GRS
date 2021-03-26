@@ -3,7 +3,7 @@
 #include "ESE_GRS.h"
 //#include "Matriz.h"
 enum ItemsType{
- ITEMS,POINTSS,LINE_STRIP//,SPLINECUBICO
+ ITEMS,POINTSS,LINES,LINE_STRIP,SPLINE
 };
 class Items
 {
@@ -17,8 +17,8 @@ public:
 	PoIntS=new CRD[cant];
 	t=ItemsType::ITEMS;
 	};
-	virtual ~Items(){};
-	virtual void Draw(){
+	~Items(){};
+	void Draw(){
 		glPointSize(5);
 		glColor3f(0,1,0);
 		glBegin(GL_POINTS);
@@ -26,8 +26,44 @@ public:
 			glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
 		glEnd();
 		glPointSize(1);
+		if(t==ItemsType::LINES)
+		{
+			if(cont>1)
+			{
+				glLineWidth(4);
+				glBegin(GL_LINES);
+				glColor3f((GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9);
+				for(unsigned i=0;i<cont;i++)
+					glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
+				glEnd();
+				glLineWidth(1);
+			
+			}
+		}
+		else if(t==ItemsType::LINE_STRIP)
+		{
+			glLineWidth(4);
+			glBegin(GL_LINE_STRIP);
+			glColor3f((GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9);
+			for(unsigned i=0;i<cont;i++)
+				glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
+			glEnd();
+			glLineWidth(1);
+		}
+		else if(t==ItemsType::SPLINE)
+		{
+			glLineWidth(4);
+			glBegin(GL_LINE_STRIP);
+			glColor3f((GLfloat)0,(GLfloat)0,(GLfloat)0.9);
+			for(unsigned i=0;i<cont;i++)
+				glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
+			glEnd();
+			glLineWidth(1);
+		}
+
+
 	};
-	virtual void Add(CRD*point)
+	void Add(CRD*point)
 	{
 	if(cont>=cant)
 	   {
@@ -39,52 +75,58 @@ public:
 	   }
 	   PoIntS[cont++]=*point;
 	};
-	virtual void Pure()=0;
-
-};
-class Points:public Items
-{
-
-public:
-	Points():Items(){
-		t=ItemsType::POINTSS;
-	}
-	~Points(){};
-	void Pure(){};
-};
-class Strip_Line:public Items
-{
-public:
-	Strip_Line():Items()
+	void Sub()
 	{
-		t=ItemsType::LINE_STRIP;
-	};
-	~Strip_Line(){};
-	void Draw()
-	{
-		Items::Draw();
-		if(cont==1)
+		if(cont>0)
 		{
-			glPointSize(2);
-			glBegin(GL_POINTS);
-		    glVertex3f((GLfloat)PoIntS[0].x,(GLfloat)PoIntS[0].y,(GLfloat)PoIntS[0].z);
-			glEnd();
-			glPointSize(1);
+			PoIntS[--cont].~CRD();
 		}
-		else
-		{
-		   glLineWidth(2);
-		   glColor3f(1,1,1);
-		   glBegin(GL_LINE_STRIP);
-		   for(unsigned i=0;i<cont;i++)
-		      glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
-		   glEnd();
-		   glLineWidth(1);
-		 }
+	}
 
-	};
-	void Pure(){};
 };
+//class Points:public Items
+//{
+//
+//public:
+//	Points():Items(){
+//		t=ItemsType::POINTSS;
+//	}
+//	~Points(){};
+//	void Pure(){};
+//};
+//class Strip_Line:public Items
+//{
+//public:
+//	Strip_Line():Items()
+//	{
+//		t=ItemsType::LINE_STRIP;
+//	};
+//	~Strip_Line(){};
+//	void Draw()
+//	{
+//		Items::Draw();
+//		if(cont==1)
+//		{
+//			glPointSize(2);
+//			glBegin(GL_POINTS);
+//		    glVertex3f((GLfloat)PoIntS[0].x,(GLfloat)PoIntS[0].y,(GLfloat)PoIntS[0].z);
+//			glEnd();
+//			glPointSize(1);
+//		}
+//		else
+//		{
+//		   glLineWidth(2);
+//		   glColor3f(1,1,1);
+//		   glBegin(GL_LINE_STRIP);
+//		   for(unsigned i=0;i<cont;i++)
+//		      glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
+//		   glEnd();
+//		   glLineWidth(1);
+//		 }
+//
+//	};
+//	void Pure(){};
+//};
 //class SplineCubico:public Items
 //{
 //  class Matriz

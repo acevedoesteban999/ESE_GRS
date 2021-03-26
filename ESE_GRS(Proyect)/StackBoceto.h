@@ -49,7 +49,7 @@ public:
 	   b->BocetoActual(b)->ActualiWidthHeight(&Plano::CoordRestringida(b->coord,b->BocetoActual(b)),b->BocetoActual(b));
 	}
 	static void AddPoint(CRD coord,StackBoceto*b){
-		b->bocetos[b->PlanoCheckeeado]->add(&coord,b->bocetos[b->PlanoCheckeeado]);
+		b->BocetoActual(b)->add(&coord,b->BocetoActual(b));
 	}
 	static void Sub(char*name,StackBoceto*b)
 	{
@@ -57,9 +57,11 @@ public:
 		{
 			if(!strcmp(name,b->bocetos[i]->name))
 			{
+
 				for(unsigned ii=i;ii<b->contB-1;ii++)
 					b->bocetos[ii]=b->bocetos[ii+1];
 				b->contB--;
+				b->bocetos[b->contB]->~Plano();
 				break;
 			}
 		}
