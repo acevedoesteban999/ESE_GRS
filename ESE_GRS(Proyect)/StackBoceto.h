@@ -1,12 +1,13 @@
 #pragma once
 #include "Plano.h"
+
 class StackBoceto{
 public:
 	Plano**bocetos;
 	CRD*coord,*coorNewPlano;
+	TypePlano NewPlanoType;
 	unsigned contNPl,cantB,contB,PlanoCheckeeado;
 	bool draw,drawAll;
-
 	StackBoceto(){
 		contB=contNPl=0;
 		cantB=10;
@@ -17,6 +18,7 @@ public:
 		coorNewPlano=new CRD[3];
 		draw=true;
 		drawAll=false;
+		NewPlanoType=TypePlano::SPECIFICPLANE;
 	};
 	~StackBoceto(){};
 	static void SetDrawAll(bool drawall,StackBoceto*sb){sb->drawAll=drawall;};
@@ -127,4 +129,214 @@ public:
 	static void ResetNewPlano(StackBoceto*sb){
 		sb->contNPl=0;
 	};
+	static void AddNewType(TypePlano tp,StackBoceto*sb){sb->NewPlanoType=tp;};
+	static void ActualizaNewPlanoToCreate(CRD*newCoorPlano,StackBoceto*sb,bool defAult)
+	{
+		
+		for(unsigned i=0;i<sb->contNPl;i++)
+		{
+			switch (sb->NewPlanoType)
+			{
+				case TypePlano::XY:
+					if(defAult==true)
+					{
+						switch (i)
+						{
+						case 0:
+							sb->coorNewPlano[i].z=0;
+							sb->coorNewPlano[i].x=200;
+							sb->coorNewPlano[i].y=200;
+							break;
+						case 1:
+							sb->coorNewPlano[i].z=0;
+							sb->coorNewPlano[i].x=200;
+							sb->coorNewPlano[i].y=-200;
+							break;
+						case 2:
+							sb->coorNewPlano[i].z=0;
+							sb->coorNewPlano[i].x=-200;	
+							sb->coorNewPlano[i].y=-200;
+							break;
+						case 3:
+							sb->coorNewPlano[i].z=0;
+							sb->coorNewPlano[i].x=-200;
+							sb->coorNewPlano[i].y=200;
+							break;
+						}
+					}
+					else
+					{
+						switch (i)
+						{
+						case 0:
+							sb->coorNewPlano[i].z=newCoorPlano->z;
+							sb->coorNewPlano[i].x=200+newCoorPlano->x;
+							sb->coorNewPlano[i].y=200+newCoorPlano->y;
+							break;
+							
+						case 1:
+							sb->coorNewPlano[i].z=newCoorPlano->z;
+							sb->coorNewPlano[i].x=200+newCoorPlano->x;
+							sb->coorNewPlano[i].y=-200+newCoorPlano->y;
+							break;
+							
+						case 2:
+							sb->coorNewPlano[i].z=newCoorPlano->z;
+							sb->coorNewPlano[i].x=-200+newCoorPlano->x;
+							sb->coorNewPlano[i].y=-200+newCoorPlano->y;
+							break;
+							
+						case 3:
+							sb->coorNewPlano[i].z=newCoorPlano->z;
+							sb->coorNewPlano[i].x=-200+newCoorPlano->x;
+							sb->coorNewPlano[i].y=200+newCoorPlano->y;
+							break;
+						}
+						
+					}
+				break;
+				case TypePlano::XZ:
+					if(defAult==true)
+					{
+						switch (i)
+						{
+						case 0:
+							sb->coorNewPlano[i].y=0;
+							sb->coorNewPlano[i].x=200;
+							sb->coorNewPlano[i].z=200;
+							break;
+						case 1:
+							sb->coorNewPlano[i].y=0;
+							sb->coorNewPlano[i].x=200;
+							sb->coorNewPlano[i].z=-200;
+							break;
+						case 2:
+							sb->coorNewPlano[i].y=0;
+							sb->coorNewPlano[i].x=-200;	
+							sb->coorNewPlano[i].z=-200;
+							break;
+						case 3:
+							sb->coorNewPlano[i].y=0;
+							sb->coorNewPlano[i].x=-200;
+							sb->coorNewPlano[i].z=200;
+							break;
+						}
+					}
+					else
+					{
+						switch (i)
+						{
+						case 0:
+							sb->coorNewPlano[i].y=newCoorPlano->y;
+							sb->coorNewPlano[i].x=200+newCoorPlano->x;
+							sb->coorNewPlano[i].z=200+newCoorPlano->z;
+							break;
+							
+						case 1:
+							sb->coorNewPlano[i].y=newCoorPlano->y;
+							sb->coorNewPlano[i].x=200+newCoorPlano->x;
+							sb->coorNewPlano[i].z=-200+newCoorPlano->z;
+							break;
+							
+						case 2:
+							sb->coorNewPlano[i].y=newCoorPlano->y;
+							sb->coorNewPlano[i].x=-200+newCoorPlano->x;
+							sb->coorNewPlano[i].z=-200+newCoorPlano->z;
+							break;
+							
+						case 3:
+							sb->coorNewPlano[i].y=newCoorPlano->y;
+							sb->coorNewPlano[i].x=-200+newCoorPlano->x;
+							sb->coorNewPlano[i].z=200+newCoorPlano->z;
+							break;
+						}
+						
+					}
+					/*if(defAult==true)
+					{
+						sb->coorNewPlano[i].y=0;
+						sb->coorNewPlano[i].x=200;
+						sb->coorNewPlano[i].z=200;
+					}
+					else
+					{
+						sb->coorNewPlano[i].y=newCoorPlano->y;
+						sb->coorNewPlano[i].x=200+newCoorPlano->x;
+						sb->coorNewPlano[i].z=200+newCoorPlano->z;
+					}*/
+				break;
+				case TypePlano::YZ:
+					if(defAult==true)
+					{
+						switch (i)
+						{
+						case 0:
+							sb->coorNewPlano[i].x=0;
+							sb->coorNewPlano[i].y=200;
+							sb->coorNewPlano[i].z=200;
+							break;
+						case 1:
+							sb->coorNewPlano[i].x=0;
+							sb->coorNewPlano[i].y=200;
+							sb->coorNewPlano[i].z=-200;
+							break;
+						case 2:
+							sb->coorNewPlano[i].x=0;
+							sb->coorNewPlano[i].y=-200;	
+							sb->coorNewPlano[i].z=-200;
+							break;
+						case 3:
+							sb->coorNewPlano[i].x=0;
+							sb->coorNewPlano[i].y=-200;
+							sb->coorNewPlano[i].z=200;
+							break;
+						}
+					}
+					else
+					{
+						switch (i)
+						{
+						case 0:
+							sb->coorNewPlano[i].x=newCoorPlano->x; 
+							sb->coorNewPlano[i].y=200+newCoorPlano->y;
+							sb->coorNewPlano[i].z=200+newCoorPlano->z;
+							break;
+							
+						case 1:
+							sb->coorNewPlano[i].x=newCoorPlano->x;
+							sb->coorNewPlano[i].y=200+newCoorPlano->y;
+							sb->coorNewPlano[i].z=-200+newCoorPlano->z;
+							break;
+							
+						case 2:
+							sb->coorNewPlano[i].x=newCoorPlano->x;
+							sb->coorNewPlano[i].y=-200+newCoorPlano->y;
+							sb->coorNewPlano[i].z=-200+newCoorPlano->z;
+							break;
+							
+						case 3:
+							sb->coorNewPlano[i].x=newCoorPlano->x;
+							sb->coorNewPlano[i].y=-200+newCoorPlano->y;
+							sb->coorNewPlano[i].z=200+newCoorPlano->z;
+							break;
+						}
+						
+					}
+					/*if(defAult==true)
+					{
+						sb->coorNewPlano[i].x=0;
+						sb->coorNewPlano[i].y=200;
+						sb->coorNewPlano[i].z=200;
+					}
+					else
+					{
+						sb->coorNewPlano[i].x=newCoorPlano->x;
+						sb->coorNewPlano[i].y=200+newCoorPlano->y;
+						sb->coorNewPlano[i].z=200+newCoorPlano->z;
+					}*/
+				break;
+			}
+		}
+		
+	}
 };

@@ -2,6 +2,9 @@
 #include "CRD.h"
 #include <math.h>
 #include "Items.h"
+enum TypePlano{
+XY,XZ,YZ,FREE,SPECIFICPLANE,PLANE
+};
 class Plano
 {
 public:
@@ -11,8 +14,9 @@ public:
 	CRD*PuntosCrearPlano;
 	CRD*puNt1,*puNt2,*puNt3,*puNt4;
 	float distmax,trasladarplano;
+	TypePlano PlanoType;
 	double A,B,C,D;//Secuencia Ax+By+Cz+D=0
-	bool RestringirAlPlano,pintarPlano;
+	bool pintarPlano;
 	Plano(char*name){
 		pintarPlano=true;
 	 this->name=new char[strlen(name)+1];
@@ -21,12 +25,13 @@ public:
 			this->name[i]=name[i];
 	  PuntoCentro=new CRD;
 	  PuntosCrearPlano=new CRD[4];
-	  RestringirAlPlano=false;
+	  PlanoType=TypePlano::PLANE;
 	  items=new Items();
 	  trasladarplano=0;
 	};
-	Plano(char*name,CRD*Punt1,CRD*Punt2,CRD*Punt3,bool restring=false){
+	Plano(char*name,CRD*Punt1,CRD*Punt2,CRD*Punt3,TypePlano tp){
 		items=new Items();
+		this->PlanoType=tp;
 		trasladarplano=0;
 		pintarPlano=true;
 		PuntosCrearPlano=new CRD[4];
@@ -56,7 +61,6 @@ public:
 		this->name[strlen(name)]=0;
 		for(unsigned i=0;i<strlen(name);i++)
 			this->name[i]=name[i];
-		RestringirAlPlano=restring;
 		PuntoCentro=new CRD((*Punt1+*Punt2+*Punt3)/3);
 	CRD v1,v2;
 	double d1,d2,d3,d4,d5,d6;
@@ -128,13 +132,13 @@ public:
 		return a;
 	}
 	static void add(CRD*vertex,Plano*p){
-		if(!p->RestringirAlPlano)
+		if(!p->IsRestring(p))
 			  p->items->Add(vertex);
 		else
 		   p->items->Add(&Plano::CoordRestringida(vertex,p));
 	};
 	static void Draw(CRD*cooRd,Plano*p,bool pintarPlano=false,bool proyectpunt=false,bool General=false){
-		if(p->RestringirAlPlano&&pintarPlano&&p->pintarPlano)
+		if(p->IsRestring(p)&&pintarPlano&&p->pintarPlano)
 		{
 		glColor3f((GLfloat)0.5,(GLfloat)0.5,(GLfloat)0.5);
 		glBegin(GL_QUAD_STRIP);
@@ -241,7 +245,7 @@ public:
 	static CRD* RotarAlPlano(Plano*p){
 		CRD*vect=new CRD(p->A,p->B,p->C);
 		CRD *Toreturn=new CRD(*p->AngulosDirectores(vect,p));
-		Plano plxy("xy",new CRD(1,0,0),new CRD(0,1,0),new CRD(0,0,0));
+		Plano plxy("xy",new CRD(1,0,0),new CRD(0,1,0),new CRD(0,0,0),TypePlano::PLANE);
 		CRD proyxy=plxy.CoordRestringida(vect,&plxy);
 		float angproyecxyvectnorm=Plano::AngEntreVectores(vect,&proyxy);
 		CRD*angsxy=plxy.AngulosDirectores(&proyxy,&plxy);
@@ -261,36 +265,43 @@ public:
 	}
 	static void ActualiWidthHeight(CRD*punt,Plano*p){
 	float dist=Plano::Distncia(p->PuntoCentro,punt);
-	if(dist>p->distmax+50)
-		p->distmax=dist;
-	CRD*a=new CRD[3],vectorAltura,vectorAncho;
-	a[0]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x+p->distmax+50,p->PuntoCentro->y,p->PuntoCentro->z),p));
-	a[1]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y+p->distmax+50,p->PuntoCentro->z),p));
-	a[2]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y,p->PuntoCentro->z+p->distmax+50),p));
-	unsigned mayor=0,mediano=0;
-	for(unsigned i=0;i<3;i++)
-	{
-		float nor=Plano::Norma(&a[i]);
-		if(nor>=Plano::Norma(&a[mayor]))
-			mayor=i;
-		/*else if(nor>=Plano::Norma(&a[mediano]))
-			mediano=i;*/
-	}
-	mediano=mayor==0?1:0;
-	for(unsigned i=0;i<3;i++)
-	{
-		if(i==mayor)
-			continue;
-		float nor=Plano::Norma(&a[i]);
-		if(nor>=Plano::Norma(&a[mediano]))
-			mediano=i;
-	}
-	vectorAltura=a[mayor]-*p->PuntoCentro;
-	vectorAncho=a[mediano]-*p->PuntoCentro;
-	p->puNt1=new CRD(*p->PuntoCentro+vectorAltura+vectorAncho);
-	p->puNt2=new CRD(*p->PuntoCentro+vectorAltura-vectorAncho);
-	p->puNt3=new CRD(*p->PuntoCentro+(vectorAltura*-1)+vectorAncho);
-	p->puNt4=new CRD(*p->PuntoCentro+(vectorAltura*-1)-vectorAncho);
+		if(dist>p->distmax+50)
+			{
+			p->distmax=dist;
+			CRD*a=new CRD[3],vectorAltura,vectorAncho;
+			a[0]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x+p->distmax+50,p->PuntoCentro->y,p->PuntoCentro->z),p)-*p->PuntoCentro);
+			a[1]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y+p->distmax+50,p->PuntoCentro->z),p)-*p->PuntoCentro);
+			a[2]=CRD(p->CoordRestringida(new CRD(p->PuntoCentro->x,p->PuntoCentro->y,p->PuntoCentro->z+p->distmax+50),p)-*p->PuntoCentro);
+			unsigned mayor=0,mediano=0;
+			for(unsigned i=0;i<3;i++)
+			{
+				float nor=Plano::Norma(&a[i]);
+				if(nor>=Plano::Norma(&a[mayor]))
+					mayor=i;
+				/*else if(nor>=Plano::Norma(&a[mediano]))
+					mediano=i;*/
+			}
+			mediano=mayor==0?1:0;
+			for(unsigned i=0;i<3;i++)
+			{
+				if(i==mayor)
+					continue;
+				float nor=Plano::Norma(&a[i]);
+				if(nor>=Plano::Norma(&a[mediano]))
+					mediano=i;
+			}
+			vectorAltura=a[mayor];//-*p->PuntoCentro;
+			/*if(Plano::Norma(&vectorAltura)<100)
+				vectorAltura=vectorAltura*100;*/
+			vectorAncho=a[mediano];//-*p->PuntoCentro;
+			/*if(Plano::Norma(&vectorAncho)<100)
+				vectorAncho=vectorAncho*100;
+			*/
+			p->puNt1=new CRD(*p->PuntoCentro+vectorAltura+vectorAncho);
+			p->puNt2=new CRD(*p->PuntoCentro+vectorAltura-vectorAncho);
+			p->puNt3=new CRD(*p->PuntoCentro+(vectorAltura*-1)+vectorAncho);
+			p->puNt4=new CRD(*p->PuntoCentro+(vectorAltura*-1)-vectorAncho);
+		}
 	}
 	static void ActualizaItem(ItemsType it,Plano*p)
 	{
@@ -307,6 +318,7 @@ public:
 		
 		}
 	}
+	static bool IsRestring(Plano*p){if(p->PlanoType==TypePlano::XY||p->PlanoType==TypePlano::XZ||p->PlanoType==TypePlano::YZ)return true;return false;};
     
 };
 
