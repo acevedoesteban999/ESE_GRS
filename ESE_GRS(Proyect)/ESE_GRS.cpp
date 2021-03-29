@@ -2056,6 +2056,10 @@ void ESE_GRS::default_menu(int opcion){
 			   char*msg=p->GetMesage(p);
 			   if(ModoLogger)cout<<endl<<p->getChar()<<"::"<<p->getunsigned()<<endl;
 		      //add
+			   ManejadorForms->Add(new Label("labelChar",p->getChar(),*(new CRD(87,-5,0)),0,0,1,0,wigth,height),ManejadorForms);
+			   ManejadorForms->Add(new Label("labelUnsigned",(char*)to_string(p->getunsigned()).c_str(),*(new CRD(87,5,0)),0,0,1,0,wigth,height),ManejadorForms);
+			   ManejadorForms->SetColor("labelESE_GRS",0,1,0,ManejadorForms);
+
 
 			   StackAnimation*sa=new StackAnimation("StackAnimationsConnection");
 			   sa->STANSetAnimation("AnimacionRoja",*new CRD(wigth-100,height-50,0),75,100,wigth,height,-25,1,0,0,1.5);
@@ -2094,9 +2098,8 @@ void ESE_GRS::default_menu(int opcion){
 		ManejadorForms->Sub("StackAnimationsConnection",ManejadorForms);
 		recibir_serie=false;
 		p->CloseConnection();
-		ManejadorForms->Sub("labelCOM",ManejadorForms);
-		ManejadorForms->Sub("labelSpeedCOM",ManejadorForms);
-		ManejadorForms->Sub("labelRecib",ManejadorForms);
+		ManejadorForms->Sub("labelChar",ManejadorForms);
+		ManejadorForms->Sub("labelUnsigned",ManejadorForms);
 		ManejadorForms->SetColor("labelESE_GRS",(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,ManejadorForms);	
 		EsperandoReedireccionar=true;
 		ESE_GRS::InitMenu();
