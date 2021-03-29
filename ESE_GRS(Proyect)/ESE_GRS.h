@@ -24,7 +24,11 @@
 #include "Connection.h"
 #include "XLSClass.h"
 using namespace std;
+enum Language
+{
+	ENGLISH	,SPANISH
 
+};
  class ESE_GRS
 
 {
@@ -58,6 +62,7 @@ public:
 	static void MenuVista(int opcion);
 	static void MenuToDraw(int caso);
 	static void default_menu(int opcion);
+	static void MenuIdioma(int opcion);
 	//////////////DATOS
     static void SaveObj(char*address,LoaderObject*l);
 	static void cargarInitDatos();

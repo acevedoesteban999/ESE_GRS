@@ -25,11 +25,23 @@ public:
 	{
 		return CRD(this->x*c,this->y*c,this->z*c); 
 	};
-	CRD operator /(const double c)
+	CRD operator /(const double c)	   
 	{
 		if(c==0)
 			return CRD(0,0,0); 
 		return CRD(this->x/c,this->y/c,this->z/c); 
 	};
+	bool operator ==(CRD&crd)
+	{
+		if(this->x!=crd.x||this->y!=crd.y||this->z!=crd.z)
+			return false;
+		return true;
+	}
+	bool operator !=(CRD&crd)
+	{
+		if(*this==crd)
+			return false;
+		return true;
+	}
 };
 

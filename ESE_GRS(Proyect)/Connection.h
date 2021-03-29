@@ -104,7 +104,7 @@ public:
 		if((server=socket(AF_INET,SOCK_STREAM,0))<0)
 		{
 			this->error=true;
-			this->errorstr="Error al crear del socket";
+			this->errorstr="Error 1";
 			CerrarSocket();
 			return false;
 		}
@@ -114,14 +114,14 @@ public:
 		if(::bind(server,(SOCKADDR*)&serveraddr,sizeof(serveraddr))!=0)
 		{
 			this->error=true;
-			this->errorstr="Error al inicar el bind";
+			this->errorstr="Error 2";
 			CerrarSocket();
 			return false;
 	   }
 		if(listen(server,0)!=0)
 		{
 			this->error=true;
-			this->errorstr="Error al inicar el listen";
+			this->errorstr="Error 3";
 			CerrarSocket();
 			return false;
 		}
@@ -193,7 +193,7 @@ public:
 		if((server=socket(AF_INET,SOCK_STREAM,0))<0)
 		{
 			this->error=true;
-			this->errorstr="Error al crear del socket";
+			this->errorstr="Error 1";
 			CerrarSocket();
 			return false;
 		}
@@ -202,7 +202,7 @@ public:
 		serveraddr.sin_port=htons((u_short)Port);
 		if(connect(server,(SOCKADDR*)&serveraddr,sizeof(serveraddr))<0)
 		 {
-			string*s=new string("Error:"+string(Ip)+"::"+to_string(Port));
+			string*s=new string("Error 2:"+string(Ip)+"::"+to_string(Port));
 			this->error=true;
 			this->errorstr=(char*)s->c_str();
 			CerrarSocket();
@@ -210,7 +210,7 @@ public:
 		 }
 		else
 		{
-		string*s=new string("Conectado:"+string(Ip)+"::"+to_string(Port));
+		string*s=new string(string(Ip)+"::"+to_string(Port));
 		this->message=(char*)s->c_str();
 		}
 
@@ -236,7 +236,7 @@ public:
 			else
 				return this->errorstr;
 	    }
-	  return "No habia un error";
+	  return "NULL";
 	}
 };
 class PuertoSerie:public Connection
@@ -279,8 +279,9 @@ public:
 	DCB ParametrosTxSerie;
 	if (!GetCommState(handler,&ParametrosTxSerie))
 	{
+		string*s=new string("Error 1:"+string(PuertoCom)+"::"+to_string(Velocidad));
 		error=true;
-		errorstr="ERROR: GetCommState. Inicialización puerto serie";
+		errorstr=(char*)s->c_str();
 		return false;
 	}
 	ParametrosTxSerie.DCBlength=sizeof(DCB);
@@ -290,8 +291,9 @@ public:
 	ParametrosTxSerie.Parity=(BYTE)PARITY_NONE;
 	if(!SetCommState(handler,&ParametrosTxSerie))
 	{
+		string*s=new string("Error:"+string(PuertoCom)+"::"+to_string(Velocidad));
 		error=true;
-		errorstr="ERROR: SetCommStatus. Inicialización puerto serie";
+		errorstr=(char*)s->c_str();
 		return false;
 	}
 	IsConectado=true;
@@ -302,7 +304,7 @@ public:
 	for(unsigned i=0;i<strlen(PuertoCom);i++)
 		this->Puerto[i]=PuertoCom[i];
 	this->Speed=Velocidad;
-	string*s=new string("Conecado:"+string(PuertoCom)+"::"+to_string(Velocidad));
+	string*s=new string(string(PuertoCom)+"::"+to_string(Velocidad));
 	this->message=(char*)s->c_str();
 	return true;
 }

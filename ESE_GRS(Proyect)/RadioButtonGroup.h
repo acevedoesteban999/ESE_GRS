@@ -26,7 +26,7 @@ public:
 		{
 	glPushMatrix();
 	glLoadIdentity();
-	glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1); 
+	glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
 	glColor3f(1,1,1);
 	glBegin(GL_POLYGON);
 	glVertex3f(-5,5,(GLfloat)-1.1);
@@ -50,6 +50,12 @@ public:
 		RB[i]->NotChecket();
 	this->RB[Checket]->Click();
 	return(unsigned)t;
+	}
+	void NewCRD(CRD*newcoord){
+		*this->coord=*newcoord;
+		CRD a;
+		for(unsigned i=0;i<contRB;i++)
+			RB[i]->NewCRD(&(*newcoord+*(new CRD(0,i*15,0))));
 	}
 	bool Pulsado(float x,float y)
 	{
@@ -171,6 +177,12 @@ public:
 		if(height)
 			this->Height=height;
 	
+	}
+	void SetProfundidad(float profundidad)
+	{
+		this->TotalProfundidad=profundidad;
+		for(unsigned i=0;i<contRB;i++)
+			RB[i]->SetProfundidad(profundidad);
 	}
 	unsigned RBGGetChecket(){
 		return Checket;};

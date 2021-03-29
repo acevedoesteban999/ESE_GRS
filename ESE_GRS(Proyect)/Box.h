@@ -8,6 +8,7 @@ private:
 	int Focus,FocusTimeDurat;
 	TimeDuration td;
 	bool TimeDurationBool;
+	bool DrawLineForElement;
 public:
 	Box():Forms("DefaultNameBox",*new CRD(0,0,0),0,0,0,0)
 	{ 
@@ -18,6 +19,7 @@ public:
 	   PulsadO=PasivePulsado=FocusTimeDurat=0;
 	   this->Focus=-1;
 	   TimeDurationBool=false;
+	   DrawLineForElement=true;
 	}
 	Box(char*name,CRD coord,float TotalWigth,float TotalHeight):Forms(name,coord,0,0,TotalWigth,TotalHeight)
 	{
@@ -28,6 +30,7 @@ public:
 	   PulsadO=PasivePulsado=FocusTimeDurat=0;
 	   this->Focus=-1;
 	   TimeDurationBool=false;
+	   DrawLineForElement=true;
 	}
 	~Box(){};
 	void ChecketCont(Box*b){
@@ -91,7 +94,7 @@ public:
 		{
 			glPushMatrix();
 	        glLoadIdentity();
-	        glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1); 
+	        glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
 	        glColor3f(1,1,1);
 	        glBegin(GL_POLYGON);
 	        glVertex3f(-5,5,(GLfloat)-1.2);
@@ -99,44 +102,54 @@ public:
 	        glVertex3f(Wigth,-Height-5,(GLfloat)-1.2);
 	        glVertex3f(-5,-Height-5,(GLfloat)-1.2);
 	        glEnd();
-			
 
+			glLineWidth(3);
+			glColor3f(0,0,0);
+			glBegin(GL_LINE_LOOP);
+			glVertex3f(-5,5,(GLfloat)-1.1);
+			glVertex3f(Wigth,5,(GLfloat)-1.1);
+			glVertex3f(Wigth,-Height-5,(GLfloat)-1.1);
+			glVertex3f(-5,-Height-5,(GLfloat)-1.1);
+			glEnd();
+			glLineWidth(1);
 			
-			float ContHeigth=0;
-			for(unsigned i=0;i<cont;i++)
+			if(DrawLineForElement)
 			{
-				if(this->Focus==(int)i)
+				float ContHeigth=0;
+				for(unsigned i=0;i<cont;i++)
 				{
-					glLineWidth(3);
-					glColor3f(0,0,1);
-				}
-				else if(TimeDurationBool&&FocusTimeDurat==i)
-				{
-					if(td.Incrementa(&td)>3)
+					if(this->Focus==(int)i)
 					{
-						TimeDurationBool=false;
-						td.ResettIncrementa(&td);
+						glLineWidth(3);
+						glColor3f(0,0,1);
 					}
+					else if(TimeDurationBool&&FocusTimeDurat==i)
+					{
+						if(td.Incrementa(&td)>3)
+						{
+							TimeDurationBool=false;
+							td.ResettIncrementa(&td);
+						}
+						else
+						{
+						glLineWidth(3);
+						glColor3f(1,0,0);
+						}
+					}
+
 					else
-					{
-					glLineWidth(3);
-					glColor3f(1,0,0);
-					}
+					   glColor3f(0,0,0);
+					glBegin(GL_LINE_LOOP);
+					glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
+					glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
+					ContHeigth+=forms[i]->Height+5;
+					glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
+					glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
+					glEnd();
+					if(this->Focus==i||(this->FocusTimeDurat==i&&TimeDurationBool))
+						glLineWidth(1);
 				}
-
-				else
-				   glColor3f(0,0,0);
-			    glBegin(GL_LINE_LOOP);
-				glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
-				glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
-				ContHeigth+=forms[i]->Height+5;
-				glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
-				glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
-	            glEnd();
-				if(this->Focus==i||(this->FocusTimeDurat==i&&TimeDurationBool))
-					glLineWidth(1);
 			}
-
 			glPopMatrix();
 			for(unsigned i=0;i<cont;i++)
 				forms[i]->Draw();
@@ -156,6 +169,37 @@ public:
 	void NoClick(){
 	
 	};
+	void NewCRD(CRD*newcoord)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			forms[i]->NewCRD(&((*forms[i]->coord-*this->coord)+*newcoord));
+		}
+		*this->coord=*newcoord;
+	}
+	void NewCRD(char*Formsname,CRD*crd)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			if(!strcmp(Formsname,forms[i]->name))
+			{
+				forms[i]->NewCRD(crd);
+				return;
+			}
+		}
+		return;
+	};
+	CRD* BoxGetElementCoord(char*ElementName)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			if(!strcmp(ElementName,forms[i]->name))
+			{
+				return forms[i]->coord;
+			}
+		}
+		return new CRD(0,0,0);
+	}
 	unsigned GetCont(){return cont;};
 	unsigned GetChecket(){
 		return PulsadO;};
@@ -236,6 +280,12 @@ public:
 	   for(unsigned i=0;i<cont;i++)
 		   forms[i]->NewTotalProp(wigth,height);
 	}
+	void SetProfundidad(float profundidad)
+	{
+		this->TotalProfundidad=profundidad;
+		for(unsigned i=0;i<cont;i++)
+			forms[i]->SetProfundidad(profundidad);
+	}
 	char* BoxGetEscritura(char*TextBoxname){
 		for(unsigned i=0;i<cont;i++)
 			if(!strcmp(forms[i]->name,TextBoxname))
@@ -292,5 +342,41 @@ public:
 		td.Incrementa(&td);
 		
 	};
-	
+	void BoxSetDrawLineForElement(bool DrAw){this->DrawLineForElement=DrAw;};
+	void SetWigthElementProp(char*ElementName,float WiGth)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			if(!strcmp(ElementName,this->forms[i]->name))
+			{
+				forms[i]->Wigth=WiGth;
+				return;
+			}
+		}
+		return;
+	}
+	void SetHeightElementProp(char*ElementName,float HeiGht)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			if(!strcmp(ElementName,this->forms[i]->name))
+			{
+				forms[i]->Wigth=HeiGht;
+				return;
+			}
+		}
+		return;
+	}
+	void SetCoordElementProp(char*ElementName,CRD*coord)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			if(!strcmp(ElementName,this->forms[i]->name))
+			{
+				*forms[i]->coord=*coord;
+				return;
+			}
+		}
+		return;
+	}
 };

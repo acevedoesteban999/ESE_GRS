@@ -124,7 +124,7 @@ public:
 	void TextAlignCenter(char*c,GLfloat x,GLfloat y,GLfloat R,GLfloat G,GLfloat B,unsigned LetterSize,Forms*f)
 	{
 	   glColor3f(R,G,B);
-	   glRasterPos3f((GLfloat)-f->TotalWigth/2+x,(GLfloat)((f->TotalHeight/2)-y-f->Height*4/5),(GLfloat)2*f->TotalWigth-1);
+	   glRasterPos3f((GLfloat)-f->TotalWigth/2+x,(GLfloat)((f->TotalHeight/2)-y-f->Height*4/5),(GLfloat)2*f->TotalWigth-1+TotalProfundidad);
 	   for(unsigned int i=0;i<strlen(c);i++)
 	   {
 		if(LetterSize==2)
@@ -143,7 +143,7 @@ public:
 		{
 	         glPushMatrix();
 				  glLoadIdentity();
-				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1); 
+				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
 				  glColor3f(1,1,1);
 				  glBegin(GL_POLYGON);
 				  glVertex3f(0,0,-1);

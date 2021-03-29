@@ -19,7 +19,7 @@ public:
 		{
 	glPushMatrix();
 				  glLoadIdentity();
-				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1); 
+				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
 				  glColor3f(this->active?this->R:(GLfloat)this->R/2,this->active?this->G:(GLfloat)this->G/2,this->active?this->B:(GLfloat)this->B/2);
 				  glBegin(GL_POLYGON);
 				  glVertex3f(0,0,-1);

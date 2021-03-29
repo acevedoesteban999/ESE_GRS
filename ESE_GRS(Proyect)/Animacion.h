@@ -54,7 +54,7 @@ public:
 		}
 		  glPushMatrix();
 				  glLoadIdentity();
-				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1); 
+				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
 				  glColor3f(this->R,this->G,this->B);
 				  glBegin(GL_POLYGON);
 				  glVertex3f(x,y,-1);

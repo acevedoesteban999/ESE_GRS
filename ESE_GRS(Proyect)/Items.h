@@ -3,7 +3,7 @@
 #include "ESE_GRS.h"
 //#include "Matriz.h"
 enum ItemsType{
- ITEMS,POINTSS,LINES,LINE_STRIP,SPLINE
+ ITEMS,POINTSS,LINES,LINE_STRIP,SPLINE,BSPLINE
 };
 class Items
 {
@@ -11,11 +11,15 @@ public:
 	CRD*PoIntS;
 	ItemsType t;
 	unsigned cont,cant;
+	GLfloat*SPlinePoints;
+	bool SplineAsignar;
 	Items(){
 	cont=0;
 	cant=10;
 	PoIntS=new CRD[cant];
 	t=ItemsType::ITEMS;
+	SplineAsignar=true;
+	SPlinePoints=new GLfloat;
 	};
 	~Items(){};
 	void Draw(){
@@ -26,22 +30,21 @@ public:
 			glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
 		glEnd();
 		glPointSize(1);
-		if(t==ItemsType::LINES)
+		switch (t)
 		{
-			if(cont>1)
-			{
-				glLineWidth(4);
-				glBegin(GL_LINES);
-				glColor3f((GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9);
-				for(unsigned i=0;i<cont;i++)
-					glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
-				glEnd();
-				glLineWidth(1);
-			
-			}
-		}
-		else if(t==ItemsType::LINE_STRIP)
-		{
+		case ItemsType::LINES:
+			    if(cont>1)
+				{
+					glLineWidth(4);
+					glBegin(GL_LINES);
+					glColor3f((GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9);
+					for(unsigned i=0;i<cont;i++)
+						glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
+					glEnd();
+					glLineWidth(1);
+				}
+		break;
+		case ItemsType::LINE_STRIP:
 			glLineWidth(4);
 			glBegin(GL_LINE_STRIP);
 			glColor3f((GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9);
@@ -49,19 +52,35 @@ public:
 				glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
 			glEnd();
 			glLineWidth(1);
-		}
-		else if(t==ItemsType::SPLINE)
-		{
+		break;
+		case ItemsType::SPLINE:
+
+		break;
+		case ItemsType::BSPLINE:
 			glLineWidth(4);
-			glBegin(GL_LINE_STRIP);
-			glColor3f((GLfloat)0,(GLfloat)0,(GLfloat)0.9);
-			for(unsigned i=0;i<cont;i++)
-				glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
+			glColor3f((GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9);	
+			if(this->SplineAsignar)
+			{
+				this->SplineAsignar=false;
+				SPlinePoints=new GLfloat[this->cont*3];
+				for(unsigned i=0;i<this->cont*3;i+=3)
+				{
+					SPlinePoints[i]=(GLfloat)PoIntS[unsigned(i/3)].x;
+					SPlinePoints[i+1]=(GLfloat)PoIntS[unsigned(i/3)].y;
+					SPlinePoints[i+2]=(GLfloat)PoIntS[unsigned(i/3)].z;
+				}
+			}
+			
+			glMap1f(GL_MAP1_VERTEX_3,0,100,3,cont,SPlinePoints);
+			glEnable(GL_MAP1_VERTEX_3);
+			glBegin(GL_LINE_STRIP); 
+			for(unsigned i = 0; i <= 100; i++)
+				glEvalCoord1d((GLfloat)i);
 			glEnd();
 			glLineWidth(1);
+
+		break;
 		}
-
-
 	};
 	void Add(CRD*point)
 	{
@@ -74,6 +93,8 @@ public:
 	      PoIntS=newPoints;
 	   }
 	   PoIntS[cont++]=*point;
+	   if(!this->SplineAsignar)
+		   this->SplineAsignar=true;
 	};
 	void Sub()
 	{

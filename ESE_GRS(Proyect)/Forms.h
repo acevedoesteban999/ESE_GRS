@@ -15,7 +15,7 @@ public:
 	Type t;
 	char*name;
 	CRD*coord;
-	float Wigth,Height,TotalWigth,TotalHeight;
+	float Wigth,Height,TotalProfundidad,TotalWigth,TotalHeight;
 	bool active,NoDraw;
 	bool destruir;
 	bool Cancel;
@@ -35,6 +35,7 @@ public:
 			this->name[i]=name[i];
 		this->TotalHeight=TotalHeight;
 		this->TotalWigth=TotalWigth;
+		this->TotalProfundidad=0;
 		this->Wigth=wigth;
 		this->Height=height;
 		this->coord=new CRD(coord);
@@ -65,7 +66,7 @@ public:
 	//dibujo el char c en la posicion x,y,z con color RGB
 	
 	glColor3f(R,G,B);
-	glRasterPos3f((GLfloat)-f->TotalWigth/2+x,(GLfloat)((f->TotalHeight/2)-y-f->Height*4/5),(GLfloat)2*f->TotalWigth-1);
+	glRasterPos3f((GLfloat)-f->TotalWigth/2+x,(GLfloat)((f->TotalHeight/2)-y-f->Height*4/5),(GLfloat)2*f->TotalWigth-1+f->TotalProfundidad);
 	for(unsigned int i=0;i<strlen(c);i++){
 		if(LetterSize==2)
 			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c[i]);
@@ -108,7 +109,8 @@ public:
 	virtual char*GetEscritura(){
 		return "NULL";};
 	virtual bool GetEstoyEscribindo(){return false;}
-	virtual void NewCRD(CRD*crd){};
+	virtual void NewCRD(CRD*crd){this->coord=new CRD(*crd);};
+	virtual void NewCRD(char*Formsname,CRD*crd){this->coord=new CRD(*crd);};
 	virtual void AddText(char letra){};
 	virtual void AddNewText(char*newTexts){};
 	virtual void SubText(){};
@@ -123,11 +125,15 @@ public:
 	}
 	virtual void SetColor(GLfloat R,GLfloat G,GLfloat B){};
 	virtual void SetLabelColor(GLfloat R,GLfloat G,GLfloat B){};
+	virtual void SetProfundidad(float profundidad)
+	{
+	this->TotalProfundidad=profundidad;
+	}
 	virtual void SetNewProp(float Wigth=0,float Height=0){
 		if(Wigth)
-		this->Wigth=Wigth;
+			this->Wigth=Wigth;
 		if(Height)
-		this->Height=Height;
+			this->Height=Height;
 	} 
 	virtual void CambiarChecket(){}
 	virtual void MoveOnReshape(bool reshape){
@@ -168,6 +174,7 @@ public:
 	virtual int BoxGetFocus(){return -1;};
 	virtual void BoxSetFocus(int focus){}
 	virtual void BoxSetFocusColorTimer(char*ElementName){};
+	virtual void BoxSetDrawLineForElement(bool DrAw){};
 	//PURAS
 	virtual void Draw()=0; 
 	virtual unsigned Click()=0;

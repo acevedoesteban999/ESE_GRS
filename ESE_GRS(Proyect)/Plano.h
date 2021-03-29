@@ -154,17 +154,33 @@ public:
 		glEnd();
 		
 		}
-		 /*if(p->RestringirAlPlano&&proyectpunt)
+		if(p->IsRestring(p)&&proyectpunt)
 		{
-			glPointSize(2);
-			glColor3f(0,1,0);
+			bool coincid=false;
+			CRD coorRest=Plano::CoordRestringida(cooRd,p);
+			if(p->items->cont)
+			{
+				for(unsigned i=0;i<p->items->cont;i++)
+				{
+					if(p->items->PoIntS[i]==coorRest)
+					{
+						coincid=true;
+						break;
+					}
+				}
+			}
+			if(coincid)
+				glPointSize(1);
+			else
+				glPointSize(5);
+			glColor3f(1,0,0);
 	        CRD puntVerd=p->CoordRestringida(cooRd,p);
 	        glBegin(GL_POINTS);
   	          glVertex3f((GLfloat)puntVerd.x,(GLfloat)puntVerd.y,(GLfloat)puntVerd.z);
 		    glEnd();
 		    glPointSize(1);
 			
-			  if(p->items->t==ItemsType::LINE_STRIP)
+			 /* if(p->items->t==ItemsType::LINE_STRIP)
 			   {
 				  
 				  glLineWidth(2);
@@ -181,9 +197,9 @@ public:
 	                 glVertex3f((GLfloat)(a+i*(d/9)),(GLfloat)(b+i*(e/9)),(GLfloat)(c+i*(f/9)));
 			      glEnd();
 				   glLineWidth(1);
-			   }
+			   }*/
 			}
-		 */
+		 
 		/*if(!p->RestringirAlPlano&&!General)
 		{
 		if(p->contItems&&!p->NewItem)
@@ -208,8 +224,7 @@ public:
 			   }
 		   }
 		}
-*/
-		//Sistema_Cartesiano::Draw(cooRd,p,p->RestringirAlPlano,p->RestringirAlPlano?&Plano::CoordRestringida(cooRd,p):new CRD(0,0,0),proyectpunt); 
+*/ 
 		  p->items->Draw();
 	}
 	static char*EcucaionPlano(Plano*p){
@@ -319,6 +334,15 @@ public:
 		}
 	}
 	static bool IsRestring(Plano*p){if(p->PlanoType==TypePlano::XY||p->PlanoType==TypePlano::XZ||p->PlanoType==TypePlano::YZ)return true;return false;};
-    
+	static CRD Media(Plano*p)
+	{
+	 CRD toReturn(0,0,0);
+	 if(p->items->cont==0)
+		 return toReturn+*p->PuntoCentro;
+	 for(unsigned i=0;i<p->items->cont;i++)
+		 toReturn=toReturn+p->items->PoIntS[i];
+	 toReturn=toReturn/p->items->cont;
+	 return toReturn;
+	}
 };
 
