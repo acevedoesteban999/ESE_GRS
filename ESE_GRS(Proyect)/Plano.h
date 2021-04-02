@@ -25,6 +25,10 @@ public:
 			this->name[i]=name[i];
 	  PuntoCentro=new CRD;
 	  PuntosCrearPlano=new CRD[4];
+	  puNt1=new CRD;
+	  puNt2=new CRD;
+	  puNt3=new CRD;
+	  puNt4=new CRD;
 	  PlanoType=TypePlano::PLANE;
 	  items=new Items();
 	  trasladarplano=0;
@@ -95,7 +99,7 @@ public:
 		D/=10;
 	}
 	distmax=100;
-	Plano::ActualiWidthHeight(Punt1,this);
+	Plano::ActualiWidthHeight(Punt1,this,true);
 	Plano::ActualiWidthHeight(Punt2,this);
 	Plano::ActualiWidthHeight(Punt3,this);
 
@@ -272,9 +276,9 @@ public:
 		float toReturn=(float)sqrt(pow(punt1->x-punt2->x,2)+pow(punt1->y-punt2->y,2)+pow(punt1->z-punt2->z,2));
 		return toReturn;
 	}
-	static void ActualiWidthHeight(CRD*punt,Plano*p){
+	static void ActualiWidthHeight(CRD*punt,Plano*p,bool first=false){
 	float dist=Plano::Distncia(p->PuntoCentro,punt);
-		if(dist>p->distmax+50)
+		if(dist>p->distmax+50||first)
 			{
 			p->distmax=dist;
 			CRD*a=new CRD[3],vectorAltura,vectorAncho;
@@ -327,7 +331,7 @@ public:
 		
 		}
 	}
-	static bool IsRestring(Plano*p){if(p->PlanoType==TypePlano::XY||p->PlanoType==TypePlano::XZ||p->PlanoType==TypePlano::YZ)return true;return false;};
+	static bool IsRestring(Plano*p){if(p->PlanoType==TypePlano::XY||p->PlanoType==TypePlano::XZ||p->PlanoType==TypePlano::YZ||p->PlanoType==TypePlano::SPECIFICPLANE)return true;return false;};
 	static CRD Media(Plano*p)
 	{
 	 CRD toReturn(0,0,0);
