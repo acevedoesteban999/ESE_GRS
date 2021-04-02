@@ -11,7 +11,7 @@ public:
 	return 1;
 
     };
-	static bool PorcesarDatos(char ByteLow,char ByteHigh,GLfloat*angules)
+	static bool PorcesarDatos(char ByteLow,char ByteHigh,GLfloat*angles)
 {
 
 	for(int i=2;i<8;i++)
@@ -27,10 +27,10 @@ public:
 			    if(BitData(ByteLow,i)==1)
 			       {
 				     if(BitData(ByteHigh,i)==1)
-						 angules[i-2]+=(GLfloat)0.9;
+						 angles[i-2]+=(GLfloat)0.9;
 					 else
-						 angules[i-2]-=(GLfloat)0.9;
-					 RectificarAngules(angules);
+						 angles[i-2]-=(GLfloat)0.9;
+					 RectificarAngules(angles);
 			       }	
 		         break;      	
 	   }//end switch
@@ -42,33 +42,33 @@ public:
 	return false;
 
 };
-	static void RectificarAngules(GLfloat*angules){
+	static void RectificarAngules(GLfloat*angles){
 	
 	//comprobar angulos
-	if(angules[0]>=360  )
-		angules[0]-=360;
-	else if(angules[0]<=-360)
-		angules[0]+=360;
-	if(angules[1]>=360  )
-		angules[1]-=360;
-	else if(angules[1]<=-360)
-		angules[1]+=360;
-	if(angules[2]>=360  )
-		angules[2]-=360;
-	else if(angules[2]<=-360)
-		angules[2]+=360;
-	if(angules[3]>=360  )
-		angules[3]-=360;
-	else if(angules[3]<=-360)
-		angules[3]+=360;
-	if(angules[4]>=360  )
-		angules[4]-=360;
-	else if(angules[4]<=-360)
-		angules[4]+=360;
-	if(angules[5]>=360  )
-		angules[5]-=360;
-	else if(angules[5]<=-360)
-		angules[5]+=360;
+	if(angles[0]>=360  )
+		angles[0]-=360;
+	else if(angles[0]<=-360)
+		angles[0]+=360;
+	if(angles[1]>=360  )
+		angles[1]-=360;
+	else if(angles[1]<=-360)
+		angles[1]+=360;
+	if(angles[2]>=360  )
+		angles[2]-=360;
+	else if(angles[2]<=-360)
+		angles[2]+=360;
+	if(angles[3]>=360  )
+		angles[3]-=360;
+	else if(angles[3]<=-360)
+		angles[3]+=360;
+	if(angles[4]>=360  )
+		angles[4]-=360;
+	else if(angles[4]<=-360)
+		angles[4]+=360;
+	if(angles[5]>=360  )
+		angles[5]-=360;
+	else if(angles[5]<=-360)
+		angles[5]+=360;
 
 
 };

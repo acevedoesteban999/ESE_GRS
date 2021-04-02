@@ -147,12 +147,6 @@ public:
 		glVertex3f((GLfloat)p->puNt3->x+p->trasladarplano,(GLfloat)p->puNt3->y+p->trasladarplano,(GLfloat)p->puNt3->z+p->trasladarplano);
 		glVertex3f((GLfloat)p->puNt4->x+p->trasladarplano,(GLfloat)p->puNt4->y+p->trasladarplano,(GLfloat)p->puNt4->z+p->trasladarplano);
 		glEnd();
-		glColor3f((GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7);
-		glBegin(GL_LINES);
-		glVertex3f((GLfloat)p->PuntoCentro->x+(GLfloat)p->A/10,(GLfloat)p->PuntoCentro->y+(GLfloat)p->B/10,(GLfloat)p->PuntoCentro->z+(GLfloat)p->C/10);
-		glVertex3f((GLfloat)p->PuntoCentro->x-(GLfloat)p->A/10,(GLfloat)p->PuntoCentro->y-(GLfloat)p->B/10,(GLfloat)p->PuntoCentro->z-(GLfloat)p->C/10);
-		glEnd();
-		
 		}
 		if(p->IsRestring(p)&&proyectpunt)
 		{
@@ -320,7 +314,7 @@ public:
 	}
 	static void ActualizaItem(ItemsType it,Plano*p)
 	{
-		p->items->t=it;
+		p->items->SetType(it);
 	}
 	static void verPlanoRotado(float cant,Plano*p)
 	{

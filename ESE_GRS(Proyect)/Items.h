@@ -1,6 +1,7 @@
 #pragma once
 #include "CRD.h"
 #include "ESE_GRS.h"
+
 //#include "Matriz.h"
 enum ItemsType{
  ITEMS,POINTSS,LINES,LINE_STRIP,SPLINE,BSPLINE
@@ -53,9 +54,6 @@ public:
 			glEnd();
 			glLineWidth(1);
 		break;
-		case ItemsType::SPLINE:
-
-		break;
 		case ItemsType::BSPLINE:
 			glLineWidth(4);
 			glColor3f((GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9);	
@@ -80,6 +78,16 @@ public:
 			glLineWidth(1);
 
 		break;
+		
+		case ItemsType::SPLINE:
+			/*glLineWidth(4);
+			glBegin(GL_LINE_STRIP);
+			glColor3f((GLfloat)1,(GLfloat)0,(GLfloat)0);
+			for(unsigned i=0;i<cont;i++)
+				glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
+			glEnd();
+			glLineWidth(1);*/
+		break;
 		}
 	};
 	void Add(CRD*point)
@@ -102,6 +110,10 @@ public:
 		{
 			PoIntS[--cont].~CRD();
 		}
+	}
+	void SetType(ItemsType it)
+	{
+		this->t=it;
 	}
 
 };

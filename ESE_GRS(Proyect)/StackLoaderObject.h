@@ -9,7 +9,7 @@ public:
     int cantLoaderObject;
 	GLfloat angules[6];
 	double*CoordReales;
-	bool Salir;
+	bool Salir,errorCarga;
 	/////////DINAMICOS///////////////
     LoaderObject**Stack;
 	///////////////////////////////////////////////////METODOS///////////////////////////
@@ -21,15 +21,15 @@ public:
     cantLoaderObject=10;
     Stack=new LoaderObject*[cantLoaderObject];//inicializo el arreglo
 	CoordReales=new double[3];
-	Salir=false;
+	Salir=errorCarga=false;
 };
 	~StackLoaderObject(){}
 	////////////////PUSH/////////////////////////
 	static void push(char*c,StackLoaderObject*slo,double R,double G,double B){
-  //agrego un nuevo LoaderObject(.obj con direccion *c) en el Stack 
-  LoaderObject*newLoaderObject=new LoaderObject(c,R,G,B);
-  if(newLoaderObject->empty==false)
-      {
+	//agrego un nuevo LoaderObject(.obj con direccion *c) en el Stack 
+	LoaderObject*newLoaderObject=new LoaderObject(c,R,G,B);
+	if(newLoaderObject->empty==false)
+	{
 	   if(slo->contLoaderObject>=slo->cantLoaderObject)//aumento el tamaño del arreglo en caso de ser necesario
 	      {
 		   LoaderObject**newdata=new LoaderObject*[slo->cantLoaderObject+10];
@@ -38,8 +38,13 @@ public:
 			   newdata[i]=slo->Stack[i];
 		   slo->Stack=newdata;
  	       }
-  } 
-	  slo->Stack[slo->contLoaderObject++]=newLoaderObject;
+	   slo->Stack[slo->contLoaderObject++]=newLoaderObject;
+	} 
+	else
+	{
+		slo->errorCarga=true;
+	}
+	  
 
      
 };
@@ -53,24 +58,28 @@ public:
 			while(!f.eof()&&!slo->Salir)
 		    {
 	           f.getline(c,100);
-			   if(c[0]=='&'){
-			   string name_obj(c);
-			   name_obj=name_obj.substr(1,name_obj.find_first_of(" "));
-			   string s(c);
-			   s=s.substr(name_obj.length()+1,s.length()-name_obj.length());
-			   string r=s.substr(0,s.find_first_of(" "));
-			   s=s.substr(s.find_first_of(" ")+1,s.length()-s.find_first_of(" "));
-			   string g=s.substr(0,s.find_first_of(" "));
-			   s=s.substr(s.find_first_of(" ")+1,s.length()-s.find_first_of(" "));
-			   string b=s.substr(0,s.find_first_of(" "));
-			   slo->push((char*)name_obj.c_str(),slo,(double)atof(r.c_str()),(double)atof(g.c_str()),(double)atof(b.c_str()));
-	         }
-		 }
+			   if(c[0]=='&')
+			   {
+				   string name_obj(c);
+				   name_obj=name_obj.substr(1,name_obj.find_first_of(" "));
+				   string s(c);
+				   s=s.substr(name_obj.length()+1,s.length()-name_obj.length());
+				   string r=s.substr(0,s.find_first_of(" "));
+				   s=s.substr(s.find_first_of(" ")+1,s.length()-s.find_first_of(" "));
+				   string g=s.substr(0,s.find_first_of(" "));
+				   s=s.substr(s.find_first_of(" ")+1,s.length()-s.find_first_of(" "));
+				   string b=s.substr(0,s.find_first_of(" "));
+				   slo->push((char*)name_obj.c_str(),slo,(double)atof(r.c_str()),(double)atof(g.c_str()),(double)atof(b.c_str()));
+				}
+			}
   
-   }
-  else
-	  cout<<"Error: ARCHIVO TXT:'"<<name<<"'-DIRECCION O NOMBRE DE ARCHIVO INCORECTO "<<endl;//si no existe el archivo en esa direccion
-	 f.close();
+		}
+		else
+		{
+			 cout<<"Error: ARCHIVO TXT:'"<<name<<"'-DIRECCION O NOMBRE DE ARCHIVO INCORECTO "<<endl;//si no existe el archivo en esa direccion
+			slo->errorCarga=true;
+		}
+		f.close();
 };
 	///////////////DRAWS//////////////////////////
 	static void smallEjeCoordSLO(GLfloat size){

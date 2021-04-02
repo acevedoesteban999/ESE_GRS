@@ -1,5 +1,9 @@
 #include "ESE_GRS.h"
+#include <mmsystem.h>
+
+
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
+
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
 bool EsperandoReedireccionar=true;
@@ -28,7 +32,7 @@ float velGiro=3;
 float &movESE_GRSX=movRatX,&movESE_GRSY=movRatY,movESE_GRSZ=25;
 float height,wigth;
 double trasladarX=0,trasladarY=0,trasladarZ=0;
-GLfloat angules[6]={0,0,55,0,0,0};
+GLfloat angles[6]={0,0,55,0,0,0};
 GLfloat heightOrtho,wigthOrtho;
 GLdouble movWheel=1;
 Language idioma=ENGLISH;
@@ -45,6 +49,45 @@ StackForms*ManejadorForms=new StackForms();
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
 
 ///////////////////DESTRUCTOR GLOBAL/////////////////////////////////////////////////
+void sonidos(unsigned sonido)
+{
+	switch (sonido)
+	{
+	case 1:
+		PlaySound("data/audio/1.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 2:
+		PlaySound("data/audio/2.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 3:
+		PlaySound("data/audio/3.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 4:
+		PlaySound("data/audio/4.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 5:
+		PlaySound("data/audio/5.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 6:
+		PlaySound("data/audio/6.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 7:
+		PlaySound("data/audio/7.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 8:
+		PlaySound("data/audio/8.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 9:
+		PlaySound("data/audio/9.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	case 10:
+		PlaySound("data/audio/10.wav",NULL,SND_FILENAME |SND_ASYNC);
+	break;
+	}
+		
+	
+		//PlaySound("data/audio/4.wav",NULL,SND_FILENAME |SND_ASYNC);
+}
 char*Frases(unsigned frase)
 {
 	switch (idioma)
@@ -176,7 +219,7 @@ char*Frases(unsigned frase)
 				return "Model to Draw";
 				break;
 				case 41:
-				return "Set Angules";
+				return "Set Angles";
 				break;
 				case 42:
 				return "Language";
@@ -186,7 +229,7 @@ char*Frases(unsigned frase)
 				break;
 				case 44:
 				return "Error, name in use";
-				break;
+				break;				 
 				case 45:
 				return "Finish Connection";  
 				break;
@@ -234,6 +277,7 @@ char*Frases(unsigned frase)
 				break;
 				case 60:
 				return "->Button Acept";
+
 				case 61:
 				return "->Button Cancel";
 				break;
@@ -256,10 +300,10 @@ char*Frases(unsigned frase)
 				return "Spanish";
 				break;
 				case 68:
-				return "Enable Mode Logger";
+				return "Enable record mode";
 				break;
 				case 69:
-				return "Disable Mode Logger";
+				return "Disable record mode";
 				break;
 				case 70:
 				return "BSpline";
@@ -292,13 +336,13 @@ char*Frases(unsigned frase)
 				return "Ends Connection";
 				break;
 				case 80:
-				return "";
+				return "Record Mode Off";
 				break;
 				case 81:
-				return "";
+				return "Record Mode On";
 				break;
 				case 82:
-				return "";
+				return "Be careful, there was an error loading the files";
 				break;
 				case 83:
 				return "";
@@ -458,7 +502,7 @@ char*Frases(unsigned frase)
 				return "Modelo a Pintar";
 				break;
 				case 41:
-				return "Poner Angulos";
+				return "Establecer Angulos";
 				break;
 				case 42:
 				return "Idioma";
@@ -574,13 +618,13 @@ char*Frases(unsigned frase)
 				return "Conexion Finalizada";
 				break;
 				case 80:
-				return "";
+				return "Modo Registro Desactivado";
 				break;
 				case 81:
-				return "";
+				return "Modo Registro Activado";
 				break;
 				case 82:
-				return "";
+				return "Cuidado, se ha producido un error al cargar los ficheros";
 				break;
 				case 83:
 				return "";
@@ -674,12 +718,12 @@ ESE_GRS::ESE_GRS(){
 	ManejadorForms->Add(new RadioButton("radioButtonMostrarAngules",*new CRD(0,0,0),Frases(52),wigth,height,true),ManejadorForms);
 	ManejadorForms->SetlabelColor("radioButtonMostrarAngules",(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,ManejadorForms);
 	MostrarAngules=true;
-	ManejadorForms->Add(new Label("labelAngule0",(char*)to_string(angules[0]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelAngule1",(char*)to_string(angules[1]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelAngule2",(char*)to_string(angules[2]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angules[3]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angules[4]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angules[5]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelAngule0",(char*)to_string(angles[0]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelAngule1",(char*)to_string(angles[1]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelAngule2",(char*)to_string(angles[2]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angles[3]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angles[4]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angles[5]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd->x)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd->y)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd->z)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
@@ -718,7 +762,7 @@ void ESE_GRS::Inicializar(){
 	 initProyecc();
 	
 	
-	 ManejadorObject->setAnguleArt1(angules,ManejadorObject);////agrego los angulos de rotacion a mi ManejadorObject
+	 ManejadorObject->setAnguleArt1(angles,ManejadorObject);////agrego los angulos de rotacion a mi ManejadorObject
 	 
 	 wheelAndRotate();//me giro y acerco o alejo 
 }
@@ -815,24 +859,6 @@ void ESE_GRS::display(){
 		IniciarCargObjetos();
 	else
 	{
-		//void Evalua_Spline_Natural(float nptos,float *param[3][4],float ndiv)
-		/*float nptos=4;
-		float *param[3][4];
-		float ndiv;
-		int i,j;
-		float aux[3],u;
-		glBegin(GL_LINE_STRIP);
-		for(i=0;i<nptos-1;i++)
-			for(unsigned j=0;j<=ndiv;j++)
-			{
-				u=j/ndiv;
-				aux[0]=param[i][0][0]+u*(param[i][0][1]+u*(param[i][0][2]+u*param[i][0][3]));
-				aux[1]=param[i][1][0]+u*(param[i][1][1]+u*(param[i][1][2]+u* param[i][1][3]));
-				aux[2]=param[i][2][0]+u*(param[i][2][1]+u*(param[i][2][2]+u* param[i][2][3]));
-			}
-		glEnd();*/
-
-
 	    // recivirDatosCOM();//recivo y proceso la entrada del puerto serie
 		Inicializar();//iniciaizo proyeccin luces y pongo los angulos del brazo 
 		Entorno();
@@ -951,12 +977,12 @@ void ESE_GRS::smallEjeCoord(GLfloat size){
 void ESE_GRS::ShowAngules(){
 	                  if(MostrarAngules)
 						{
-						 ManejadorForms->GetForm("labelAngule0",ManejadorForms)->AddNewText((char*)to_string(angules[0]).c_str());
-						 ManejadorForms->GetForm("labelAngule1",ManejadorForms)->AddNewText((char*)to_string(angules[1]).c_str());
-						 ManejadorForms->GetForm("labelAngule2",ManejadorForms)->AddNewText((char*)to_string(angules[2]).c_str());
-						 ManejadorForms->GetForm("labelAngule3",ManejadorForms)->AddNewText((char*)to_string(angules[3]).c_str());
-						 ManejadorForms->GetForm("labelAngule4",ManejadorForms)->AddNewText((char*)to_string(angules[4]).c_str());
-						 ManejadorForms->GetForm("labelAngule5",ManejadorForms)->AddNewText((char*)to_string(angules[5]).c_str());
+						 ManejadorForms->GetForm("labelAngule0",ManejadorForms)->AddNewText((char*)to_string(angles[0]).c_str());
+						 ManejadorForms->GetForm("labelAngule1",ManejadorForms)->AddNewText((char*)to_string(angles[1]).c_str());
+						 ManejadorForms->GetForm("labelAngule2",ManejadorForms)->AddNewText((char*)to_string(angles[2]).c_str());
+						 ManejadorForms->GetForm("labelAngule3",ManejadorForms)->AddNewText((char*)to_string(angles[3]).c_str());
+						 ManejadorForms->GetForm("labelAngule4",ManejadorForms)->AddNewText((char*)to_string(angles[4]).c_str());
+						 ManejadorForms->GetForm("labelAngule5",ManejadorForms)->AddNewText((char*)to_string(angles[5]).c_str());
 						 ManejadorForms->GetForm("labelCoordX",ManejadorForms)->AddNewText((char*)(string("x:")+to_string(cooRd->x)).c_str());	
 						 ManejadorForms->GetForm("labelCoordY",ManejadorForms)->AddNewText((char*)(string("y:")+to_string(cooRd->y)).c_str());
 						 ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->AddNewText((char*)(string("z:")+to_string(cooRd->z)).c_str());
@@ -1006,10 +1032,9 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 				}
 				if(Err)
 					break;
-
-
 				Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")),Proyect1);
 				interfaz=1;
+				sonidos(3);
 				ManejadorForms->ActivateRB("BoxInterfazPricipal","radioButonRemoveBoceto",ManejadorForms);
 				Proyect1->ResetNewPlano(Proyect1);
 				Proyect1->PlanoCheckeeado=Proyect1->contB-1;
@@ -1035,7 +1060,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 				break;
 
 			Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&Proyect1->coorNewPlano[0],&Proyect1->coorNewPlano[1],&Proyect1->coorNewPlano[2],Proyect1->NewPlanoType),Proyect1);
-			//contCoordNewPlano=0;
+			sonidos(3);
 			interfaz=1;
 			ManejadorForms->ActivateRB("BoxInterfazPricipal","radioButonRemoveBoceto",ManejadorForms);
 			Proyect1->ResetNewPlano(Proyect1);
@@ -1046,6 +1071,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		 	Proyect1->Sub(Proyect1->bocetos[bocetoARemover]->name,Proyect1);
 			Proyect1->PlanoCheckeeado=Proyect1->contB;
 		    interfaz=1;
+			sonidos(6);
 		break;
 
 		case 3:////////////////INIT CONNECTION///////////////
@@ -1091,9 +1117,13 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			if(XLSClass::Salvar(Proyect1->bocetos,u,u1,All,All?Proyect1->contB:0))
 				messeng=new MeSSenger( Frases(46),position::CENTER_TOP,wigth,height,3,0,1,0,2);
 			else
+			{
 				messeng=new MeSSenger( Frases(47),position::CENTER_TOP,wigth,height,5,1,0,0,2);
+				sonidos(2);
+			}
 			delete u;
 			interfaz=0;
+			sonidos(8);
 			break;
 
 		default:
@@ -1165,6 +1195,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			f->RBGActivDesactRB("radioButtonSaveSketchs",false);
 		desactiaCancel=true;
 		box->AddForm(f,box);
+	
 		break;
 	case 1://///////////////////////////INTERFAZ_1////////////////////////
 		Proyect1->SetDrawAll(false,Proyect1);
@@ -1447,11 +1478,12 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	{
 	   bool eRror=false;
 	   string s;
-		   switch (ManejadorForms->PresionarForm((float)x,(float)y,ManejadorForms))
+	   switch (ManejadorForms->PresionarForm((float)x,(float)y,ManejadorForms))
 	   {
 	   case 0:
 		   break;
 	   case Type::BOX:
+		   sonidos(9);
 		   if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)))
 		   {
 			   if(interfaz==3)//interfaz 3
@@ -1536,6 +1568,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						if(	ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetActiveDesact("RadioButtomCancelLast"))
 						{
 						Plano::CancelLastPoint(Proyect1->BocetoActual(Proyect1));
+						sonidos(6);
 						if(!Proyect1->BocetoActual(Proyect1)->items->cont)
 							ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",false);
 						}
@@ -1604,28 +1637,21 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			}
 
 		   break;
-
-
-
-		   	/////////////////////////////////////////////////////////RADIOBUTTONGROUP//////////////////////////////////////////////////////////
-		    case Type::RADIOBUTTONGROUP:
-	
-			 break;
-
-														  
+												  
 			 /////////////////////////////////////////////////////////RADIOBUTTON//////////////////////////////////////////////////////////
 		     case Type::RADIOBUTTON:
+				   sonidos(9);
 			       if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)))
 				       {
 					   if(!MostrarAngules)
 					   {   
 						MostrarAngules=true;
-						ManejadorForms->Add(new Label("labelAngule0",(char*)to_string(angules[0]).c_str(),*new CRD(wigth-120,25,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule1",(char*)to_string(angules[1]).c_str(),*new CRD(wigth-120,40,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule2",(char*)to_string(angules[2]).c_str(),*new CRD(wigth-120,55,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angules[3]).c_str(),*new CRD(wigth-120,70,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angules[4]).c_str(),*new CRD(wigth-120,85,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angules[5]).c_str(),*new CRD(wigth-120,100,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+						ManejadorForms->Add(new Label("labelAngule0",(char*)to_string(angles[0]).c_str(),*new CRD(wigth-120,25,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	                    ManejadorForms->Add(new Label("labelAngule1",(char*)to_string(angles[1]).c_str(),*new CRD(wigth-120,40,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	                    ManejadorForms->Add(new Label("labelAngule2",(char*)to_string(angles[2]).c_str(),*new CRD(wigth-120,55,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	                    ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angles[3]).c_str(),*new CRD(wigth-120,70,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	                    ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angles[4]).c_str(),*new CRD(wigth-120,85,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	                    ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angles[5]).c_str(),*new CRD(wigth-120,100,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	                    ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd->x)).c_str(),*new CRD(wigth-120,115,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	                    ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd->y)).c_str(),*new CRD(wigth-120,130,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	                    ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd->z)).c_str(),*new CRD(wigth-120,145,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
@@ -1647,69 +1673,77 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 		   break;
 		                                //////////////////////////////BUTTONS////////////////////
 		    case Type::BUTTONACEPTRB:
-			ManejadorForms->Add(Interfaz(0,INTERFZType::ACEPT),ManejadorForms);
+				sonidos(9);
+				ManejadorForms->Add(Interfaz(0,INTERFZType::ACEPT),ManejadorForms);
 			break;
 
 			case Type::BUTTONCANCELRB:
-			ManejadorForms->Add(Interfaz(0,INTERFZType::CANCEL),ManejadorForms);
+				sonidos(9);
+				ManejadorForms->Add(Interfaz(0,INTERFZType::CANCEL),ManejadorForms);
 			break;
 
 	        case Type::BUTTONCANCELSETANGULES:
+				sonidos(9);
 			default_menu(3);
 		   break;
 
 	       case Type::BUTTONINITSETANGULES:
-		   for(unsigned i=0;i<6;i++)
-		   {
-			   s=("textBoxsSetAngules");
+			   sonidos(9);
+			   for(unsigned i=0;i<6;i++)
+			   {
+				   s=("textBoxsSetAngules");
+				   if(eRror)
+				   {
+						break;
+				   }
+				   s+=to_string(i);
+				   char*datA=ManejadorForms->GetForm((char*)s.c_str(),ManejadorForms)->GetEscritura();
+				   bool negtv=false,punto=false;
+				   for(unsigned i=0;i<strlen(datA);i++)
+						{
+						  if(!isdigit(datA[i]))
+							 {
+							  if(datA[i]=='.'&&punto==false)
+							  {
+								  punto=true;
+							  }
+							  else if(datA[i]=='-'&&negtv==false&&i==0)
+								 {
+								  negtv=true;
+								 }
+							  else
+								 {
+								  eRror=true;
+								  break;
+								 }
+							 }
+					   }
+				   s.clear();
+			   }
 			   if(eRror)
 			   {
-				    break;
+				  messeng=new MeSSenger(Frases(48),position::CENTER_TOP,wigth,height,3,1,0,0,2);
+				  sonidos(6);
 			   }
-			   s+=to_string(i);
-			   char*datA=ManejadorForms->GetForm((char*)s.c_str(),ManejadorForms)->GetEscritura();
-			   bool negtv=false,punto=false;
-		       for(unsigned i=0;i<strlen(datA);i++)
-		            {
-					  if(!isdigit(datA[i]))
-					     {
-						  if(datA[i]=='.'&&punto==false)
-						  {
-							  punto=true;
-						  }
-						  else if(datA[i]=='-'&&negtv==false&&i==0)
-						     {
-							  negtv=true;
-						     }
-						  else
-						     {
-							  eRror=true;
-							  break;
-						     }
-					     }
-		           }
-			   s.clear();
-		   }
-		   if(eRror)
-		      messeng=new MeSSenger(Frases(48),position::CENTER_TOP,wigth,height,3,1,0,0,2);
-		   else
-		   {
-			   messeng=new MeSSenger(Frases(49),position::CENTER_TOP,wigth,height,3,0,1,0,2);
-			   for(unsigned i=0;i<6;i++)
-		       {
-			   s=("textBoxsSetAngules");
-			   s+=to_string(i);
-				if(strlen(ManejadorForms->GetForm((char*)s.c_str(),ManejadorForms)->GetEscritura()))
-			       angules[i]=(GLfloat)atof(ManejadorForms->GetForm((char*)s.c_str(),ManejadorForms)->GetEscritura());
-			    s.clear();
+			   else
+			   {
+				   messeng=new MeSSenger(Frases(49),position::CENTER_TOP,wigth,height,3,0,1,0,2);
+				   for(unsigned i=0;i<6;i++)
+				   {
+				   s=("textBoxsSetAngules");
+				   s+=to_string(i);
+					if(strlen(ManejadorForms->GetForm((char*)s.c_str(),ManejadorForms)->GetEscritura()))
+					   angles[i]=(GLfloat)atof(ManejadorForms->GetForm((char*)s.c_str(),ManejadorForms)->GetEscritura());
+					s.clear();
 				
-			   }
+				   }
 				   
-			   CalcularCoordenadas();
-			   CalcularCoordenadas();
-			   ShowAngules();
-		    }
-		   break;     
+				   CalcularCoordenadas();
+				   CalcularCoordenadas();
+				   ShowAngules();
+				   sonidos(8);
+				}
+			 break;     
 	   }
 	}
    
@@ -1748,62 +1782,62 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
 	  switch (tecla)
 	    {
 		case '1':
-			angules[0]+=(GLfloat)0.9;
+			angles[0]+=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 		case '2':
-			angules[0]-=(GLfloat)0.9;	
+			angles[0]-=(GLfloat)0.9;	
 			CalcularCoordenadas();
 		break;
 
 		case '3':
-			angules[1]+=(GLfloat)0.9;
+			angles[1]+=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 		case '4':
-			angules[1]-=(GLfloat)0.9;
+			angles[1]-=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 
 		case '5':
-			angules[2]+=(GLfloat)0.9;
+			angles[2]+=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 
 		case '6':
-			angules[2]-=(GLfloat)0.9;
+			angles[2]-=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 		case '7':
-			angules[3]+=(GLfloat)0.9;
+			angles[3]+=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 		case '8':
-			angules[3]-=(GLfloat)0.9;
+			angles[3]-=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 		case '9':	
-			angules[4]+=(GLfloat)0.9;
+			angles[4]+=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 
 		case '0':
-			angules[4]-=(GLfloat)0.9;
+			angles[4]-=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 		case '-':			
-			angules[5]+=(GLfloat)0.9;
+			angles[5]+=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 
 		case '=':
-			angules[5]-=(GLfloat)0.9;
+			angles[5]-=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
 	    }
 
 	    ShowAngules();
-	    DataProcessor::RectificarAngules(angules);
+	    DataProcessor::RectificarAngules(angles);
 
 		
 
@@ -1856,12 +1890,12 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 	switch (tecla)
 	{
 	case -1:
-		angules[0]=0;
-		angules[1]=(GLfloat)-13.8;
-        angules[2]=(GLfloat)-44.5;
-        angules[3]=(GLfloat)2.04;
-		angules[4]=(GLfloat)90;
-		angules[5]=(GLfloat)-2.04;
+		angles[0]=0;
+		angles[1]=(GLfloat)-13.8;
+        angles[2]=(GLfloat)-44.5;
+        angles[3]=(GLfloat)2.04;
+		angles[4]=(GLfloat)90;
+		angles[5]=(GLfloat)-2.04;
 		CalcularCoordenadas();
 		ShowAngules();
 	break;
@@ -1908,12 +1942,12 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 	case GLUT_KEY_F4:	//"Reedireccionamiento"
 		if(!recibir_serie)
 		{
-			angules[0]=0;
-			angules[1]=(GLfloat)-13.8;
-			angules[2]=(GLfloat)-44.5;
-			angules[3]=(GLfloat)2.04;
-			angules[4]=(GLfloat)90;
-			angules[5]=(GLfloat)-2.04;
+			angles[0]=0;
+			angles[1]=(GLfloat)-13.8;
+			angles[2]=(GLfloat)-44.5;
+			angles[3]=(GLfloat)2.04;
+			angles[4]=(GLfloat)90;
+			angles[5]=(GLfloat)-2.04;
 			CalcularCoordenadas();
 			ShowAngules();
 		}
@@ -1933,12 +1967,12 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 		   trasladarX=0;
 		   trasladarY=0;
 		   trasladarZ=0;
-		   angules[0]=0;
-           angules[1]=0;
-           angules[2]=0;
-           angules[3]=0;
-	 	   angules[4]=0;
-		   angules[5]=0;
+		   angles[0]=0;
+           angles[1]=0;
+           angles[2]=0;
+           angles[3]=0;
+	 	   angles[4]=0;
+		   angles[5]=0;
 		   SeguirPuntoFinal=false;
 		   MenuVista(-1);
 		   CalcularCoordenadas();
@@ -2005,14 +2039,14 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 void ESE_GRS::default_menu(int opcion){
 	switch (opcion)
 	{
-	case 4:///SET angules
+	case 4:///SET angles
 	    default_menu(-6);
-		ManejadorForms->Add(new TextBox("textBoxsSetAngules0",*(new CRD(0,175,0)),110,wigth,height,(char*)to_string(angules[0]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
-		ManejadorForms->Add(new TextBox("textBoxsSetAngules1",*(new CRD(0,200,0)),110,wigth,height,(char*)to_string(angules[1]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
-		ManejadorForms->Add(new TextBox("textBoxsSetAngules2",*(new CRD(0,225,0)),110,wigth,height,(char*)to_string(angules[2]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
-		ManejadorForms->Add(new TextBox("textBoxsSetAngules3",*(new CRD(0,250,0)),110,wigth,height,(char*)to_string(angules[3]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
-		ManejadorForms->Add(new TextBox("textBoxsSetAngules4",*(new CRD(0,275,0)),110,wigth,height,(char*)to_string(angules[4]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
-		ManejadorForms->Add(new TextBox("textBoxsSetAngules5",*(new CRD(0,300,0)),110,wigth,height,(char*)to_string(angules[5]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
+		ManejadorForms->Add(new TextBox("textBoxsSetAngules0",*(new CRD(0,175,0)),110,wigth,height,(char*)to_string(angles[0]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
+		ManejadorForms->Add(new TextBox("textBoxsSetAngules1",*(new CRD(0,200,0)),110,wigth,height,(char*)to_string(angles[1]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
+		ManejadorForms->Add(new TextBox("textBoxsSetAngules2",*(new CRD(0,225,0)),110,wigth,height,(char*)to_string(angles[2]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
+		ManejadorForms->Add(new TextBox("textBoxsSetAngules3",*(new CRD(0,250,0)),110,wigth,height,(char*)to_string(angles[3]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
+		ManejadorForms->Add(new TextBox("textBoxsSetAngules4",*(new CRD(0,275,0)),110,wigth,height,(char*)to_string(angles[4]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
+		ManejadorForms->Add(new TextBox("textBoxsSetAngules5",*(new CRD(0,300,0)),110,wigth,height,(char*)to_string(angles[5]).c_str(),9,TextBoxType::FLOATCONTENT),ManejadorForms);
 		ManejadorForms->Add(new Button("buttonInitSetAngules",Type::BUTTONINITSETANGULES,*new CRD(0,325,0),0,1,0,80,10,wigth,height),ManejadorForms);
 		ManejadorForms->Add(new Button("buttonCancelSetAngules",Type::BUTTONCANCELSETANGULES,*new CRD(80,325,0),1,0,0,30,10,wigth,height),ManejadorForms);
 		SetAngules=true;
@@ -2044,6 +2078,7 @@ void ESE_GRS::default_menu(int opcion){
 			p=new TcP_ip_Client();
 		if(!p->inicializa( ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxChar"),atol(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxUnsigned"))))
 		  {
+			  sonidos(1);
 			  string f=string(p->ErrorStr());
 			   char*msg=new char[f.length()+1];
 			   msg[f.length()]=0;
@@ -2090,6 +2125,7 @@ void ESE_GRS::default_menu(int opcion){
 				   toSavePort=p->getunsigned();
 			   }
 			   ESE_GRS::InitMenu();
+			   sonidos(5);
 			  }
 	break;
 
@@ -2104,6 +2140,7 @@ void ESE_GRS::default_menu(int opcion){
 		EsperandoReedireccionar=true;
 		ESE_GRS::InitMenu();
 		default_menu(-5);
+		sonidos(10);
 		if(ModoLogger)cout<<endl<<Frases(79)<<endl;
 	break;
 	case -5:    //Muestro Menu
@@ -2136,10 +2173,16 @@ void ESE_GRS::default_menu(int opcion){
 		break;
 	case -8:
 		ModoLogger=false;
+		sonidos(7);
+		messeng=new MeSSenger(Frases(80),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
+		cout<<Frases(80)<<endl;
 		InitMenu();
 		break;
 	case -9:
+		sonidos(7);
 		ModoLogger=true;
+		messeng=new MeSSenger(Frases(81),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
+		cout<<Frases(81)<<endl;
 		InitMenu();
 		break;
 	}
@@ -2222,6 +2265,7 @@ void ESE_GRS::MenuIdioma(int opcion)
 		break;
 	}
 	messeng=new MeSSenger(Frases(62),position::CENTER_TOP,wigth,height,3,1,1,0,2);
+	sonidos(7);
 	if(ModoLogger)cout<<Frases(66)<<endl;
 	glutPostRedisplay();
 
@@ -2342,7 +2386,7 @@ void ESE_GRS::recivirDatosCOM(){
 				 }
 			     else/////////////MOVER Y/O PINTAR
 			     {
-				    bool pintar=DataProcessor::PorcesarDatos(c[i],c[i+1],angules);//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
+				    bool pintar=DataProcessor::PorcesarDatos(c[i],c[i+1],angles);//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
 		  	        CalcularCoordenadas();
 			        ShowAngules();
 					if(interfaz==2)//Actualizo la ultima coordenada en el StackBoceto
@@ -2363,6 +2407,7 @@ void ESE_GRS::recivirDatosCOM(){
 				       {
 				          ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",true); 
 						  Proyect1->AddPoint(*cooRd,Proyect1);
+						  sonidos(4);
 					   }
 			        }//end if(pintar)		
 			     }//end else
@@ -2388,12 +2433,12 @@ void ESE_GRS::salvarInitDatos(){
 	f.write((char*)&movRatX,sizeof(int));
 	f.write((char*)&movRatY,sizeof(int));
 	f.write((char*)&movESE_GRSZ,sizeof(int));
-	f.write((char*)&angules[0],sizeof(GLfloat));
-	f.write((char*)&angules[1],sizeof(GLfloat));
-	f.write((char*)&angules[2],sizeof(GLfloat));
-	f.write((char*)&angules[3],sizeof(GLfloat));
-	f.write((char*)&angules[4],sizeof(GLfloat));
-	f.write((char*)&angules[5],sizeof(GLfloat));
+	f.write((char*)&angles[0],sizeof(GLfloat));
+	f.write((char*)&angles[1],sizeof(GLfloat));
+	f.write((char*)&angles[2],sizeof(GLfloat));
+	f.write((char*)&angles[3],sizeof(GLfloat));
+	f.write((char*)&angles[4],sizeof(GLfloat));
+	f.write((char*)&angles[5],sizeof(GLfloat));
 	f.write((char*)&movWheel,sizeof(GLdouble));
 	f.write((char*)&trasladarX,sizeof(double));
 	f.write((char*)&trasladarY,sizeof(double));
@@ -2429,12 +2474,12 @@ void ESE_GRS::cargarInitDatos(){
 	   f.read((char*)&movRatX,sizeof(int));
 	   f.read((char*)&movRatY,sizeof(int));
 	   f.read((char*)&movESE_GRSZ,sizeof(int));
-	   f.read((char*)&angules[0],sizeof(GLfloat));
-	   f.read((char*)&angules[1],sizeof(GLfloat));
-	   f.read((char*)&angules[2],sizeof(GLfloat));
-	   f.read((char*)&angules[3],sizeof(GLfloat));
-	   f.read((char*)&angules[4],sizeof(GLfloat));
-	   f.read((char*)&angules[5],sizeof(GLfloat));
+	   f.read((char*)&angles[0],sizeof(GLfloat));
+	   f.read((char*)&angles[1],sizeof(GLfloat));
+	   f.read((char*)&angles[2],sizeof(GLfloat));
+	   f.read((char*)&angles[3],sizeof(GLfloat));
+	   f.read((char*)&angles[4],sizeof(GLfloat));
+	   f.read((char*)&angles[5],sizeof(GLfloat));
 	   f.read((char*)&movWheel,sizeof(GLdouble));
 	   f.read((char*)&trasladarX,sizeof(double));
 	   f.read((char*)&trasladarY,sizeof(double));
@@ -2540,18 +2585,18 @@ char* ESE_GRS::Verificacion(char*c,unsigned*strleN){
 void ESE_GRS::CalcularCoordenadas()
   {
 	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6;
-      cosFi1=cos((angules[0]+180)*PI/180);
-      senFi1=sin((angules[0]+180)*PI/180);
-      cosFi2=cos(angules[1]*PI/180);
-      senFi2=sin(angules[1]*PI/180);
-      cosFi3=cos((angules[2]-90)*PI/180);
-      senFi3=sin((angules[2]-90)*PI/180);
-      cosFi4=cos(angules[3]*PI/180);
-      senFi4=sin(angules[3]*PI/180);
-      cosFi5=cos((angules[4]+90)*PI/180);
-      senFi5=sin((angules[4]+90)*PI/180);
-      cosFi6=cos(angules[5]*PI/180);
-      senFi6=sin(angules[5]*PI/180);
+      cosFi1=cos((angles[0]+180)*PI/180);
+      senFi1=sin((angles[0]+180)*PI/180);
+      cosFi2=cos(angles[1]*PI/180);
+      senFi2=sin(angles[1]*PI/180);
+      cosFi3=cos((angles[2]-90)*PI/180);
+      senFi3=sin((angles[2]-90)*PI/180);
+      cosFi4=cos(angles[3]*PI/180);
+      senFi4=sin(angles[3]*PI/180);
+      cosFi5=cos((angles[4]+90)*PI/180);
+      senFi5=sin((angles[4]+90)*PI/180);
+      cosFi6=cos(angles[5]*PI/180);
+      senFi6=sin(angles[5]*PI/180);
 	 
       cooRd->x=(463*senFi1)/200 + 150*cosFi1*cosFi2 - (1783*cosFi4*senFi1)/200 + 177*cosFi6*(senFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2) - cosFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3))) - 53*senFi1*senFi4 + 53*cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - (10329*cosFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))/200 - (1783*senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3))/200 + (senFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))/500 - (cosFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)))/500 - (10329*senFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)))/200 + 177*senFi6*(cosFi4*senFi1 + senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)) + (451*cosFi1*cosFi2*cosFi3)/2 - (151*cosFi1*cosFi2*senFi3)/500 - (151*cosFi1*cosFi3*senFi2)/500 - (451*cosFi1*senFi2*senFi3)/2;
 	  cooRd->y=(1783*cosFi1*cosFi4)/200 - (463*cosFi1)/200 + 150*cosFi2*senFi1 + 53*cosFi1*senFi4 + 53*cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - (10329*cosFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2))/200 + 177*cosFi6*(senFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2) + cosFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3))) - (1783*senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3))/200 + (senFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2))/500 + (cosFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)))/500 + (10329*senFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)))/200 - 177*senFi6*(cosFi1*cosFi4 - senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)) + (451*cosFi2*cosFi3*senFi1)/2 - (151*cosFi2*senFi1*senFi3)/500 - (151*cosFi3*senFi1*senFi2)/500 - (451*senFi1*senFi2*senFi3)/2;
@@ -2570,10 +2615,19 @@ void ESE_GRS::ThreadCOM()
 void ESE_GRS::ThreadCargObject()
 {
 	m.lock();
-	ManejadorObject->pushByTxt("Entrada_de_Modelos.txt",ManejadorObject);//cargo el txt con las direcciones de los .obj
+	ManejadorObject->pushByTxt("ESE_GRS.oninit",ManejadorObject);//cargo el txt con las direcciones de los .obj
 	CargObjct=true;
 	ManejadorObject->Salir=true;
-	system("cls");
+	if(ManejadorObject->errorCarga)
+	{
+		sonidos(10);
+		messeng=new MeSSenger(Frases(82),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,10,1,0,0,2);
+	}
+	else
+	{
+		sonidos(2);
+		system("cls");
+	}
 	m.unlock();
 }
 
