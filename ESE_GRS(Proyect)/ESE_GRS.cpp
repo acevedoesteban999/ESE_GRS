@@ -18,6 +18,8 @@ bool Boxf1=false;
 bool BoxAbout=false;
 bool BoxReconnect=false;
 bool ErrorConnect=false;
+bool ActiveDesactAcept=false;
+bool ActiveDesactCancel=false;
 char byt;bool bytBool=false;
 char*toSaveCOM="COM2",*toSaveIp="127.0.0.1";
 unsigned toSaveSpeed=9600,toSavePort=55555;
@@ -91,6 +93,8 @@ void sonidos(unsigned sonido)
 }
 char*Frases(unsigned frase)
 {
+	if(frase==100)
+		return "v-1.1";
 	switch (idioma)
 	{
 	case ENGLISH:
@@ -737,8 +741,7 @@ ESE_GRS::ESE_GRS(){
 	//InitMenu();
 	t1=new thread(ThreadCargObject);
 	ManejadorForms->Add(new Label("labelESE_GRS","ESE_GRS",*(new CRD(0,0,0)),1,(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelVersion","v-1.0",*(new CRD(0,0,0)),1,(GLfloat)0.6,(GLfloat)0.6,(GLfloat)0.6,wigth,height),ManejadorForms);
-	
+	ManejadorForms->Add(new Label("labelVersion",Frases(100),*(new CRD(0,0,0)),1,(GLfloat)0.6,(GLfloat)0.6,(GLfloat)0.6,wigth,height),ManejadorForms);
 
 	ManejadorForms->Add(new RadioButton("radioButtonMostrarAngules",*new CRD(0,0,0),Frases(52),wigth,height,true),ManejadorForms);
 	ManejadorForms->SetlabelColor("radioButtonMostrarAngules",(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,ManejadorForms);
@@ -1363,7 +1366,9 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		if(!Boxf1)
 		{
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
+			ActiveDesactAcept=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
+			ActiveDesactCancel=ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",false,ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",false,ManejadorForms);
 			Boxf1=true;
@@ -1404,8 +1409,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		else
 		{
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",true,ManejadorForms);
-			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",true,ManejadorForms);
-			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",ActiveDesactAcept,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",ActiveDesactCancel,ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",true,ManejadorForms);
 			Boxf1=false;
 			Forms::SetName("BoxHelp",box);
@@ -1418,7 +1423,9 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		if(!BoxAbout)
 		{
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
+			ActiveDesactAcept=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
+			ActiveDesactCancel=ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",false,ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",false,ManejadorForms);
 			BoxAbout=true;
@@ -1451,8 +1458,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		else
 		{
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",true,ManejadorForms);
-			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",true,ManejadorForms);
-			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",ActiveDesactAcept,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",ActiveDesactCancel,ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",true,ManejadorForms);
 			BoxAbout=false;
 			Forms::SetName("BoxAbout",box);
@@ -1465,7 +1472,9 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		if(!BoxReconnect)
 			{
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
+			ActiveDesactAcept=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
+			ActiveDesactCancel=ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",false,ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",false,ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("StackAnimationsConnection",false,ManejadorForms);
@@ -1497,8 +1506,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		else
 		{
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",true,ManejadorForms);
-			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",true,ManejadorForms);
-			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",ActiveDesactAcept,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",ActiveDesactCancel,ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",true,ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("StackAnimationsConnection",true,ManejadorForms);
 			BoxReconnect=false;

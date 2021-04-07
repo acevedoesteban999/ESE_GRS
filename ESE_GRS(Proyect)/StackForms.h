@@ -77,7 +77,8 @@ public:
 		{
 			if(sf->ExistForm(ElementsName,sf->forms[i]))
 			{
-				sf->forms[i]->ActivateDesactivate(ActviDesact);
+				//sf->forms[i]->ActivateDesactivate(ActviDesact);
+				sf->forms[i]->active=ActviDesact;
 				return;
 			}
 		}

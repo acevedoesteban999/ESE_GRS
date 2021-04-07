@@ -12,7 +12,6 @@
 #include "CRD.h"
 #include "DataProcessor.h"
 #include "TimeDuration.h"
-#include "IGSClass.h"
 #include "MeSSenger.h"
 #include "StackForms.h"
 #define PI 3.14159265
