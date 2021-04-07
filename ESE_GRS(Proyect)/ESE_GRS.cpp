@@ -1,7 +1,8 @@
 #include "ESE_GRS.h"
 
+////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
+														char*ESE_GRS_Version="1.1.3";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
-
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
 bool EsperandoReedireccionar=true;
@@ -20,6 +21,7 @@ bool BoxReconnect=false;
 bool ErrorConnect=false;
 bool ActiveDesactAcept=false;
 bool ActiveDesactCancel=false;
+bool ModoSonido=true;
 char byt;bool bytBool=false;
 char*toSaveCOM="COM2",*toSaveIp="127.0.0.1";
 unsigned toSaveSpeed=9600,toSavePort=55555;
@@ -93,8 +95,23 @@ void sonidos(unsigned sonido)
 }
 char*Frases(unsigned frase)
 {
-	if(frase==100)
-		return "v-1.1";
+	string s;
+	char*toReturn;
+	switch (frase)
+	{
+	case 100:
+		return ESE_GRS_Version;
+	case 84:
+		s="ESE_GRS version ";
+		s+=Frases(100);
+		toReturn=new char[s.length()];
+		toReturn[s.length()]=0;
+		for (unsigned i=0;  i < s.length(); i++)
+			toReturn[i]=s[i];
+		return toReturn;
+	case 86:
+		return "https://github.com/Esteban191900/ESE_GRS-Class/";
+	}
 	switch (idioma)
 	{
 	case ENGLISH:
@@ -351,15 +368,9 @@ char*Frases(unsigned frase)
 				
 				case 83:
 				return "About ESE_GRS";
-				
-				case 84:
-				return "ESE_GRS version 1.0";
-				
+								
 				case 85:
 				return "Github link:";
-				
-				case 86:
-				return "https://github.com/Esteban191900/ESE_GRS-Class/";
 				
 				case 87:
 				return "Copy Link";
@@ -375,11 +386,22 @@ char*Frases(unsigned frase)
 				
 				case 91:
 					return "Connection Reestablished";
+
 				case 92:
 					return "Loading Objects ";
+					
+				case 93:
+					return "Enable sound";
+
+				case 94:
+					return "Disable sound";
+
+				case 95:
+					return "Sound activated";
+
+				case 96:
+					return "Sound deactivated";
 				
-
-
 			default:
 				return "Not Find";
 		break;
@@ -641,14 +663,8 @@ char*Frases(unsigned frase)
 				case 83:
 				return "Sobre ESE_GRS";
 				
-				case 84:
-				return "ESE_GRS version 1.0";
-				
 				case 85:
 				return "Enlace del Github:";
-				
-				case 86:
-				return "https://github.com/Esteban191900/ESE_GRS-Class/";
 				
 				case 87:
 				return "Copiar Enlace";
@@ -657,7 +673,7 @@ char*Frases(unsigned frase)
 				return "Enlace Copiado";
 				
 				case 89:
-				return "Reconectadando con el servidor";
+				return "Reconectando con el servidor";
 				
 				case 90:
 				return "Desconectar";
@@ -669,7 +685,16 @@ char*Frases(unsigned frase)
 					return "Cargando Objetos ";
 
 				case 93:
-					return "";	
+					return "Habilitar sonido";
+
+				case 94:
+					return "Deshabilitar sonido";
+				
+				case 95:
+					return "Sonido Activado";
+
+				case 96:
+					return "Sonido Desactivado";
 				
 				default:
 				return "No Encontrado";	
@@ -850,6 +875,10 @@ void ESE_GRS::InitMenu(){
 		glutAddMenuEntry(Frases(41),4);//set angues
 		glutAddSubMenu(Frases(39),SubMenuVista);//Vista
 		glutAddSubMenu(Frases(40),subMenuToDraw);//To draw
+		if(ModoSonido)
+		   glutAddMenuEntry(Frases(94),-11);//desact modo mute
+		else
+			glutAddMenuEntry(Frases(93),-12);//activ modo mute
 		if(ModoLogger)
 		   glutAddMenuEntry(Frases(69),-8);//desact modo registro
 		else
@@ -862,6 +891,10 @@ void ESE_GRS::InitMenu(){
 	else
 	{
 		glutAddSubMenu(Frases(39),SubMenuVista);//Vista
+		if(ModoSonido)
+		   glutAddMenuEntry(Frases(94),-11);//desact modo mute
+		else
+			glutAddMenuEntry(Frases(93),-12);//activ modo mute
 		if(ModoLogger)
 		   glutAddMenuEntry(Frases(69),-8);//modo registro
 		else
@@ -869,9 +902,6 @@ void ESE_GRS::InitMenu(){
 		glutAddMenuEntry(Frases(43),1);//Detener
 		
 	}
-	
-	
-
 	glutAttachMenu(GLUT_RIGHT_BUTTON);//espaecifico con q tecla se activa el evento
 }
 void ESE_GRS::wheelAndRotate(){
@@ -1070,7 +1100,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 				Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")),Proyect1);
 			else
 				Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&Proyect1->coorNewPlano[0],&Proyect1->coorNewPlano[1],&Proyect1->coorNewPlano[2],Proyect1->NewPlanoType),Proyect1);
-			sonidos(8);
+			if(ModoSonido)sonidos(8);
 			interfaz=1;
 			ManejadorForms->ActivateRB("BoxInterfazPricipal","radioButonRemoveBoceto",ManejadorForms);
 			Proyect1->ResetNewPlano(Proyect1);
@@ -1081,7 +1111,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		 	Proyect1->Sub(Proyect1->bocetos[bocetoARemover]->name,Proyect1);
 			Proyect1->PlanoCheckeeado=Proyect1->contB;
 		    interfaz=1;
-			sonidos(6);
+			if(ModoSonido)sonidos(6);
 		break;
 
 		case 3:////////////////INIT CONNECTION///////////////
@@ -1131,11 +1161,11 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			else
 			{
 				messeng=new MeSSenger( Frases(47),position::CENTER_TOP,wigth,height,5,1,0,0,2);
-				sonidos(2);
+				if(ModoSonido)sonidos(2);
 			}
 			delete u;
 			interfaz=0;
-			sonidos(8);
+			if(ModoSonido)sonidos(8);
 			break;
 
 		default:
@@ -1365,6 +1395,13 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		interfaz=*Specialinterfaz;
 		if(!Boxf1)
 		{
+			if(BoxReconnect)
+			{
+				 Forms::Cancelar(box);
+			 	 return box;
+			}
+			if(BoxAbout)
+				ManejadorForms->Add(Interfaz(8),ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
 			ActiveDesactAcept=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
@@ -1422,6 +1459,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		interfaz=*Specialinterfaz;
 		if(!BoxAbout)
 		{
+			if(Boxf1)
+				ManejadorForms->Add(Interfaz(7),ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
 			ActiveDesactAcept=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
@@ -1471,6 +1510,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		interfaz=*Specialinterfaz;
 		if(!BoxReconnect)
 			{
+			if(Boxf1)
+				ManejadorForms->Add(Interfaz(7),ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
 			ActiveDesactAcept=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetActiveDesavt();
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
@@ -1604,7 +1645,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	   case 0:
 		   break;
 	   case Type::BOX:
-		   sonidos(9);
+		   if(ModoSonido)sonidos(9);
 		   if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)))
 		   {
 			   if(interfaz==3)//interfaz 3
@@ -1649,7 +1690,8 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					GlobalUnlock(h);
 					SetClipboardData(CF_TEXT,h);
 					CloseClipboard();
-					sonidos(7);
+					if(ModoSonido)sonidos(7);
+					if(ModoLogger)cout<<Frases(88)<<"->"<<Frases(86)<<endl;
 					messeng=new MeSSenger(Frases(88),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 			   }  
 		   }
@@ -1719,7 +1761,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						if(	ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetActiveDesact("RadioButtomCancelLast"))
 						{
 						Plano::CancelLastPoint(Proyect1->BocetoActual(Proyect1));
-						sonidos(6);
+						if(ModoSonido)sonidos(6);
 						if(!Proyect1->BocetoActual(Proyect1)->items->cont)
 							ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",false);
 						}
@@ -1791,7 +1833,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 												  
 			 /////////////////////////////////////////////////////////RADIOBUTTON//////////////////////////////////////////////////////////
 		     case Type::RADIOBUTTON:
-				   sonidos(9);
+				   if(ModoSonido)sonidos(9);
 			       if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)))
 				       {
 					   if(!MostrarAngules)
@@ -1824,22 +1866,30 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 		   break;
 		                                //////////////////////////////BUTTONS////////////////////
 		    case Type::BUTTONACEPTRB:
-				sonidos(9);
+				if(Boxf1)
+					ManejadorForms->Add(Interfaz(7),ManejadorForms);
+				if(BoxAbout)
+					ManejadorForms->Add(Interfaz(8),ManejadorForms);
+				if(ModoSonido)sonidos(9);
 				ManejadorForms->Add(Interfaz(0,INTERFZType::ACEPT),ManejadorForms);
 			break;
 
 			case Type::BUTTONCANCELRB:
-				sonidos(9);
+				if(Boxf1)
+					ManejadorForms->Add(Interfaz(7),ManejadorForms);
+				if(BoxAbout)
+					ManejadorForms->Add(Interfaz(8),ManejadorForms);
+				if(ModoSonido)sonidos(9);
 				ManejadorForms->Add(Interfaz(0,INTERFZType::CANCEL),ManejadorForms);
 			break;
 
 	        case Type::BUTTONCANCELSETANGULES:
-				sonidos(9);
+				if(ModoSonido)sonidos(9);
 			default_menu(3);
 		   break;
 
 	       case Type::BUTTONINITSETANGULES:
-			   sonidos(9);
+			   if(ModoSonido)sonidos(9);
 			   for(unsigned i=0;i<6;i++)
 			   {
 				   s=("textBoxsSetAngules");
@@ -1874,7 +1924,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   if(eRror)
 			   {
 				  messeng=new MeSSenger(Frases(48),position::CENTER_TOP,wigth,height,3,1,0,0,2);
-				  sonidos(6);
+				  if(ModoSonido)sonidos(6);
 			   }
 			   else
 			   {
@@ -1892,7 +1942,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 				   CalcularCoordenadas();
 				   CalcularCoordenadas();
 				   ShowAngules();
-				   sonidos(8);
+				   if(ModoSonido)sonidos(8);
 				}
 			 break;     
 	   }
@@ -2212,6 +2262,10 @@ void ESE_GRS::default_menu(int opcion){
 
 	case 0://inicializo botones para INIT CONNECTION
 		  default_menu(-5);
+		   if(Boxf1)
+					ManejadorForms->Add(Interfaz(7),ManejadorForms);
+		   if(BoxAbout)
+					ManejadorForms->Add(Interfaz(8),ManejadorForms);
 		  ManejadorForms->Add(Interfaz(3),ManejadorForms);
 		  default_menu(-6); 
 	break;
@@ -2219,6 +2273,8 @@ void ESE_GRS::default_menu(int opcion){
 
 	case 1://inicializo botonos para el STOP CONNECTION
 		    ManejadorForms->Add(Interfaz(4),ManejadorForms);
+			 if(Boxf1)
+					ManejadorForms->Add(Interfaz(7),ManejadorForms);
 			default_menu(-6);
 	break;
 
@@ -2233,8 +2289,9 @@ void ESE_GRS::default_menu(int opcion){
 			p=new TcP_ip_Client();
 		if(!p->inicializa( ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxChar"),atol(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxUnsigned"))))
 		  {
-			  sonidos(1);
+			  if(ModoSonido)sonidos(1);
 			  string f=string(p->ErrorStr());
+			  if(ModoLogger)cout<<f.c_str()<<endl;
 			   char*msg=new char[f.length()+1];
 			   msg[f.length()]=0;
 			   for(unsigned i=0;i<f.length();i++)
@@ -2280,7 +2337,11 @@ void ESE_GRS::default_menu(int opcion){
 				   toSavePort=p->getunsigned();
 			   }
 			   ESE_GRS::InitMenu();
-			   sonidos(5);
+			   if(Boxf1)
+					ManejadorForms->Add(Interfaz(7),ManejadorForms);
+			   if(BoxAbout)
+					ManejadorForms->Add(Interfaz(8),ManejadorForms);
+			   if(ModoSonido)sonidos(5);
 			  }
 	break;
 
@@ -2305,7 +2366,9 @@ void ESE_GRS::default_menu(int opcion){
 			ErrorConnect=false;
 			ESE_GRS::InitMenu();
 			default_menu(-5);
-			sonidos(10);
+			 if(Boxf1)
+					ManejadorForms->Add(Interfaz(7),ManejadorForms);
+			if(ModoSonido)sonidos(10);
 			if(ModoLogger)cout<<endl<<Frases(79)<<endl;
 	break;
 	case -5:    //Muestro Menu
@@ -2338,13 +2401,13 @@ void ESE_GRS::default_menu(int opcion){
 		break;
 	case -8: //desact modo logger
 			ModoLogger=false;
-			sonidos(7);
+			if(ModoSonido)sonidos(7);
 			messeng=new MeSSenger(Frases(80),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
 			cout<<Frases(80)<<endl;
 			InitMenu();
 		break;
 	case -9:  //activ modo logger
-			sonidos(7);
+			if(ModoSonido)sonidos(7);
 			ModoLogger=true;
 			messeng=new MeSSenger(Frases(81),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
 			cout<<Frases(81)<<endl;
@@ -2352,6 +2415,19 @@ void ESE_GRS::default_menu(int opcion){
 		break;
 	case -10:  //mostrar ESE_GRS About
 			ManejadorForms->Add(Interfaz(8),ManejadorForms);
+		break;
+	case -11: //descat modo mute
+		ModoSonido=false;
+		messeng=new MeSSenger(Frases(96),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
+		if(ModoLogger)cout<<Frases(96)<<endl;
+		InitMenu();
+		break;
+	case -12: //activ modo mut
+		ModoSonido=true;
+		if(ModoSonido)sonidos(7);
+		messeng=new MeSSenger(Frases(95),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
+		if(ModoLogger)cout<<Frases(95)<<endl;
+		InitMenu();
 		break;
 	}
 	
@@ -2434,7 +2510,7 @@ void ESE_GRS::MenuIdioma(int opcion)
 		break;
 	}
 	messeng=new MeSSenger(Frases(62),position::CENTER_TOP,wigth,height,3,1,1,0,2);
-	sonidos(7);
+	if(ModoSonido)sonidos(7);
 	if(ModoLogger)cout<<Frases(66)<<endl;
 	glutPostRedisplay();
 
@@ -2456,7 +2532,7 @@ void ESE_GRS::recivirDatosCOM(){
 			{
 				ErrorConnect=false;
 				ManejadorForms->Add(Interfaz(9),ManejadorForms);
-				sonidos(5);
+				if(ModoSonido)sonidos(5);
 				messeng=new MeSSenger(Frases(91),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 				if(ModoLogger)cout<<Frases(91)<<endl;
 			}  
@@ -2467,11 +2543,12 @@ void ESE_GRS::recivirDatosCOM(){
 			  return;
 		  if(p->Error())	 //Si algo dio error(Actualmente solo para conexiones TCP_IP)
 		  {
-				if(ModoLogger)cout<<p->ErrorStr()<<endl;
+				if(ModoLogger)cout<<p->ErrorStr()<<endl<<Frases(89);
+				messeng=new MeSSenger(p->ErrorStr(),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
 				ErrorConnect=true;
 				p->CloseConnection();
 				ManejadorForms->Add(Interfaz(9),ManejadorForms);
-				sonidos(1);
+				if(ModoSonido)sonidos(1);
 				return;
 		 }
 		   if(c!=NULL)//si no esta vacio  
@@ -2586,7 +2663,7 @@ void ESE_GRS::recivirDatosCOM(){
 				       {
 				          ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",true); 
 						  Proyect1->AddPoint(*cooRd,Proyect1);
-						  sonidos(4);
+						  if(ModoSonido)sonidos(4);
 					   }
 			        }//end if(pintar)		
 			     }//end else
@@ -2791,12 +2868,12 @@ void ESE_GRS::ThreadCargObject()
 	ManejadorObject->Salir=true;
 	if(ManejadorObject->errorCarga)
 	{
-		sonidos(10);
+		if(ModoSonido)sonidos(10);
 		messeng=new MeSSenger(Frases(82),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,10,1,0,0,2);
 	}
 	else
 	{
-		sonidos(2);
+		if(ModoSonido)sonidos(2);
 		system("cls");
 	}
 	m.unlock();

@@ -41,13 +41,13 @@ public:
 			 int n=recv(t==ConnectionType::TCP_IP_SERVER?cliente:server,buffer,sizeof(buffer),0);
 			 if(n==0)
 			 {
-				 errorstr="Server Cerrado, conexion Finalizada";
+				 errorstr="Error0 ";
 				 error=true;
 				 return NULL;
 			 }
 			 if(n==-1)
 			 {
-					errorstr="Conexion Perdida";
+					errorstr="Error1 ";
 					error=true;
 					return NULL;
 			 }
@@ -59,13 +59,13 @@ public:
 		int n=send(t==ConnectionType::TCP_IP_SERVER?cliente:server,buffer,sizeof(buffer)+(strlen(buffer)>4?strlen(buffer)-4:0),0);
 		 if(n==0)
 		 {
-		  errorstr="Conexion Finalizada";
+		  errorstr="Error0 ";
 		  error=true;
 		  return;
 		 }
 		  if(n==-1)
 		 {
-			errorstr="Conexion Perdida";
+			errorstr="Error1 ";
 		    error=true;
 			return;
 		 }
@@ -198,16 +198,16 @@ public:
 		if((server=socket(AF_INET,SOCK_STREAM,0))<0)
 		{
 			this->error=true;
-			this->errorstr="Error 1";
+			this->errorstr="Error0 ";
 			CerrarSocket();
 			return false;
 		}
-		serveraddr.sin_addr.s_addr=inet_addr((const char*)Ip);//("192.168.43.93");
+		serveraddr.sin_addr.s_addr=inet_addr((const char*)Ip);
 		serveraddr.sin_family=AF_INET;
 		serveraddr.sin_port=htons((u_short)Port);
 		if(connect(server,(SOCKADDR*)&serveraddr,sizeof(serveraddr))<0)
 		 {
-			string*s=new string("Error 2:"+string(Ip)+"::"+to_string(Port));
+			string*s=new string("Error1 :"+string(Ip)+":"+to_string(Port));
 			this->error=true;
 			this->errorstr=(char*)s->c_str();
 			CerrarSocket();
@@ -276,7 +276,7 @@ public:
 	handler=CreateFile(PuertoCom,GENERIC_READ | GENERIC_WRITE,NULL,NULL,OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,NULL);
 	if (handler==INVALID_HANDLE_VALUE)
 	{
-		string*s=new string("Error:"+string(PuertoCom)+":"+to_string(Velocidad));
+		string*s=new string("Error0 :"+string(PuertoCom)+":"+to_string(Velocidad));
 		error=true;
 		errorstr=(char*)s->c_str();
 		return false;
@@ -284,7 +284,7 @@ public:
 	DCB ParametrosTxSerie;
 	if (!GetCommState(handler,&ParametrosTxSerie))
 	{
-		string*s=new string("Error 1:"+string(PuertoCom)+":"+to_string(Velocidad));
+		string*s=new string("Error1 :"+string(PuertoCom)+":"+to_string(Velocidad));
 		error=true;
 		errorstr=(char*)s->c_str();
 		return false;
@@ -296,7 +296,7 @@ public:
 	ParametrosTxSerie.Parity=(BYTE)PARITY_NONE;
 	if(!SetCommState(handler,&ParametrosTxSerie))
 	{
-		string*s=new string("Error:"+string(PuertoCom)+":"+to_string(Velocidad));
+		string*s=new string("Error2 :"+string(PuertoCom)+":"+to_string(Velocidad));
 		error=true;
 		errorstr=(char*)s->c_str();
 		return false;
@@ -323,7 +323,7 @@ public:
 		if(ClearCommError(handler,&leidos,&cs)==0)
 		{
 			this->error=true;
-			this->errorstr="Conexion perdida";
+			this->errorstr="Error0 ";
 			return NULL;
 		}
 		leidos=0;

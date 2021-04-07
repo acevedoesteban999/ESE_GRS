@@ -27,7 +27,6 @@ using namespace std;
 enum Language
 {
 	ENGLISH	,SPANISH
-
 };
  class ESE_GRS
 

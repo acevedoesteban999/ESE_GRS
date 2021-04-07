@@ -16,7 +16,7 @@ public:
 	bool SplineAsignar;
 	Items(){
 	cont=0;
-	cant=10;
+	cant=100;
 	PoIntS=new CRD[cant];
 	t=ItemsType::ITEMS;
 	SplineAsignar=true;
@@ -93,17 +93,19 @@ public:
 	void Add(CRD*point)
 	{
 	if(cont>=cant)
-	   {
-	      CRD*newPoints=new CRD[cant+10];
-	      cant+=10;
+	{
+	      CRD*newPoints=new CRD[cant+100];
+	      cant+=100;
 	      for(unsigned i=0;i<cont;i++)
 		     newPoints[i]=PoIntS[i];
 	      PoIntS=newPoints;
-	   }
-	   PoIntS[cont++]=*point;
-	   if(!this->SplineAsignar)
-		   this->SplineAsignar=true;
-	};
+	}
+	if(PoIntS[cont-1]==*point)
+	   return;
+   PoIntS[cont++]=*point;
+   if(!this->SplineAsignar)
+	   this->SplineAsignar=true;
+};
 	void Sub()
 	{
 		if(cont>0)

@@ -14,9 +14,9 @@ public:
 	~StackAnimation(){};
 	void Draw()
 	{
-
-		for(unsigned i=0;i<cont;i++)
-			animations[i]->Draw();
+		if(active&&!NoDraw)
+			for(unsigned i=0;i<cont;i++)
+				animations[i]->Draw();
 	}
 	void Sub(char*AnimationName)
 	{
