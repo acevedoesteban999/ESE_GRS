@@ -2,7 +2,12 @@
 class CRD
 {
 public:
-	CRD(void){};
+	double x,y,z;
+	CRD(void){
+	this->x=0;
+	this->y=0;
+	this->z=0;
+	};
 	CRD(double x,double y,double z){this->x=x;this->y=y;this->z=z;}
 	CRD(double*coords){
 	this->x=coords[0];
@@ -11,7 +16,6 @@ public:
 	
 	}
 	~CRD(){};
-	double x,y,z;
 	static void set(float x,float y,float z,CRD*crd){crd->x=x;crd->y=y;crd->z=z;}
 	CRD operator +(const CRD c)
 	{

@@ -140,7 +140,7 @@ public:
 		this->reshapeBool=reshape;
 	};
 	//StackAnimation
-	virtual void STANSetAnimation(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight,float x,float R,float G,float B,float speed){};
+	virtual void STANSetAnimation(char*name,CRD coord,float wigth,float TotalWigth,float TotalHeight,float x,float R,float G,float B,float speed){};
 	//RadBut
 	virtual bool RBGetCheket(){return false;};
 	//RadButGroup

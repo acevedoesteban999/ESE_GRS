@@ -71,6 +71,17 @@ public:
 				   
 			}
 	}
+	static void ActvDesactOnlyForm(char*ElementsName,bool ActviDesact,StackForms*sf)
+	{
+		for(unsigned i=0;i<sf->cont;i++)
+		{
+			if(sf->ExistForm(ElementsName,sf->forms[i]))
+			{
+				sf->forms[i]->ActivateDesactivate(ActviDesact);
+				return;
+			}
+		}
+	}
 	static void DesactivateForm(char*name,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
 			if(sf->ExistForm(name,sf->forms[i]))

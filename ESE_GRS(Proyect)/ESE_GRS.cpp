@@ -1,6 +1,4 @@
 #include "ESE_GRS.h"
-#include <mmsystem.h>
-
 
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 
@@ -17,6 +15,9 @@ bool cursor=false;
 bool deFult=true;
 bool ModoLogger=false;
 bool Boxf1=false;
+bool BoxAbout=false;
+bool BoxReconnect=false;
+bool ErrorConnect=false;
 char byt;bool bytBool=false;
 char*toSaveCOM="COM2",*toSaveIp="127.0.0.1";
 unsigned toSaveSpeed=9600,toSavePort=55555;
@@ -97,562 +98,577 @@ char*Frases(unsigned frase)
 			{
 			   case 0:
 				return "Edit Sketchs";
-				break;
+				
 		       case 1:
 				return "Save Sketchs";
-				break;
+				
 			   case 2:
 				return "Sketchs:" ;
-				break;
+				
 			   case 3:
 				return "Total View" ;
-				break;
+				
 				case 4:
 				return "Add" ;
-				break;
+				
 				case 5:
 				return "Sub" ;
-				break;
+				
 				case 6:
 				return "English" ;
-				break;
+				
 				case 7:
 				return "Points" ;
-				break;
+				
 				case 8:
 				return "Lines" ;
-				break;
+				
 				case 9:
 				return "StripLine" ;
-				break;
+				
 				case 10:
 				return "Splines" ;
-				break;
+				
 				case 11:
 				return "Cancel" ;
-				break;
+				
 				case 12:
 				return "Show" ;
-				break;
+				
 				case 13:
 				return "To Create: " ;
-				break;
+				
 				case 14:
 				return "New Plane" ;
-				break;
+				
 				case 15:
 				return "Free Plane" ;
-				break;
+				
 				case 16:
 				return "Plane XY" ;
-				break;
+				
 				case 17:
 				return "Plane XZ" ;
-				break;
+				
 				case 18:
 				return "Plane YZ" ;
-				break;
+				
 				case 19:
 				return "Default" ;
-				break;
+				
 				case 20:
 				return "End Point" ;
-				break;
+				
 				case 21:
 				return "Sketch_" ;
-				break;
+				
 				case 22:
 				return "Fsketch_" ;
-				break;
+				
 				case 23:
 				return "Points:" ;
-				break;
+				
 				case 24:
 				return "To Remove:  " ;
-				break;
+				
 				case 25:
 				return "TCP_IP" ;
-				break;
+				
 				case 26:
 				return "Serial Port" ;
-				break;
+				
 				case 27:
 				return "Finish?" ;
-				break;
+				
 				case 28:
 				return "To Save:" ;
-				break;
+				
 				case 29:
 				return "All Sketchs" ;
-				break;
+				
 				case 30:
 				return "Panoramic" ;
-				break;
+				
 				case 31:
 				return "Frontal(XY)" ;
-				break;
+				
 				case 32:
 				return "Posterior(-XY)" ;
-				break;
+				
 				case 33:
 				return "Rigth(ZY)" ;
-				break;
+				
 				case 34:
 				return "Left(-ZY)" ;
-				break;
+				
 				case 35:
 				return "Top(X-Z)";
-				break;
+				
 				case 36:
 				return "Bottom (XZ)";
-				break;
+				
 				case 37:
 				return "Join Pieces";
-				break;
+				
 				case 38:
 				return "Star Connection";
-				break;
+				
 				case 39:
 				return "View";
-				break;
+				
 				case 40:
 				return "Model to Draw";
-				break;
+				
 				case 41:
 				return "Set Angles";
-				break;
+				
 				case 42:
 				return "Language";
-				break;
+				
 				case 43:
 				return "Stop Connection";
-				break;
+				
 				case 44:
 				return "Error, name in use";
-				break;				 
+								 
 				case 45:
 				return "Finish Connection";  
-				break;
+				
 				case 46:
 				return "Saved at .../ESE_GRS-XLS/";
-				break;
+				
 				case 47:
 				return "Error trying to save files";
-				break;
+				
 				case 48:
 				return "Error ,wrong inmput";
-				break;
+				
 				case 49:
 				return "Has been loaded successfully";
-				break;
+				
 				case 50:
 				return "Error ;Connection already established";
-				break;
+				
 				case 51:
 				return "Correct Redirection";
-				break;
+				
 				case 52:
 				return "Details";
-				break;
+				
 				case 53:
 				return "->Check";
-				break;
+				
 				case 54:
 				return "->Error:Advance verification";
-				break;
+				
 				case 55:
 				return "->Error:Delayed verification";
-				break;
+				
 				case 56:
 				return "Code:";
-				break;
+				
 				case 57:
 				return "->Redirection";
-				break;
+				
 				case 58:
 				return "->Next Focus";
-				break;
+				
 				case 59:
 				return "->Focus Click";
-				break;
+				
 				case 60:
 				return "->Button Acept";
 
 				case 61:
 				return "->Button Cancel";
-				break;
+				
 				case 62:
 				return "Some language changes will not be applied until reboot"; 
-				break;
+				
 				case 63:
 				return ":Error;there is no functionality programmed for that input";
-				break;
+				
 				case 64:
 				return "!!!!!!!!!Waiting for Redirection!!!!!!!!!";
-				break;
+				
 				case 65:
 				return "Waiting for Redirection";
-				break;
+				
 				case 66:
 				return "Language changed to English";
-				break;
+				
 				case 67:
 				return "Spanish";
-				break;
+				
 				case 68:
 				return "Enable record mode";
-				break;
+				
 				case 69:
 				return "Disable record mode";
-				break;
+				
 				case 70:
 				return "BSpline";
-				break;
+				
 				case 71:
 				return "F1-Help";
-				break;
+				
 				case 72:
 				return "F2-Show / Hide Pices(.obj)";
-				break;
+				
 				case 73:
 				return "F3-Rotate to Plane (Only for drawing interface)";
-				break;
+				
 				case 74:
 				return "F4-Panoramic view with articulation angles at 0 (No connection established)";
-				break;
+				
 				case 75:
 				return "F5-Panoramic view with Redirection (No connection established)";
-				break;
+				
 				case 76:
 				return "F6-Go to the end point of the arm";
-				break;
+				
 				case 77:
 				return "F7-Follow to end point of arm";
-				break;
+				
 				case 78:
 				return "F8-Go to a 'Average' between all the points of a plane (Only for drawing interface)";
-				break;
+				
 				case 79:
 				return "Ends Connection";
-				break;
+				
 				case 80:
 				return "Record Mode Off";
-				break;
+				
 				case 81:
 				return "Record Mode On";
-				break;
+				
 				case 82:
 				return "Be careful, there was an error loading the files";
-				break;
+				
 				case 83:
-				return "";
-				break;
+				return "About ESE_GRS";
+				
 				case 84:
-				return "";
-				break;
+				return "ESE_GRS version 1.0";
+				
 				case 85:
-				return "";
-				break;
+				return "Github link:";
+				
 				case 86:
-				return "";
-				break;
+				return "https://github.com/Esteban191900/ESE_GRS-Class/";
+				
 				case 87:
-				return "";
-				break;
+				return "Copy Link";
+				
 				case 88:
-				return "";
-				break;
+				return "Copied Link";
+				
 				case 89:
-				return "";
-				break;
+				return "Reconnecting to the server";
+				
 				case 90:
-				return "";
-				break;
+				return "Disconnect";
+				
+				case 91:
+					return "Connection Reestablished";
+				case 92:
+					return "Loading Objects ";
+				
 
 
 			default:
 				return "Not Find";
-				break;
-			}
 		break;
+				
+			}
+		
 	case SPANISH:
 			switch (frase)
 			{
 			   case 0:
 				return "Editar Bocetos";
-				break;
+				
 		       case 1:
 				return "Salvar Bocetos";
-				break;
+				
 			   case 2:
 				return "Bocetos:" ;
-				break;
+				
 			   case 3:
 				return "Vista Total" ;
-				break;
+				
 				case 4:
 				return "Agregar" ;
-				break;
+				
 				case 5:
 				return "Quitar" ;
-				break;
+				
 				case 6:
 				return "English" ;
-				break;
+				
 				case 7:
 				return "Puntos" ;
-				break;
+				
 				case 8:
 				return "Lineas" ;
-				break;
+				
 				case 9:
 				return "StripLine" ;
-				break;
+				
 				case 10:
 				return "Splines" ;
-				break;
+				
 				case 11:
 				return "Cancelar" ;
-				break;
+				
 				case 12:
 				return "Mostrar" ;
-				break;
+				
 				case 13:
 				return "A Crear: " ;
-				break;
+				
 				case 14:
 				return "Plano Nuevo" ;
-				break;
+				
 				case 15:
 				return "Plano Libre" ;
-				break;
+				
 				case 16:
 				return "Plano XY" ;
-				break;
+				
 				case 17:
 				return "Plano XZ" ;
-				break;
+				
 				case 18:
 				return "Plano YZ" ;
-				break;
+				
 				case 19:
 				return "Por defecto" ;
-				break;
+				
 				case 20:
 				return "Punto Fianal" ;
-				break;
+				
 				case 21:
 				return "Boceto_" ;
-				break;
+				
 				case 22:
 				return "Fboceto_" ;
-				break;
+				
 				case 23:
 				return "Puntos:" ;
-				break;
+				
 				case 24:
 				return "A Remover:  " ;
-				break;
+				
 				case 25:
 				return "TCP_IP" ;
-				break;
+				
 				case 26:
 				return "Puerto Serie" ;
-				break;
+				
 				case 27:
 				return "Terminar?" ;
-				break;
+				
 				case 28:
 				return "A Salvar:" ;
-				break;
+				
 				case 29:
 				return "Todos los Bocetos" ;
-				break;
+				
 				case 30:
 				return "Panoramica" ;
-				break;
+				
 				case 31:
 				return "Frontal(XY)" ;
-				break;
+				
 				case 32:
 				return "Posterior(-XY)" ;
-				break;
+				
 				case 33:
 				return "Derecha(ZY)" ;
-				break;
+				
 				case 34:
 				return "Izquierda(-ZY)" ;
-				break;
+				
 				case 35:
 				return "Superior(X-Z)";
-				break;
+				
 				case 36:
 				return "Inferior(XZ)";
-				break;
+				
 				case 37:
 				return "Unir Piezas";
-				break;
+				
 				case 38:
 				return "Inicar Conexion";
-				break;
+				
 				case 39:
 				return "Vista";
-				break;
+				
 				case 40:
 				return "Modelo a Pintar";
-				break;
+				
 				case 41:
 				return "Establecer Angulos";
-				break;
+				
 				case 42:
 				return "Idioma";
-				break;
+				
 				case 43:
 				return "Detener Conexion";
-				break;
+				
 				case 44:
 				return "Error; nombre en uso";
-				break;
+				
 				case 45:
 				return "Conexion finalizada";  
-				break;
+				
 				case 46:
 				return "Salvado en  .../ESE_GRS-XLS/";
-				break;
+				
 				case 47:
 				return "Error tratando de salvar los archivos";
-				break;
+				
 				case 48:
 				return "Error; Entrada Incorrecta";
-				break;
+				
 				case 49:
 				return "Se ha cargado correctamente";
-				break;
+				
 				case 50:
 				return "Error; Conexion ya Establecida";
-				break;
+				
 				case 51:
 				return "Redireccionado correctamente";
-				break;
+				
 				case 52:
 				return "Detalles";
-				break;
+				
 				case 53:
 				return "->Verificacion";
-				break;
+				
 				case 54:
 				return "->Error:Verificacion Adelantada";
-				break;
+				
 				case 55:
 				return "->Error:Verificacion Atrasada";
-				break;
+				
 				case 56:
 				return "Codigo:";
-				break;
+				
 				case 57:
 				return "->Redireccionamiento";
-				break;
+				
 				case 58:
 				return "->Siguiente Focus";
-				break;
+				
 				case 59:
 				return "->Focus Click";
-				break;
+				
 				case 60:
 				return "->Boton Aceptar";
+
 				case 61:
 				return "->Boton Cancelar";
-				break;
+				
 				case 62:
 				return "Algunos cambios de idoma no se aplicaran hasta el reinicio";
-				break;
+				
 				case 63:
 				return ":Error;No hay Funcionaidad para dicha Entrada";
-				break;
+				
 				case 64:
 				return "!!!!!!!!!Esperando Redireccionar!!!!!!!!!";
-				break;
+				
 				case 65:
 				return "Esperando Redireccionar";
-				break;
+				
 				case 66:
 				return "Idioma cambiado a Spanish";
-				break;
+				
 				case 67:
 				return "Spanish";
-				break;
+				
 				case 68:
 				return "Habilitar Modo Registro";
-				break;
+				
 				case 69:
 				return "Deshabilitar Modo Registro";
-				break;
+				
 				case 70:
 				return "BSpline";
-				break;
+				
 				case 71:
 				return "F1-Ayuda";
-				break;
+				
 				case 72:
 				return "F2-Mostrar / Ocultar Piezas (.obj)";
-				break;
+				
 				case 73:
 				return "F3-Rotar al plano (Solo para interfaz de dibujo)";
-				break;
+				
 				case 74:
 				return "F4-Vista panoramica con angulos de articulacion en 0 (Sin conexion establecida)";
-				break;
+				
 				case 75:
 				return "F5-Vista panoramica con Redireccionamiento (Sin conexion establecida)";
-				break;
+				
 				case 76:
 				return "F6-Ir al punto final del brazo";
-				break;
+				
 				case 77:
 				return "F7-Seguir al punto final del brazo";
-				break;
+				
 				case 78:
 				return "F8-Ir a una 'Media' entre todos los punto de un plano (Solo para interfaz de dibujo)";
-				break;
+				
 				case 79:
 				return "Conexion Finalizada";
-				break;
+				
 				case 80:
 				return "Modo Registro Desactivado";
-				break;
+				
 				case 81:
 				return "Modo Registro Activado";
-				break;
+				
 				case 82:
 				return "Cuidado, se ha producido un error al cargar los ficheros";
-				break;
+				
 				case 83:
-				return "";
-				break;
+				return "Sobre ESE_GRS";
+				
 				case 84:
-				return "";
-				break;
+				return "ESE_GRS version 1.0";
+				
 				case 85:
-				return "";
-				break;
+				return "Enlace del Github:";
+				
 				case 86:
-				return "";
-				break;
+				return "https://github.com/Esteban191900/ESE_GRS-Class/";
+				
 				case 87:
-				return "";
-				break;
+				return "Copiar Enlace";
+				
 				case 88:
-				return "";
-				break;
+				return "Enlace Copiado";
+				
 				case 89:
-				return "";
-				break;
+				return "Reconectadando con el servidor";
+				
 				case 90:
-				return "";
-				break;
+				return "Desconectar";
+				
+				case 91:
+					return "Conexion Reestablecida";
+
+				case 92:
+					return "Cargando Objetos ";
+
+				case 93:
+					return "";	
+				
 				default:
-				return "No Encontrado";
-				break;
+				return "No Encontrado";	
 
 			}
 		break;
@@ -666,15 +682,21 @@ void DestruirVariablesGlobales()
 	if(recibir_serie||!ManejadorObject->Salir)
 	{
 		recibir_serie=false;
-		p->CloseConnection();
 		ManejadorObject->Salir=true;
-		t1->join();   
+		if(p->GetType()==ConnectionType::SERIAL_PORT)
+		{
+			t1->join();
+			p->CloseConnection();
+		}
+		else
+		{
+			 p->CloseConnection();
+			 t1->join();
+		}		 
 	}
 	delete ManejadorForms;
 	delete messeng;
 	delete Proyect1;
-	if(p->EstaConectado())
-		p->CloseConnection();	
 	delete p;
 	delete ManejadorObject;
 	delete cooRd;
@@ -715,6 +737,9 @@ ESE_GRS::ESE_GRS(){
 	//InitMenu();
 	t1=new thread(ThreadCargObject);
 	ManejadorForms->Add(new Label("labelESE_GRS","ESE_GRS",*(new CRD(0,0,0)),1,(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelVersion","v-1.0",*(new CRD(0,0,0)),1,(GLfloat)0.6,(GLfloat)0.6,(GLfloat)0.6,wigth,height),ManejadorForms);
+	
+
 	ManejadorForms->Add(new RadioButton("radioButtonMostrarAngules",*new CRD(0,0,0),Frases(52),wigth,height,true),ManejadorForms);
 	ManejadorForms->SetlabelColor("radioButtonMostrarAngules",(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,ManejadorForms);
 	MostrarAngules=true;
@@ -730,11 +755,11 @@ ESE_GRS::ESE_GRS(){
     ManejadorForms->Add(Interfaz(0),ManejadorForms);
 
 	StackAnimation*sa=new StackAnimation("StackAnimation1");
-	sa->STANSetAnimation("InitAnimation1",CRD(0,100,0),150,100,0,0,-50,0,0,0,1);
-	sa->STANSetAnimation("InitAnimation2",CRD(0,100,0),150,100,0,0,-25,1,0,0,1);
-	sa->STANSetAnimation("InitAnimation3",CRD(0,100,0),150,100,0,0,0,0,1,0,1);
-	sa->STANSetAnimation("InitAnimation4",CRD(0,100,0),150,100,0,0,25,0,0,1,1);
-	sa->STANSetAnimation("InitAnimation5",CRD(0,100,0),150,100,0,0,50,1,1,1,1);
+	sa->STANSetAnimation("InitAnimation1",CRD(0,100,0),150,0,0,-50,0,0,0,1);
+	sa->STANSetAnimation("InitAnimation2",CRD(0,100,0),150,0,0,-25,1,0,0,1);
+	sa->STANSetAnimation("InitAnimation3",CRD(0,100,0),150,0,0,0,0,1,0,1);
+	sa->STANSetAnimation("InitAnimation4",CRD(0,100,0),150,0,0,25,0,0,1,1);
+	sa->STANSetAnimation("InitAnimation5",CRD(0,100,0),150,0,0,50,1,1,1,1);
 	ManejadorForms->Add(sa,ManejadorForms);
 }
 ESE_GRS::~ESE_GRS(){
@@ -770,7 +795,7 @@ bool ESE_GRS::IniciarCargObjetos(){
 	
 	if(!CargObjct)
 	{
-		string g=string("Cargando Objetos ")+to_string(ManejadorObject->contLoaderObject)+string("/13 (")+to_string(ManejadorObject->contLoaderObject*100/13)+string("%)");
+		string g=string(Frases(92))+to_string(ManejadorObject->contLoaderObject)+string("/13 (")+to_string(ManejadorObject->contLoaderObject*100/13)+string("%)");
 		ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->NewTotalProp(0,0);
 		ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->Draw();
 		text("ESE_GRS",-20,150,0,(GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9,true,true);
@@ -819,14 +844,17 @@ void ESE_GRS::InitMenu(){
 	if(!recibir_serie)
 	{
 		glutAddMenuEntry(Frases(38),0);//iniicar conexion
+		glutAddMenuEntry(Frases(41),4);//set angues
 		glutAddSubMenu(Frases(39),SubMenuVista);//Vista
 		glutAddSubMenu(Frases(40),subMenuToDraw);//To draw
 		if(ModoLogger)
-		   glutAddMenuEntry(Frases(69),-8);//modo registro
+		   glutAddMenuEntry(Frases(69),-8);//desact modo registro
 		else
-			glutAddMenuEntry(Frases(68),-9);//modo registro
-		glutAddSubMenu(Frases(42),subMenuIdioma);//idioma								 
-		glutAddMenuEntry(Frases(41),4);//set angues
+			glutAddMenuEntry(Frases(68),-9);//activ modo registro
+		glutAddSubMenu(Frases(42),subMenuIdioma);//idioma	
+		glutAddMenuEntry(Frases(83),-10);
+
+		
 	}
 	else
 	{
@@ -994,9 +1022,9 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 	Proyect1->Pintar_NoPintar_LineaSuspensiva(false,Proyect1);
 	bool desactivaAcept=false,desactiaCancel=false;
 	string s;
-	unsigned*ifIntefaz7;
-	if(interfzAponer==7)
-		ifIntefaz7=new unsigned(interfaz);
+	unsigned*Specialinterfaz;
+	if(interfzAponer==7||interfzAponer==8||interfzAponer==9)
+		Specialinterfaz=new unsigned(interfaz);
 	switch(t)
 	{
 	case INTERFZType::ACEPT:////////////////////////////////ACEPT//////////////////////////////////
@@ -1014,30 +1042,6 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			{
 				Proyect1->contNPl=0;
 				ManejadorForms->Add(Interfaz(-1),ManejadorForms);
-				break;
-			}
-			else if(bocetoACrear==1)
-			{
-				Err=false;
-				for(unsigned i=0;i<Proyect1->contB;i++)
-				{
-					if(!strcmp(Proyect1->bocetos[i]->name,ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")))
-					{
-						messeng=new MeSSenger(Frases(44),CENTER_TOP,wigth,height,3,1,0,0,2);
-						ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetFocusColorTimer("textBoxNewBoceto");
-						box->Cancelar(box);
-						Err=true;
-						break;
-					}
-				}
-				if(Err)
-					break;
-				Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")),Proyect1);
-				interfaz=1;
-				sonidos(3);
-				ManejadorForms->ActivateRB("BoxInterfazPricipal","radioButonRemoveBoceto",ManejadorForms);
-				Proyect1->ResetNewPlano(Proyect1);
-				Proyect1->PlanoCheckeeado=Proyect1->contB-1;
 				break;
 			}
 			
@@ -1059,8 +1063,11 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			if(Err)
 				break;
 
-			Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&Proyect1->coorNewPlano[0],&Proyect1->coorNewPlano[1],&Proyect1->coorNewPlano[2],Proyect1->NewPlanoType),Proyect1);
-			sonidos(3);
+			if(bocetoACrear==1)
+				Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")),Proyect1);
+			else
+				Proyect1->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&Proyect1->coorNewPlano[0],&Proyect1->coorNewPlano[1],&Proyect1->coorNewPlano[2],Proyect1->NewPlanoType),Proyect1);
+			sonidos(8);
 			interfaz=1;
 			ManejadorForms->ActivateRB("BoxInterfazPricipal","radioButonRemoveBoceto",ManejadorForms);
 			Proyect1->ResetNewPlano(Proyect1);
@@ -1086,6 +1093,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		break;
 
 		case 4:////////////////STOP CONNECTION///////////////
+			if(BoxReconnect)
+				 ManejadorForms->Add(Interfaz(9),ManejadorForms);
 			default_menu(-2);
 		    box->SetName("BoxInterfazDetenerConnection",box);
 		    box->Destruir(box);
@@ -1350,9 +1359,13 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		}
 		break; 
 	case 7:	  //F1
-		interfaz=*ifIntefaz7;
+		interfaz=*Specialinterfaz;
 		if(!Boxf1)
 		{
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",false,ManejadorForms);
 			Boxf1=true;
 			box=new Box("BoxHelp",CRD(0,0,0),wigth,height);
 			box->Wigth=100;
@@ -1390,12 +1403,110 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		}
 		else
 		{
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",true,ManejadorForms);
 			Boxf1=false;
 			Forms::SetName("BoxHelp",box);
 			Forms::Destruir(box);
 			return box;
 		}
-		//break;
+		//break; no break por returns
+	case 8:	//About
+		interfaz=*Specialinterfaz;
+		if(!BoxAbout)
+		{
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",false,ManejadorForms);
+			BoxAbout=true;
+			box=new Box("BoxAbout",CRD(0,0,0),wigth,height);
+			box->Wigth=100;
+			f=new Label("Label1",Frases(84),CRD(0,0,0),1,0,0,0,wigth,height);
+			box->AddForm(f,box);
+			f=new Label("Label2",Frases(85),CRD(0,0,0),1,0,0,0,wigth,height);
+			box->AddForm(f,box);
+			f=new Label("Label3",Frases(86),CRD(0,0,0),1,0,0,0,wigth,height);
+			box->AddForm(f,box);
+			f=new Button("ButonCopiarEnlace",Type::BUTTON,CRD(0,0,0),1,0,1,50,25,wigth,height);
+			box->AddForm(f,box);
+			f=new Label("Label4",Frases(87),CRD(0,0,0),1,0,0,0,wigth,height);
+			box->AddForm(f,box);
+		
+			f=new Button("ButonCancelAbout",Type::BUTTON,CRD(0,0,0),1,0,0,box->Wigth,25,wigth,height);
+			box->AddForm(f,box);
+			box->SetCoordElementProp("Label1",&(*box->BoxGetElementCoord("Label1")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(84))*4.5,0,0))));
+			box->SetCoordElementProp("Label2",&(*box->BoxGetElementCoord("Label2")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(85))*4.5,0,0))));
+			box->SetCoordElementProp("Label3",&(*box->BoxGetElementCoord("Label3")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(86))*4.5,0,0))));
+			box->SetCoordElementProp("Label4",&(*box->BoxGetElementCoord("Label4")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(87))*4.5,0,0))));
+			box->SetCoordElementProp("ButonCopiarEnlace",&(*box->BoxGetElementCoord("ButonCopiarEnlace")+*(new CRD(box->Wigth/2,0,0))-CRD(25,0,0)));
+			box->SetWigthElementProp("ButonCancelAbout",box->Wigth-5);
+			box->NewCRD(new CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
+			box->SetProfundidad(1);
+			box->BoxSetDrawLineForElement(false);
+			return box;
+		}
+		else
+		{
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",true,ManejadorForms);
+			BoxAbout=false;
+			Forms::SetName("BoxAbout",box);
+			Forms::Destruir(box);
+			return box;
+		}
+		//break; no break por returns
+	case 9:
+		interfaz=*Specialinterfaz;
+		if(!BoxReconnect)
+			{
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("StackAnimationsConnection",false,ManejadorForms);
+
+			BoxReconnect=true;
+			box=new Box("BoxReconnect",CRD(0,0,0),wigth,height);
+			box->Wigth=100;
+			f=new Label("Label1",Frases(89),CRD(0,0,0),1,0,0,0,wigth,height);
+			box->AddForm(f,box);
+			f=new StackAnimation("StackAnimationsBoxREconnect");
+			f->STANSetAnimation("AnimacionRoja",*new CRD(0,0,0),100,wigth,height,-25,1,0,0,1.5);
+			f->STANSetAnimation("AnimacionVerde",*new CRD(0,0,0),100,wigth,height,0,0,1,0,1.5);
+			f->STANSetAnimation("AnimacionAzul",*new CRD(0,0,0),100,wigth,height,25,0,0,1,1.5);
+			box->AddForm(f,box);
+			f=new Label("Label2",Frases(90),CRD(0,0,0),1,0,0,0,wigth,height);
+			box->AddForm(f,box);
+			f=new Button("ButonDesconectar",Type::BUTTON,CRD(0,0,0),1,0,0,box->Wigth,25,wigth,height);
+			box->AddForm(f,box);
+			box->SetCoordElementProp("Label1",&(*box->BoxGetElementCoord("Label1")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(89))*4.5,0,0))));
+			box->SetCoordElementProp("Label2",&(*box->BoxGetElementCoord("Label2")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(90))*4.5,0,0))));
+			box->SetCoordElementProp("StackAnimationsBoxREconnect",&(*box->BoxGetElementCoord("StackAnimationsBoxREconnect")+*(new CRD(box->Wigth/2,box->GetHeightElement("StackAnimationsBoxREconnect")/2,0))));
+			box->SetWigthElementProp("ButonDesconectar",box->Wigth-5);
+			box->SetHeightElementProp("StackAnimationsBoxREconnect",box->GetHeightElement("StackAnimationsBoxREconnect")/2);
+			box->NewCRD(new CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
+			box->SetProfundidad(1);
+			box->BoxSetDrawLineForElement(false);
+			return box;
+		}
+		else
+		{
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("StackAnimationsConnection",true,ManejadorForms);
+			BoxReconnect=false;
+			Forms::SetName("BoxReconnect",box);
+			Forms::Destruir(box);
+			return box;
+		}
+		//break; no break por returns
 	}
 	//////////////////////////////////////////////////////BUTTONS////////////////////////////////////////////////////
 	string ss,ss1;
@@ -1405,15 +1516,16 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 	ManejadorForms->Add(new Button((char*)ss.c_str(),Type::BUTTONACEPTRB,*new CRD(box->coord->x-6,box->coord->y+box->Height+5,box->coord->z),0,1,0,box->Wigth+6,10,box->TotalWigth,box->TotalHeight),ManejadorForms);
 	ManejadorForms->Add(new Button((char*)ss1.c_str(),Type::BUTTONCANCELRB,*new CRD(box->coord->x+box->Wigth,box->coord->y-6,box->coord->z),1,0,0,10,box->Height+21,box->TotalWigth,box->TotalHeight),ManejadorForms);
 	if(desactivaAcept)
-		ManejadorForms->DesactivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
+		ManejadorForms->DesactivateForm((char*)ss.c_str(),ManejadorForms);
 	if(desactiaCancel)
-		ManejadorForms->DesactivateForm("BoxInterfazPricipalButtonCancel",ManejadorForms);
+		ManejadorForms->DesactivateForm((char*)ss1.c_str(),ManejadorForms);
 	return box;
 }
 /////////////////////FUNCIONES DE GLUT A LLAMAR POR DEFECTO////////////////////////////
 void ESE_GRS::reshape(int x,int y){
 	wigth=(float)x;height=(float)y;
 	ManejadorForms->NewTotalsProp((float)x,(float)y,ManejadorForms);
+	ManejadorForms->GetForm("labelVersion",ManejadorForms)->NewCRD(new CRD(wigth-50,height-20,0));
 	ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)->NewCRD(new CRD(wigth-120,8,0));
 	ManejadorForms->GetForm("labelAngule0",ManejadorForms)->NewCRD(new CRD(wigth-120,25,0));
 	ManejadorForms->GetForm("labelAngule1",ManejadorForms)->NewCRD(new CRD(wigth-120,40,0));
@@ -1497,10 +1609,40 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 		   }	
 		   else if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxHelp",ManejadorForms)))
 		   {
-			   if(ManejadorForms->GetForm("BoxHelp",ManejadorForms)->BoxGetElemChecket()==8)
+			   if(ManejadorForms->GetForm("BoxHelp",ManejadorForms)->BoxGetElemChecket()==ManejadorForms->GetForm("BoxHelp",ManejadorForms)->BoxGetCont()-1)
 			   {
 				   SpecialKeys(GLUT_KEY_F1,0,0);
 			   }
+		   }
+		    else if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxReconnect",ManejadorForms)))
+		   {
+			   if(ManejadorForms->GetForm("BoxReconnect",ManejadorForms)->BoxGetElemChecket()==ManejadorForms->GetForm("BoxReconnect",ManejadorForms)->BoxGetCont()-1)
+			   {
+				   interfaz=4;
+				   ManejadorForms->Add(Interfaz(4,INTERFZType::ACEPT),ManejadorForms);
+			   }
+		   }
+		   else if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxAbout",ManejadorForms)))
+		   {
+			   if(ManejadorForms->GetForm("BoxAbout",ManejadorForms)->BoxGetElemChecket()==ManejadorForms->GetForm("BoxAbout",ManejadorForms)->BoxGetCont()-1)
+			   {
+				   ManejadorForms->Add(Interfaz(8),ManejadorForms);
+			   }
+			   else if(ManejadorForms->GetForm("BoxAbout",ManejadorForms)->BoxGetElemChecket()==3)
+			   {
+				
+					OpenClipboard(0);
+					EmptyClipboard();
+					const char*op=(const char*)Frases(86);
+					const size_t ln=strlen(op)+1;
+					HGLOBAL h=GlobalAlloc(GMEM_MOVEABLE,ln);
+				    memcpy(GlobalLock(h),op,ln);
+					GlobalUnlock(h);
+					SetClipboardData(CF_TEXT,h);
+					CloseClipboard();
+					sonidos(7);
+					messeng=new MeSSenger(Frases(88),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
+			   }  
 		   }
 		   else if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)))
 		   {
@@ -1942,12 +2084,16 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 	case GLUT_KEY_F4:	//"Reedireccionamiento"
 		if(!recibir_serie)
 		{
+			trasladarX=0;
+			trasladarY=0;
+			trasladarZ=0;
 			angles[0]=0;
 			angles[1]=(GLfloat)-13.8;
 			angles[2]=(GLfloat)-44.5;
 			angles[3]=(GLfloat)2.04;
 			angles[4]=(GLfloat)90;
 			angles[5]=(GLfloat)-2.04;
+			MenuVista(-1);
 			CalcularCoordenadas();
 			ShowAngules();
 		}
@@ -2089,7 +2235,7 @@ void ESE_GRS::default_menu(int opcion){
 		else 
 		   {
 			   char*msg=p->GetMesage(p);
-			   if(ModoLogger)cout<<endl<<p->getChar()<<"::"<<p->getunsigned()<<endl;
+			   if(ModoLogger)cout<<endl<<p->getChar()<<":"<<p->getunsigned()<<endl;
 		      //add
 			   ManejadorForms->Add(new Label("labelChar",p->getChar(),*(new CRD(87,-5,0)),0,0,1,0,wigth,height),ManejadorForms);
 			   ManejadorForms->Add(new Label("labelUnsigned",(char*)to_string(p->getunsigned()).c_str(),*(new CRD(87,5,0)),0,0,1,0,wigth,height),ManejadorForms);
@@ -2097,9 +2243,9 @@ void ESE_GRS::default_menu(int opcion){
 
 
 			   StackAnimation*sa=new StackAnimation("StackAnimationsConnection");
-			   sa->STANSetAnimation("AnimacionRoja",*new CRD(wigth-100,height-50,0),75,100,wigth,height,-25,1,0,0,1.5);
-			   sa->STANSetAnimation("AnimacionVerde",*new CRD(wigth-100,height-50,0),75,100,wigth,height,0,0,1,0,1.5);
-			   sa->STANSetAnimation("AnimacionAzul",*new CRD(wigth-100,height-50,0),75,100,wigth,height,25,0,0,1,1.5);
+			   sa->STANSetAnimation("AnimacionRoja",*new CRD(wigth-100,height-50,0),75,wigth,height,-25,1,0,0,1.5);
+			   sa->STANSetAnimation("AnimacionVerde",*new CRD(wigth-100,height-50,0),75,wigth,height,0,0,1,0,1.5);
+			   sa->STANSetAnimation("AnimacionAzul",*new CRD(wigth-100,height-50,0),75,wigth,height,25,0,0,1,1.5);
 			   ManejadorForms->Add(sa,ManejadorForms);
 			   ManejadorForms->MoveOnReshape("StackAnimationsConnection",true,ManejadorForms);
 
@@ -2130,18 +2276,28 @@ void ESE_GRS::default_menu(int opcion){
 	break;
 
 
-	case -2://detengo la conexion 		  
-		ManejadorForms->Sub("StackAnimationsConnection",ManejadorForms);
-		recibir_serie=false;
-		p->CloseConnection();
-		ManejadorForms->Sub("labelChar",ManejadorForms);
-		ManejadorForms->Sub("labelUnsigned",ManejadorForms);
-		ManejadorForms->SetColor("labelESE_GRS",(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,ManejadorForms);	
-		EsperandoReedireccionar=true;
-		ESE_GRS::InitMenu();
-		default_menu(-5);
-		sonidos(10);
-		if(ModoLogger)cout<<endl<<Frases(79)<<endl;
+	case -2://detengo la conexion 
+			ManejadorForms->Sub("StackAnimationsConnection",ManejadorForms);
+			recibir_serie=false;
+			if(p->GetType()==ConnectionType::SERIAL_PORT)
+			{
+				t1->join();
+				p->CloseConnection();
+			}
+			else
+			{
+				 p->CloseConnection();
+				 t1->join();
+			}		 
+			ManejadorForms->Sub("labelChar",ManejadorForms);
+			ManejadorForms->Sub("labelUnsigned",ManejadorForms);
+			ManejadorForms->SetColor("labelESE_GRS",(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,ManejadorForms);	
+			EsperandoReedireccionar=true;
+			ErrorConnect=false;
+			ESE_GRS::InitMenu();
+			default_menu(-5);
+			sonidos(10);
+			if(ModoLogger)cout<<endl<<Frases(79)<<endl;
 	break;
 	case -5:    //Muestro Menu
 		    default_menu(-7);
@@ -2158,34 +2314,38 @@ void ESE_GRS::default_menu(int opcion){
 		    InitMenu();
 		break;
 	case -7:	//Oculto SetAngules
-		if(SetAngules)
-		   {
-		   ManejadorForms->Sub("textBoxsSetAngules0",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules1",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules2",ManejadorForms);
-	   	   ManejadorForms->Sub("textBoxsSetAngules3",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules4",ManejadorForms);
-		   ManejadorForms->Sub("textBoxsSetAngules5",ManejadorForms);
-		   ManejadorForms->Sub("buttonInitSetAngules",ManejadorForms);
-		   ManejadorForms->Sub("buttonCancelSetAngules",ManejadorForms);
-		   SetAngules=false;
-		   }
+			if(SetAngules)
+			   {
+			   ManejadorForms->Sub("textBoxsSetAngules0",ManejadorForms);
+			   ManejadorForms->Sub("textBoxsSetAngules1",ManejadorForms);
+			   ManejadorForms->Sub("textBoxsSetAngules2",ManejadorForms);
+	   		   ManejadorForms->Sub("textBoxsSetAngules3",ManejadorForms);
+			   ManejadorForms->Sub("textBoxsSetAngules4",ManejadorForms);
+			   ManejadorForms->Sub("textBoxsSetAngules5",ManejadorForms);
+			   ManejadorForms->Sub("buttonInitSetAngules",ManejadorForms);
+			   ManejadorForms->Sub("buttonCancelSetAngules",ManejadorForms);
+			   SetAngules=false;
+			   }
 		break;
-	case -8:
-		ModoLogger=false;
-		sonidos(7);
-		messeng=new MeSSenger(Frases(80),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
-		cout<<Frases(80)<<endl;
-		InitMenu();
+	case -8: //desact modo logger
+			ModoLogger=false;
+			sonidos(7);
+			messeng=new MeSSenger(Frases(80),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
+			cout<<Frases(80)<<endl;
+			InitMenu();
 		break;
-	case -9:
-		sonidos(7);
-		ModoLogger=true;
-		messeng=new MeSSenger(Frases(81),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
-		cout<<Frases(81)<<endl;
-		InitMenu();
+	case -9:  //activ modo logger
+			sonidos(7);
+			ModoLogger=true;
+			messeng=new MeSSenger(Frases(81),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
+			cout<<Frases(81)<<endl;
+			InitMenu();
+		break;
+	case -10:  //mostrar ESE_GRS About
+			ManejadorForms->Add(Interfaz(8),ManejadorForms);
 		break;
 	}
+	
 	glutPostRedisplay();
 }
 void ESE_GRS::MenuVista(int opcion){
@@ -2281,20 +2441,30 @@ void ESE_GRS::recivirDatosCOM(){
 			 (19)00010011->AceptButton
 			 (23)00010111->CancelButton
 			 */
-			
-	      char*c=p->Recibir();//Recivo un dato
-		  if(p->Error()&&recibir_serie)	 //Si algo dio error(Actualmente solo para conexiones TCP_IP)
+		  if(ErrorConnect)
+		  {
+			if(p->GetType()==ConnectionType::SERIAL_PORT?p->inicializa(toSaveCOM,toSaveSpeed):p->inicializa(toSaveIp,toSavePort))
 			{
+				ErrorConnect=false;
+				ManejadorForms->Add(Interfaz(9),ManejadorForms);
+				sonidos(5);
+				messeng=new MeSSenger(Frases(91),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
+				if(ModoLogger)cout<<Frases(91)<<endl;
+			}  
+		  	return;
+		  }
+	      char*c=p->Recibir();//Recivo un dato
+		  if(!recibir_serie)
+			  return;
+		  if(p->Error())	 //Si algo dio error(Actualmente solo para conexiones TCP_IP)
+		  {
 				if(ModoLogger)cout<<p->ErrorStr()<<endl;
-				messeng=new MeSSenger(p->ErrorStr(),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,1,1,0,2);
-				default_menu(-2);
-				ManejadorForms->Add(Interfaz(0),ManejadorForms);
-				ManejadorForms->Sub("BoxInterfazDetenerConnection",ManejadorForms);
-	 	        ManejadorForms->Sub("BoxInterfazDetenerConnectionButtonAcept",ManejadorForms);
-		        ManejadorForms->Sub("BoxInterfazDetenerConnectionButtonCancel",ManejadorForms);
-		  		errInitMenubool=true;
+				ErrorConnect=true;
+				p->CloseConnection();
+				ManejadorForms->Add(Interfaz(9),ManejadorForms);
+				sonidos(1);
 				return;
-		    }
+		 }
 		   if(c!=NULL)//si no esta vacio  
 		     {
 			  unsigned strleN=strlen(c);
@@ -2418,14 +2588,6 @@ void ESE_GRS::recivirDatosCOM(){
 	    }//end recivir serie	
 }
 void ESE_GRS::salvarInitDatos(){
-   if(recibir_serie||!ManejadorObject->Salir)
-      {
-	   recibir_serie=false;
-	   ManejadorObject->Salir=true;
-	   p->CloseConnection();
-	   t1->join();
-      }
-    recibir_serie=false;
 	fstream f;
 	f.open("ESE_GRS.onrn",ios::out|ios::binary);
 	f.write((char*)&movRatXinit,sizeof(int));
@@ -2607,7 +2769,7 @@ void ESE_GRS::CalcularCoordenadas()
 void ESE_GRS::ThreadCOM()
 {
 	m.lock();
-	while(recibir_serie&&p->EstaConectado())
+	while(recibir_serie)
 	 recivirDatosCOM();
 	m.unlock();
 

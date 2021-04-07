@@ -33,22 +33,27 @@ public:
 	virtual ~Connection(){};
 	virtual void CloseConnection(){};
 	virtual bool inicializa(const char*Ip, unsigned long Port){return false;};
-	virtual char* Recibir(){
-	     memset(buffer,0,sizeof(buffer));
-		 int n=recv(t==ConnectionType::TCP_IP_SERVER?cliente:server,buffer,sizeof(buffer),0);
-		 if(n==0)
-		 {
-		  errorstr="Server Cerrado, conexion Finalizada";
-		  error=true;
-		  return NULL;
-		 }
-		  if(n==-1)
-		 {
-			errorstr="Conexion Perdida";
-			error=true;
-			return NULL;
-		 }
-		 return buffer;
+	virtual char* Recibir()
+	{
+		if(EstaConectado())
+		{
+			 memset(buffer,0,sizeof(buffer));
+			 int n=recv(t==ConnectionType::TCP_IP_SERVER?cliente:server,buffer,sizeof(buffer),0);
+			 if(n==0)
+			 {
+				 errorstr="Server Cerrado, conexion Finalizada";
+				 error=true;
+				 return NULL;
+			 }
+			 if(n==-1)
+			 {
+					errorstr="Conexion Perdida";
+					error=true;
+					return NULL;
+			 }
+			 return buffer;
+		}
+		return NULL;
 	 };
 	virtual void Trasmitir( char*buffer){
 		int n=send(t==ConnectionType::TCP_IP_SERVER?cliente:server,buffer,sizeof(buffer)+(strlen(buffer)>4?strlen(buffer)-4:0),0);
@@ -210,7 +215,7 @@ public:
 		 }
 		else
 		{
-		string*s=new string(string(Ip)+"::"+to_string(Port));
+		string*s=new string(string(Ip)+":"+to_string(Port));
 		this->message=(char*)s->c_str();
 		}
 
@@ -271,7 +276,7 @@ public:
 	handler=CreateFile(PuertoCom,GENERIC_READ | GENERIC_WRITE,NULL,NULL,OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,NULL);
 	if (handler==INVALID_HANDLE_VALUE)
 	{
-		string*s=new string("Error:"+string(PuertoCom)+"::"+to_string(Velocidad));
+		string*s=new string("Error:"+string(PuertoCom)+":"+to_string(Velocidad));
 		error=true;
 		errorstr=(char*)s->c_str();
 		return false;
@@ -279,7 +284,7 @@ public:
 	DCB ParametrosTxSerie;
 	if (!GetCommState(handler,&ParametrosTxSerie))
 	{
-		string*s=new string("Error 1:"+string(PuertoCom)+"::"+to_string(Velocidad));
+		string*s=new string("Error 1:"+string(PuertoCom)+":"+to_string(Velocidad));
 		error=true;
 		errorstr=(char*)s->c_str();
 		return false;
@@ -291,7 +296,7 @@ public:
 	ParametrosTxSerie.Parity=(BYTE)PARITY_NONE;
 	if(!SetCommState(handler,&ParametrosTxSerie))
 	{
-		string*s=new string("Error:"+string(PuertoCom)+"::"+to_string(Velocidad));
+		string*s=new string("Error:"+string(PuertoCom)+":"+to_string(Velocidad));
 		error=true;
 		errorstr=(char*)s->c_str();
 		return false;
@@ -304,26 +309,33 @@ public:
 	for(unsigned i=0;i<strlen(PuertoCom);i++)
 		this->Puerto[i]=PuertoCom[i];
 	this->Speed=Velocidad;
-	string*s=new string(string(PuertoCom)+"::"+to_string(Velocidad));
+	string*s=new string(string(PuertoCom)+":"+to_string(Velocidad));
 	this->message=(char*)s->c_str();
 	return true;
 }
-	char* Recibir(){
+	char* Recibir()
 	{
-	DWORD leidos;
-	COMSTAT cs;
 	char*cadena=NULL;
-	ClearCommError(handler,&leidos,&cs);
-	leidos=0;
-	if(cs.cbInQue){
-		cadena=new char[cs.cbInQue+3];
-		cadena[cs.cbInQue]=0;
-		ReadFile(handler,cadena,cs.cbInQue,&leidos,NULL);
-		
-		return cadena;
+	if(EstaConectado())
+	{
+		DWORD leidos;
+		COMSTAT cs;
+		if(ClearCommError(handler,&leidos,&cs)==0)
+		{
+			this->error=true;
+			this->errorstr="Conexion perdida";
+			return NULL;
+		}
+		leidos=0;
+		if(cs.cbInQue)
+		{
+			cadena=new char[cs.cbInQue+3];
+			cadena[cs.cbInQue]=0;
+			ReadFile(handler,cadena,cs.cbInQue,&leidos,NULL);
+			return cadena;
+		}
 	}
 	return cadena;
-}
 	};
 	void Trasmitir(char *oBuffer)
 {
@@ -333,10 +345,6 @@ public:
 }
 	//void Trasmitir(System::String^data);
 	bool Error(){return error;};
-	bool EstaConectado()
-{
-	return IsConectado;
-}
 	char* ErrorStr(){return errorstr;};
 	char*getChar(){return Puerto;};
 	unsigned getunsigned(){return Speed;};

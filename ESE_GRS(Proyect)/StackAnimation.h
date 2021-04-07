@@ -6,6 +6,7 @@ public:
 	Animacion**animations;
 	unsigned cant,cont;
 	StackAnimation(char*name):Forms(name,CRD(0,0,0),0,0,0,0){
+		Wigth=Height=0;
 		cont=0;
 		cant=10;
 		animations=new Animacion*[cant];
@@ -13,6 +14,7 @@ public:
 	~StackAnimation(){};
 	void Draw()
 	{
+
 		for(unsigned i=0;i<cont;i++)
 			animations[i]->Draw();
 	}
@@ -32,7 +34,7 @@ public:
 
 	}
 	unsigned Click(){return 0;};
-	void STANSetAnimation(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight,float x,float R,float G,float B,float speed){
+	void STANSetAnimation(char*name,CRD coord,float wigth,float TotalWigth,float TotalHeight,float x,float R,float G,float B,float speed){
 		if(cont>=cant)
 		 {
 			 Animacion**NewAnimations=new Animacion*[cant+10];
@@ -42,7 +44,12 @@ public:
 			 delete[]animations;
 			 animations=NewAnimations;
 		 }
-		animations[cont++]=new Animacion(name,coord,wigth,height,TotalWigth,TotalHeight,x,R,G,B,speed);
+		if(wigth>this->Wigth)
+		{
+			this->Wigth=wigth;
+			this->Height=this->Wigth;
+		}
+		animations[cont++]=new Animacion(name,coord,wigth,TotalWigth,TotalHeight,x,R,G,B,speed);
 	};
 	void NewTotalProp(float wigth,float height)
 	{
@@ -52,6 +59,30 @@ public:
 	void MoveOnReshape(bool reshape){
 		for(unsigned i=0;i<cont;i++)
 			animations[i]->reshapeBool=reshape;
+	}
+	void SetCoord(CRD*coord)
+	{
+		Forms::SetCoord(coord);
+		for(unsigned i=0;i<cont;i++)
+			animations[i]->SetCoord(coord);
+	}
+	void NewCRD(CRD*crd)
+	{
+		Forms::NewCRD(crd);
+		for(unsigned i=0;i<cont;i++)
+			animations[i]->NewCRD(crd);
+	}
+	void SetProfundidad(float profundidad)
+	{
+		Forms::SetProfundidad(profundidad);
+		for(unsigned i=0;i<cont;i++)
+			animations[i]->SetProfundidad(profundidad);
+	}
+	void ActivateDesactivate(bool ActDesact)
+	{
+		Forms::ActivateDesactivate(ActDesact);
+		for(unsigned i=0;i<cont;i++)
+			animations[i]->ActivateDesactivate(ActDesact);
 	}
 	
 

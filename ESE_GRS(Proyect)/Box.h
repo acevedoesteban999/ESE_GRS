@@ -111,7 +111,7 @@ public:
 			glVertex3f(Wigth,-Height-5,(GLfloat)-1.1);
 			glVertex3f(-5,-Height-5,(GLfloat)-1.1);
 			glEnd();
-			glLineWidth(1);
+			glLineWidth(1);	
 			
 			if(DrawLineForElement)
 			{
@@ -361,7 +361,7 @@ public:
 		{
 			if(!strcmp(ElementName,this->forms[i]->name))
 			{
-				forms[i]->Wigth=HeiGht;
+				forms[i]->Height=HeiGht;
 				return;
 			}
 		}
@@ -373,10 +373,33 @@ public:
 		{
 			if(!strcmp(ElementName,this->forms[i]->name))
 			{
-				*forms[i]->coord=*coord;
+				//*forms[i]->coord=*coord;
+				forms[i]->NewCRD(coord);
 				return;
 			}
 		}
 		return;
+	}
+	float GetWigthElement(char*ElementName)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			if(!strcmp(ElementName,this->forms[i]->name))
+			{
+				return forms[i]->Wigth;
+			}
+		}
+		return 0;
+	}
+	float GetHeightElement(char*ElementName)
+	{
+		for(unsigned i=0;i<cont;i++)
+		{
+			if(!strcmp(ElementName,this->forms[i]->name))
+			{
+				return forms[i]->Height;
+			}
+		}
+		return 0;
 	}
 };
