@@ -152,12 +152,12 @@ public:
 				                break;
 			      }//end switch
 	         }//end while(!f.eof())
-		 cout<<"CARGADO: "<<name<<endl;
+		 cout<<"----OK---->: "<<name<<endl;
 		   l->empty=false;
 	      }//end if(is_open())
 	  else 
 	     {
-		 cout<<"NO CARGADO: "<<name<<endl;
+		 cout<<"-----X---->: "<<name<<endl;
 	      l->empty=true; 
 	     }
 	   f.close();
@@ -280,18 +280,6 @@ public:
 	//////////////////DRAW//////////////////////////////
 	static void pintarse(LoaderObject*l){
 	//Dibujar los vertices q tengo en el orden q indica f(dato del arcivo de carga .obj) de forma GL_TRIANGLES
-    if(l->R>1)//evito errores en el color ya q tiene q ser 0<(GLfloat)Color<1
-		l->R=1;
-	else if(l->R<0)
-		l->R=0;
-	if(l->G>1)
-		l->G=1;
-	else if(l->G<0)
-		l->G=0;
-	if(l->B>1)
-		l->B=1;
-	else if(l->B<0)
-		l->B=0;
 		glColor3f((GLfloat)l->R,(GLfloat)l->G,(GLfloat)l->B);
 	for(int i=0;i<l->contf;i++)
 	   {

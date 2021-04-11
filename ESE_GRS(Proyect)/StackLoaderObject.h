@@ -27,7 +27,19 @@ public:
 	////////////////PUSH/////////////////////////
 	static void push(char*c,StackLoaderObject*slo,double R,double G,double B){
 	//agrego un nuevo LoaderObject(.obj con direccion *c) en el Stack 
-	LoaderObject*newLoaderObject=new LoaderObject(c,R,G,B);
+		if(R>1)//evito errores en el color ya q tiene q ser 0<(GLfloat)Color<1
+			R=1;
+		if(R<0)
+			R=0;
+		if(G>1)
+			G=1;
+		if(G<0)
+			G=0;
+		if(B>1)
+			B=1;
+		if(B<0)
+			B=0;
+		LoaderObject*newLoaderObject=new LoaderObject(c,R,G,B);
 	if(newLoaderObject->empty==false)
 	{
 	   if(slo->contLoaderObject>=slo->cantLoaderObject)//aumento el tamaño del arreglo en caso de ser necesario
@@ -76,7 +88,7 @@ public:
 		}
 		else
 		{
-			 cout<<"Error: ARCHIVO TXT:'"<<name<<"'-DIRECCION O NOMBRE DE ARCHIVO INCORECTO "<<endl;//si no existe el archivo en esa direccion
+			 cout<<"Error:----X---->'"<<name<<endl;//si no existe el archivo en esa direccion
 			slo->errorCarga=true;
 		}
 		f.close();
