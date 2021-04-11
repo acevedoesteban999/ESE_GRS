@@ -1,7 +1,7 @@
 #include "ESE_GRS.h"
 
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="1.3.0";
+														char*ESE_GRS_Version="1.3.1";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -1656,6 +1656,8 @@ void ESE_GRS::movPasiveRaton(GLsizei x,GLsizei y)
 	case Type::RADIOBUTTON:
 	case Type::BUTTONCANCELSETANGULES:
 	case Type::BUTTONCANCELRB:
+	case Type::BUTTONEXIT:
+	case Type::BUTTON:
 		if(!cursor)
 		{
 			glutSetCursor( GLUT_CURSOR_HELP);

@@ -27,9 +27,16 @@ public:
 				  glVertex3f((GLfloat)Wigth,(GLfloat)-Height,-1);
 				  glVertex3f(0,(GLfloat)-Height,-1);
 				  glEnd();
+				  glColor3f(0,0,0);
+				  glBegin(GL_LINE_LOOP);
+				  glVertex3f(0,0,(GLfloat)-0.9);
+				  glVertex3f((GLfloat)Wigth,0,(GLfloat)-0.9);
+				  glVertex3f((GLfloat)Wigth,(GLfloat)-Height,(GLfloat)-0.9);
+				  glVertex3f(0,(GLfloat)-Height,(GLfloat)-0.9);
+				  glEnd();
 				  if(this->t==Type::BUTTONEXIT)
 				  {
-					  glTranslatef(Wigth/2,-Height/2,0.9);
+					  glTranslatef((GLfloat)Wigth/2,(GLfloat)-Height/2,(GLfloat)-0.9);
 					  glColor3f(1,1,1);
 					  glBegin(GL_LINES);
 					  glVertex3f(0,6,0);
