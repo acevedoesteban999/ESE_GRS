@@ -1,7 +1,7 @@
 #include "ESE_GRS.h"
 
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="1.2.2";
+														char*ESE_GRS_Version="1.3.0";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -16,6 +16,8 @@ bool ModoLogger=false;
 bool Boxf1=false;
 bool BoxAbout=false;
 bool BoxReconnect=false;
+bool BoxExit=false;
+bool StopThread=false;
 bool ErrorConnect=false;
 bool ActiveDesactAcept=false;
 bool ActiveDesactCancel=false;
@@ -31,6 +33,7 @@ int contMenuToDraw=-1;
 int contt=0;
 int Window=0;
 int Initheight,Initwigth;
+int MenuCD;
 float movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 float velGiro=3;
 float &movESE_GRSX=movRatX,&movESE_GRSY=movRatY,movESE_GRSZ=25;
@@ -375,7 +378,7 @@ char*Frases(unsigned frase)
 				return "Copy Link";
 				
 				case 88:
-				return "Copied Link";
+				return "The Link has been Copied";
 				
 				case 89:
 				return "Reconnecting to the server";
@@ -400,6 +403,9 @@ char*Frases(unsigned frase)
 
 				case 96:
 					return "Sound deactivated";
+				
+				case 97:
+					return "Exit?";
 				
 			default:
 				return "Not Find";
@@ -669,7 +675,7 @@ char*Frases(unsigned frase)
 				return "Copiar Enlace";
 				
 				case 88:
-				return "Enlace Copiado";
+				return "El Enlace se ha Copiado";
 				
 				case 89:
 				return "Reconectando con el servidor";
@@ -694,6 +700,9 @@ char*Frases(unsigned frase)
 
 				case 96:
 					return "Sonido Desactivado";
+
+				case 97:
+					return "Salir?";
 				
 				default:
 				return "No Encontrado";	
@@ -765,7 +774,7 @@ ESE_GRS::ESE_GRS(){
 	t1=new thread(ThreadCargObject);
 	ManejadorForms->Add(new Label("labelESE_GRS","ESE_GRS",*(new CRD(0,0,0)),1,(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelVersion",Frases(100),*(new CRD(0,0,0)),1,(GLfloat)0.6,(GLfloat)0.6,(GLfloat)0.6,wigth,height),ManejadorForms);
-
+	ManejadorForms->Add(new Button("ButtonExit",Type::BUTTONEXIT,CRD(0,0,0),1,0,0,15,15,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new RadioButton("radioButtonMostrarAngules",*new CRD(0,0,0),Frases(52),wigth,height,true),ManejadorForms);
 	ManejadorForms->SetlabelColor("radioButtonMostrarAngules",(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,ManejadorForms);
 	MostrarAngules=true;
@@ -851,7 +860,7 @@ void ESE_GRS::InitMenu()
 	for (int ii=0;ii<ManejadorObject->contLoaderObject;ii++)
 	glutAddMenuEntry(ManejadorObject->Stack[ii]->nameStr.c_str(),ii);
 
-	glutCreateMenu(default_menu);//aqui creo el menu general donde van todos los submenus
+	MenuCD=glutCreateMenu(default_menu);//aqui creo el menu general donde van todos los submenus
 	if(!recibir_serie)
 	{
 		glutAddMenuEntry(Frases(38),0);//iniicar conexion
@@ -867,7 +876,8 @@ void ESE_GRS::InitMenu()
 		else
 			glutAddMenuEntry(Frases(68),-9);//activ modo registro
 		glutAddSubMenu(Frases(42),subMenuIdioma);//idioma	
-		glutAddMenuEntry(Frases(83),-10);	
+		glutAddMenuEntry(Frases(83),-10);
+		glutAddMenuEntry(Frases(97),-14);//Salir
 	}
 	else
 	{
@@ -918,7 +928,8 @@ void ESE_GRS::Entorno(){
 	     trasladarZ=-cooRd->z;
 	  }
 	  messeng->Drawing_and_Decremt(messeng);//Textos de los mensajes superiores centrados 
-	  text("o",-2.0,-1.5,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8);
+	  if(!BoxAbout&&!Boxf1&&!BoxReconnect&&!BoxExit)
+		text("o",-2.0,-1.5,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8);
 	  ManejadorForms->DrawForms(ManejadorForms);//Dibujo los Forms
 	  glPopMatrix();
 	  //pinto el eje de coordenadas del systema
@@ -1026,7 +1037,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 	bool desactivaAcept=false,desactiaCancel=false;
 	string s;
 	unsigned*Specialinterfaz;
-	if(interfzAponer==7||interfzAponer==8||interfzAponer==9)
+	if(interfzAponer==7||interfzAponer==8||interfzAponer==9||interfzAponer==10)
 		Specialinterfaz=new unsigned(interfaz);
 	switch(t)
 	{
@@ -1365,7 +1376,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		interfaz=*Specialinterfaz;
 		if(!Boxf1)
 		{
-			if(BoxReconnect)
+			if(BoxReconnect||BoxExit)
 			{
 				 Forms::Cancelar(box);
 			 	 return box;
@@ -1429,6 +1440,11 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		interfaz=*Specialinterfaz;
 		if(!BoxAbout)
 		{
+			if(BoxExit)
+			{
+				 Forms::Cancelar(box);
+			 	 return box;
+			}
 			if(Boxf1)
 				ManejadorForms->Add(Interfaz(7),ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
@@ -1479,7 +1495,12 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 	case 9:	//Reconexion
 		interfaz=*Specialinterfaz;
 		if(!BoxReconnect)
+		{
+			if(BoxExit)
 			{
+				 Forms::Cancelar(box);
+			 	 return box;
+			}
 			if(Boxf1)
 				ManejadorForms->Add(Interfaz(7),ManejadorForms);
 			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
@@ -1527,6 +1548,58 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			return box;
 		}
 		//break; no break por returns
+	case 10:
+		interfaz=*Specialinterfaz;
+		if(!BoxExit)
+		{
+			if(Boxf1)
+				ManejadorForms->Add(Interfaz(7),ManejadorForms);
+			if(BoxAbout)
+				ManejadorForms->Add(Interfaz(8),ManejadorForms);
+			StopThread=true;
+			if(BoxReconnect)
+			{
+				ManejadorForms->Add(Interfaz(9),ManejadorForms);
+			}
+				
+				
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",false,ManejadorForms);
+			ActiveDesactAcept=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetActiveDesavt();
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",false,ManejadorForms);
+			ActiveDesactCancel=ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->GetActiveDesavt();
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",false,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("ButtonExit",false,ManejadorForms);
+			BoxExit=true;
+			glutDestroyMenu(MenuCD);
+			box=new Box("BoxExit",CRD(0,0,0),wigth,height);
+			box->Wigth=100;
+			f=new Label("Label1",Frases(97),CRD(0,0,0),1,0,0,0,wigth,height);
+			box->AddForm(f,box);
+			f=new Button("ButonAceptExit",Type::BUTTON,CRD(0,0,0),0,1,0,50,25,wigth,height);
+			box->AddForm(f,box);
+			f=new Button("ButonCancelExit",Type::BUTTON,CRD(0,0,0),1,0,0,50,25,wigth,height);
+			box->AddForm(f,box);
+			box->SetCoordElementProp("Label1",&(*box->BoxGetElementCoord("Label1")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(97))*4.5,0,0))));
+			box->SetWigthElementProp("ButonAceptExit",box->Wigth-5);
+			box->SetWigthElementProp("ButonCancelExit",box->Wigth-5);
+			box->NewCRD(new CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
+			box->SetProfundidad(1);
+			box->BoxSetDrawLineForElement(false);
+			return box;
+		}
+		else
+		{
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipal",true,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonAcept",ActiveDesactAcept,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("BoxInterfazPricipalButtonCancel",ActiveDesactCancel,ManejadorForms);
+			ManejadorForms->ActvDesactOnlyForm("radioButtonMostrarAngules",true,ManejadorForms);
+			BoxExit=false;
+			Forms::SetName("BoxExit",box);
+			Forms::Destruir(box);
+			return box;
+		}
+		//break; no break por returns
 	}
 	//////////////////////////////////////////////////////BUTTONS////////////////////////////////////////////////////
 	string ss,ss1;
@@ -1546,6 +1619,7 @@ void ESE_GRS::reshape(int x,int y){
 	wigth=(float)x;height=(float)y;
 	ManejadorForms->NewTotalsProp((float)x,(float)y,ManejadorForms);
 	ManejadorForms->GetForm("labelVersion",ManejadorForms)->NewCRD(new CRD(wigth-50,height-20,0));
+	ManejadorForms->GetForm("ButtonExit",ManejadorForms)->NewCRD(new CRD(wigth-25,8,0));
 	ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)->NewCRD(new CRD(wigth-120,8,0));
 	ManejadorForms->GetForm("labelAngule0",ManejadorForms)->NewCRD(new CRD(wigth-120,25,0));
 	ManejadorForms->GetForm("labelAngule1",ManejadorForms)->NewCRD(new CRD(wigth-120,40,0));
@@ -1664,6 +1738,24 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					if(ModoLogger)cout<<Frases(88)<<"->"<<Frases(86)<<endl;
 					messeng=new MeSSenger(Frases(88),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 			   }  
+		   }
+		   else if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxExit",ManejadorForms)))
+		   {
+			   if(ManejadorForms->GetForm("BoxExit",ManejadorForms)->BoxGetElemChecket()==ManejadorForms->GetForm("BoxExit",ManejadorForms)->BoxGetCont()-1)
+			   {
+				   ManejadorForms->Add(Interfaz(10),ManejadorForms);
+				   if(ErrorConnect)
+				   {
+					   ManejadorForms->Add(Interfaz(9),ManejadorForms);
+					   StopThread=false;
+				   }
+				   InitMenu();
+				   ManejadorForms->ActvDesactOnlyForm("ButtonExit",true,ManejadorForms);
+			   }
+			   else if(ManejadorForms->GetForm("BoxExit",ManejadorForms)->BoxGetElemChecket()==1)
+			   {
+				   default_menu(-13);
+			   }
 		   }
 		   else if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)))
 		   {
@@ -1852,6 +1944,11 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 				if(ModoSonido)sonidos(9);
 				ManejadorForms->Add(Interfaz(0,INTERFZType::CANCEL),ManejadorForms);
 			break;
+
+			case Type::BUTTONEXIT:
+				if(ModoSonido)sonidos(9);
+				default_menu(-14);
+				break;
 
 	        case Type::BUTTONCANCELSETANGULES:
 				if(ModoSonido)sonidos(9);
@@ -2404,7 +2501,18 @@ void ESE_GRS::default_menu(int opcion){
 		if(ModoLogger)cout<<Frases(95)<<endl;
 		InitMenu();
 		break;
+
+		case -13:
+		salvarInitDatos();
+		exit(0);
+		break;
+
+		case -14:
+			ManejadorForms->Add(Interfaz(10),ManejadorForms);
+		break;
+
 	}
+	
 	
 	glutPostRedisplay();
 }
@@ -2503,6 +2611,8 @@ void ESE_GRS::recivirDatosCOM(){
 			 (19)00010011->AceptButton
 			 (23)00010111->CancelButton
 			 */
+		  if(StopThread)
+			   return;
 		  if(ErrorConnect)
 		  {
 			if(p->GetType()==ConnectionType::SERIAL_PORT?p->inicializa(toSaveCOM,toSaveSpeed):p->inicializa(toSaveIp,toSavePort))
