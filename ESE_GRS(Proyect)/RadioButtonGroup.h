@@ -14,6 +14,7 @@ public:
 		cantRB=10;
 		contRB=0;
 		RB=new RadioButton*[cantRB];
+		Checket=0;
 };
 	~RadioButtonGroup(){};
 	void NewTotalProp(float wigth,float height){

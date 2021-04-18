@@ -53,27 +53,28 @@ public:
 	           }
 	       else
 	           {
-	           if(!Checket)
-	              {
+	                if(this->Checket)
+					  glColor3f((GLfloat)0,(GLfloat)0,(GLfloat)0);
+				   else
+					   glColor3f((GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7);
 	               glBegin(GL_LINE_LOOP);
 	               glVertex3f(0,0,-1);
 	               glVertex3f(15,0,-1);
 	               glVertex3f(15,-15,-1);
 	               glVertex3f(0,-15,-1);
 	               glEnd();
-	              }
-	           else
+				  if(this->Checket)
 	              {
-	              glColor3f(this->active?this->R:(GLfloat)0.2,this->active?this->G:(GLfloat)0.2,this->active?this->B:(GLfloat)0.2);
-	              glBegin(GL_POLYGON);
-	               glVertex3f(0,0,-1);
-	               glVertex3f(15,0,-1);
-	               glVertex3f(15,-15,-1);
-	               glVertex3f(0,-15,-1);
-	              glEnd();
+					  glColor3f(this->active?this->R:(GLfloat)0.2,this->active?this->G:(GLfloat)0.2,this->active?this->B:(GLfloat)0.2);
+					  glBegin(GL_POLYGON);
+					  glVertex3f(0,0,-1);
+					  glVertex3f(15,0,-1);
+					  glVertex3f(15,-15,-1);
+					  glVertex3f(0,-15,-1);
+					  glEnd();
 	               }
 	           }
-	         }
+	        }
 		  glPopMatrix();
 	      l->Draw();
 		 

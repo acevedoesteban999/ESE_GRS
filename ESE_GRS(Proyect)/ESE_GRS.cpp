@@ -1,7 +1,7 @@
 #include "ESE_GRS.h"
 
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="1.3.1";
+														char*ESE_GRS_Version="1.4.0";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -28,6 +28,7 @@ char*toSaveCOM="COM2",*toSaveIp="127.0.0.1";
 unsigned toSaveSpeed=9600,toSavePort=55555;
 unsigned STRLEN,BoxInterfazPricipal=0,RadioButtonRestriccion=0;
 unsigned bocetoARemover=0,RadioButtomPintar=0,PlanoChecket=0,bocetoACrear=0,BoxInterfaz0=0;
+unsigned CambiarPointSpecificPlano=3;
 int interfaz=0;
 int contMenuToDraw=-1;
 int contt=0;
@@ -897,9 +898,12 @@ void ESE_GRS::InitMenu()
 void ESE_GRS::wheelAndRotate(){
 	//procedimientos de rotacion y acercamiento y alejamiento de la camara con el mouse
 	glScalef((GLfloat)movWheel,(GLfloat)movWheel,(GLfloat)movWheel);
+
 	glRotatef((GLfloat)movRatX/velGiro,1.0,0.0,0.0);
 	glRotatef((GLfloat)movRatY/velGiro,0.0,0.0,1.0);
 	glRotatef((GLfloat)movESE_GRSZ/velGiro,0.0,0.0,1.0);
+
+	//
 }
 ///////////////////DIBUJAR////////////////////////////////////////////////////////////
 void ESE_GRS::display(){
@@ -909,8 +913,7 @@ void ESE_GRS::display(){
 		IniciarCargObjetos();
 	else
 	{
-	    // recivirDatosCOM();//recivo y proceso la entrada del puerto serie
-		Inicializar();//iniciaizo proyeccion y pongo los angulos del brazo 
+        Inicializar();//iniciaizo proyeccion y pongo los angulos del brazo 
 		Entorno();//Cargo los objetos, forms y demas elementos
 	}//end of carga de objetos
 	
@@ -1062,6 +1065,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		//////No pongo break para el case -5 para q entre en el case -1 y ejecute su contenindo
 
 		case -1:////////////////ADD BOCETO///////////////
+			ManejadorSketchs->SetToDrawNPl(3,ManejadorSketchs);
+			CambiarPointSpecificPlano=3;
 			Err=false;
 			for(unsigned i=0;i<ManejadorSketchs->contB;i++)
 			{
@@ -1077,7 +1082,9 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			if(Err)
 				break;
 
-			if(bocetoACrear==1)
+			if(bocetoACrear==0)
+				ManejadorSketchs->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&ManejadorSketchs->coorNewPlano[0],&ManejadorSketchs->coorNewPlano[1],&ManejadorSketchs->coorNewPlano[2],TypePlano::SPECIFICPLANE),ManejadorSketchs);
+			else if(bocetoACrear==1)
 				ManejadorSketchs->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")),ManejadorSketchs);
 			else
 				ManejadorSketchs->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&ManejadorSketchs->coorNewPlano[0],&ManejadorSketchs->coorNewPlano[1],&ManejadorSketchs->coorNewPlano[2],ManejadorSketchs->NewPlanoType),ManejadorSketchs);
@@ -1163,6 +1170,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 			ManejadorSketchs->ResetNewPlano(ManejadorSketchs);
 			break;
 		case -1:////////////////ADD BOCETO///////////////
+			ManejadorSketchs->SetToDrawNPl(3,ManejadorSketchs);
+			CambiarPointSpecificPlano=3;
 			interfaz=-5;
 			ManejadorSketchs->ResetNewPlano(ManejadorSketchs);
 			break;
@@ -1308,12 +1317,15 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t){
 		s=Frases(23)+to_string(ManejadorSketchs->contNPl)+"/3";
 		f=new Label("LabelInterfaz-1",(char*)s.c_str(),*new CRD(0,0,0),1,0,0,0,wigth,height);
 		box->AddForm(f,box);
+		f=new RadioButtonGroup("RadioButtonGroupPuntosNewBoceto",CRD(0,0,0),wigth,height);
+		ManejadorSketchs->SetToDrawNPl(3,ManejadorSketchs);
+		CambiarPointSpecificPlano=3;
 		for(unsigned i=0;i<ManejadorSketchs->contNPl;i++)
 		{
 			s=("["+to_string(ManejadorSketchs->coorNewPlano[i].x)+";"+to_string(ManejadorSketchs->coorNewPlano[i].y)+";"+to_string(ManejadorSketchs->coorNewPlano[i].z)+"]");
-			f=new Label((char*)string("LabelPunto"+to_string(i)).c_str(),(char*)s.c_str(),*new CRD(0,0,0),1,0,0,0,wigth,height);
-		    box->AddForm(f,box);
+			f->RBGAddRB((char*)(string("RadioButtonPunto")+to_string(i)).c_str(),(char*)s.c_str());
 		}
+		box->AddForm(f,box);
 		if(ManejadorSketchs->contNPl==3)
 		{
 			s=Frases(21)+to_string(ManejadorSketchs->contB);
@@ -1636,9 +1648,6 @@ void ESE_GRS::reshape(int x,int y){
 	glutPostRedisplay();
 }
 void ESE_GRS::movRaton(GLsizei x,GLsizei y){
-
-	
-
    movRatY+=(float)x-movRatXinit;
    movRatX+=(float)y-movRatYinit;
    movRatXinit=(float)x;
@@ -1765,6 +1774,10 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   ManejadorSketchs->Pintar_NoPintar_LineaSuspensiva(false,ManejadorSketchs);
 			   switch (interfaz)
 			   {
+			   case -1://///////////////////////INTERFAZ -1 AddPoints Specific Plano
+				   CambiarPointSpecificPlano=ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("RadioButtonGroupPuntosNewBoceto");
+				   ManejadorSketchs->SetToDrawNPl(CambiarPointSpecificPlano,ManejadorSketchs);
+				   break;
 			   case 0: //////////////////////////INTERFAZ 0
 					if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetElemChecket()==1)
 						BoxInterfaz0=ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("radioButtonGroupInterfaz0");
@@ -2051,7 +2064,7 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
 	{
 	  switch (tecla)
 	    {
-		case '1':
+        case '1':
 			angles[0]+=(GLfloat)0.9;
 			CalcularCoordenadas();
 		break;
@@ -2114,6 +2127,30 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
 	 }
 	 else
      {
+		 switch (tecla)
+		 {
+			 case 't':
+		  movESE_GRSX+=5*velGiro;
+		  break;
+	 case 'y':
+		 movESE_GRSX-=5*velGiro;
+		  break;
+		case 'g':
+			movESE_GRSY+=5*velGiro;
+		  break;
+		  case 'h':
+			  movESE_GRSY-=5*velGiro;
+		  break;
+		  case 'v':
+			  movESE_GRSZ+=5*velGiro;
+		  break;
+		  case 'b':
+			  movESE_GRSZ-=5*velGiro;
+		  break;
+
+		 default:
+			 break;
+		 }
 	    //messeng=new MeSSenger("Accion no valida ;Conexion por puerto serie ya iniciada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
      }
 	 CRD*CoordElement;
@@ -2741,12 +2778,15 @@ void ESE_GRS::recivirDatosCOM(){
 						 
 					if(pintar) 
 					{ 
-					   if(interfaz==-1&&ManejadorSketchs->contNPl<3) //interfaz de Add new Boceto
+					   if(interfaz==-1) //interfaz de Add new Boceto
 					   {
-						   ManejadorSketchs->AddPuntoNewPlano(cooRd,ManejadorSketchs);
-						   ManejadorForms->Add(Interfaz(-1),ManejadorForms);
-						   if(ManejadorSketchs->contNPl==3)
-							   ManejadorForms->ActivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
+						   if(ManejadorSketchs->contNPl<3||CambiarPointSpecificPlano!=3)
+						   {
+							   ManejadorSketchs->AddPuntoNewPlano(cooRd,ManejadorSketchs,CambiarPointSpecificPlano);
+							   ManejadorForms->Add(Interfaz(-1),ManejadorForms);
+							   if(ManejadorSketchs->contNPl==3)
+								   ManejadorForms->ActivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
+						   }
 					   }
 					   else if(interfaz==2)//Interfaz de Dibujo
 				       {

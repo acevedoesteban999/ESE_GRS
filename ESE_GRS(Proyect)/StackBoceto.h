@@ -6,10 +6,11 @@ public:
 	Plano**bocetos;
 	CRD*coord,*coorNewPlano;
 	TypePlano NewPlanoType;
-	unsigned contNPl,cantB,contB,PlanoCheckeeado;
+	unsigned contNPl,toDrawNPl,cantB,contB,PlanoCheckeeado;
 	bool draw,drawAll;
 	StackBoceto(){
 		contB=contNPl=0;
+		toDrawNPl=3;
 		cantB=10;
 		bocetos=new Plano*[cantB];
 		//bocetos[contB++]=new Plano("Principal Sketch");
@@ -76,14 +77,26 @@ public:
 			glLineWidth(3);
 			if(b->contNPl==1)
 			{
-			   glBegin(GL_POINTS);
-				glVertex3f((GLfloat)b->coorNewPlano[0].x,(GLfloat)b->coorNewPlano[0].y,(GLfloat)b->coorNewPlano[0].z);
+				if(b->toDrawNPl==3)
+				{
+					glBegin(GL_POINTS);
+					glVertex3f((GLfloat)b->coorNewPlano[0].x,(GLfloat)b->coorNewPlano[0].y,(GLfloat)b->coorNewPlano[0].z);
+				}
 			}
 			else
 			{
 			glBegin(GL_LINE_LOOP);
 			for(unsigned i=0;i<b->contNPl;i++)
 				glVertex3f((GLfloat)b->coorNewPlano[i].x,(GLfloat)b->coorNewPlano[i].y,(GLfloat)b->coorNewPlano[i].z);
+			}
+			if(b->toDrawNPl<3)
+			{
+				glEnd();
+				glPointSize(5);
+				glColor3f(0,0,1);
+				glBegin(GL_POINTS);
+				glVertex3f((GLfloat)b->coorNewPlano[b->toDrawNPl].x,(GLfloat)b->coorNewPlano[b->toDrawNPl].y,(GLfloat)b->coorNewPlano[b->toDrawNPl].z);	
+				glPointSize(1);
 			}
 			glEnd();
 			glPointSize(1);
@@ -107,7 +120,12 @@ public:
 	{
 		sb->draw=draw;
 	}
-	static void AddPuntoNewPlano(CRD*coord,StackBoceto*sb){
+	static void AddPuntoNewPlano(CRD*coord,StackBoceto*sb,unsigned ACambiar=3){
+		if(ACambiar!=3)
+		{
+			sb->coorNewPlano[ACambiar]=*coord;
+			return;
+		}
 		switch (sb->contNPl)
 		{
 		case 0:
@@ -338,5 +356,9 @@ public:
 			}
 		}
 		
+	}
+	static void SetToDrawNPl(unsigned ToDraw,StackBoceto*sb)
+	{
+		sb->toDrawNPl=ToDraw;
 	}
 };

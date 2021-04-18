@@ -98,6 +98,18 @@ public:
 		C/=10;
 		D/=10;
 	}
+	if(A==0&&B==0)
+	{
+		this->PlanoType=TypePlano::XY;
+	}
+	else if(A==0&&C==0)
+	{
+		this->PlanoType=TypePlano::XZ;
+	}
+	else if(B==0&&C==0)
+	{
+		this->PlanoType=TypePlano::YZ;
+	}
 	distmax=100;
 	Plano::ActualiWidthHeight(Punt1,this,true);
 	Plano::ActualiWidthHeight(Punt2,this);
@@ -235,7 +247,7 @@ public:
 			a[i]=s[i];
 		return a;
 	};
-	static CRD*AngulosDirectores(CRD*vect,Plano*p){
+	static CRD*AngulosDirectores(CRD*vect){
 	CRD*f=new CRD;
 	float norma=Plano::Norma(vect);
 	if(!norma)
@@ -256,17 +268,23 @@ public:
 		return ang;
 	}
 	static CRD* RotarAlPlano(Plano*p){
-		CRD*vect=new CRD(p->A,p->B,p->C);
-		CRD *Toreturn=new CRD(*p->AngulosDirectores(vect,p));
-		Plano plxy("xy",new CRD(1,0,0),new CRD(0,1,0),new CRD(0,0,0),TypePlano::PLANE);
-		CRD proyxy=plxy.CoordRestringida(vect,&plxy);
-		float angproyecxyvectnorm=Plano::AngEntreVectores(vect,&proyxy);
-		CRD*angsxy=plxy.AngulosDirectores(&proyxy,&plxy);
-		Toreturn->x=90-angproyecxyvectnorm;
-		Toreturn->y=0;
-		Toreturn->z=angsxy->y;
+		CRD *Toreturn=new CRD();
+		if(p->PlanoType==TypePlano::XZ)
+		{
+			Toreturn->x=90;
+		}
+		else if(p->PlanoType==TypePlano::YZ)
+		{
+			Toreturn->x=90;
+			Toreturn->z=90;
+		}
+		else if(p->PlanoType==TypePlano::SPECIFICPLANE)
+		{
+			Toreturn->x=Plano::AngEntreVectores(new CRD(p->A,p->B,p->C),new CRD(0,0,1));
+			Toreturn->z=Plano::AngEntreVectores(new CRD(0,1,0),&Plano::CoordRestringida(new CRD(p->A,p->B,p->C),new Plano("asd",new CRD(0,1,0),new CRD(1,0,0),new CRD(1,1,0),TypePlano::PLANE)));
+		}
 		return Toreturn;
-	}
+}
 	static float Norma(CRD*vect)
 	{
 		return (float)sqrt(pow(vect->x,2)+pow(vect->y,2)+pow(vect->z,2));
