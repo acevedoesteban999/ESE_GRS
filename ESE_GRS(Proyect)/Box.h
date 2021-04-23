@@ -63,7 +63,7 @@ public:
 		   {
 		   for(unsigned i=0;i<cont;i++)
 		      {
-				  if(forms[i]->Pulsado(x,y))
+				  if(forms[i]->Pulsado(x,y)&&forms[i]->active)
 				  {
 					  PulsadO=i;
 				      return true;

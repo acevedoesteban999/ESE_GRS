@@ -1,7 +1,7 @@
 #include "ESE_GRS.h"
 
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="1.4.0";
+														char*ESE_GRS_Version="1.4.1";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -394,22 +394,28 @@ char*Frases(unsigned frase)
 					return "Loading Objects ";
 					
 				case 93:
-					return "Enable sound";
+					return "Enable Sound";
 
 				case 94:
-					return "Disable sound";
+					return "Disable Sound";
 
 				case 95:
-					return "Sound activated";
+					return "Sound Activated";
 
 				case 96:
-					return "Sound deactivated";
+					return "Sound Deactivated";
 				
 				case 97:
 					return "Exit?";
-				
-			default:
-				return "Not Find";
+
+				case 98:
+					return "Exit";
+
+				case 99:
+					return "Error to Connect to ";
+
+			   default:
+				   return "Not Find";
 		break;
 				
 			}
@@ -691,10 +697,10 @@ char*Frases(unsigned frase)
 					return "Cargando Objetos ";
 
 				case 93:
-					return "Habilitar sonido";
+					return "Habilitar Sonido";
 
 				case 94:
-					return "Deshabilitar sonido";
+					return "Deshabilitar Sonido";
 				
 				case 95:
 					return "Sonido Activado";
@@ -704,7 +710,13 @@ char*Frases(unsigned frase)
 
 				case 97:
 					return "Salir?";
+
+				case 98:
+					return "Salir";
 				
+				case 99:
+					return "Error al Conectar con ";
+
 				default:
 				return "No Encontrado";	
 
@@ -878,7 +890,7 @@ void ESE_GRS::InitMenu()
 			glutAddMenuEntry(Frases(68),-9);//activ modo registro
 		glutAddSubMenu(Frases(42),subMenuIdioma);//idioma	
 		glutAddMenuEntry(Frases(83),-10);
-		glutAddMenuEntry(Frases(97),-14);//Salir
+		glutAddMenuEntry(Frases(98),-14);//Salir
 	}
 	else
 	{
@@ -2400,7 +2412,11 @@ void ESE_GRS::default_menu(int opcion){
 		if(!p->inicializa( ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxChar"),atol(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxUnsigned"))))
 		  {
 			  if(ModoSonido)sonidos(1);
-			  string f=string(p->ErrorStr());
+			  string f;
+			  if(p->ErrorStr()[0]=='C')
+				  f=string(Frases(99))+string(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxChar"))+string(":")+string(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxUnsigned"));
+			  else
+				  f=string(p->ErrorStr());
 			  if(ModoLogger)cout<<f.c_str()<<endl;
 			   char*msg=new char[f.length()+1];
 			   msg[f.length()]=0;
