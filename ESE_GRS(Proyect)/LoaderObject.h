@@ -11,8 +11,14 @@ public:
     {
     public:
 		GLfloat *v;
-    	VERTs(){};
-    	~VERTs(){};
+    	VERTs()
+		{
+			v=new GLfloat[1];
+		};
+    	~VERTs()
+		{
+			delete[]v;
+		};
     };
 	//////////////////////////////////////////////VARIABLES//////////////////////////////////
 	GLdouble R,G,B;
@@ -48,6 +54,10 @@ public:
 	this->R=R;
 	this->G=G;
 	this->B=B;
+	this->vertvCargX=new GLfloat[1];
+	this->vertvCargY=new GLfloat[1];
+	this->vertvCargZ=new GLfloat[1];
+	this->veRts=new VERTs[1];
 	//contHastak=0;
 	//contvf=0;
 	//contvn=0;
@@ -58,7 +68,13 @@ public:
 	nameStr=string(s.substr(s.find_last_of(92)+1,s.find_last_of(".")-s.find_last_of(92)-1)).c_str();//Para ponerle de nombre a cada LoaderObjec el nombre pero sin la direccion ni formato o sea:esta en "obj\brazo1.obj" pero el nombre q se guarda es "brazo1" 
 
 }
-	~LoaderObject(void){}
+	~LoaderObject()
+	{		
+		delete[]vertvCargX;
+		delete[]vertvCargY;
+		delete[]vertvCargZ;
+		delete[]veRts;
+	}
 	//////////////////CARGAR//////////////////////
 	static void cargarObject(char*name,LoaderObject*l){
 	fstream f;

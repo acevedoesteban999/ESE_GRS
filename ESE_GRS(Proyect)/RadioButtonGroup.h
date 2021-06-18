@@ -8,7 +8,10 @@ protected:
 	RadioButton**RB;
 	
 public:
-	RadioButtonGroup(){};
+	RadioButtonGroup()
+	{
+		RB=new RadioButton*[1];
+	};
 	RadioButtonGroup(char*name,CRD coord,float TotalWigth,float TotalHeight):Forms(name,coord,0,0, TotalWigth, TotalHeight){
 		t=Type::RADIOBUTTONGROUP;
 		cantRB=10;
@@ -16,7 +19,11 @@ public:
 		RB=new RadioButton*[cantRB];
 		Checket=0;
 };
-	~RadioButtonGroup(){};
+	~RadioButtonGroup()
+	{
+		for(unsigned i=0;i<contRB;i++)
+			delete RB[i];
+	};
 	void NewTotalProp(float wigth,float height){
 		Forms::NewTotalProp(wigth,height);
 		for(unsigned i=0;i<contRB;i++)

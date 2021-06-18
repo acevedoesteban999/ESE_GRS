@@ -25,7 +25,7 @@ public:
 	Forms(){
 		t=Type::FORMS;
 		coord=new CRD();
-		name=new char;
+		name=new char[1];
 		active=NoDraw=destruir=Cancel=reshapeBool=false;
 	};
 	Forms(char*name,CRD coord,float wigth,float height,float TotalWigth,float TotalHeight){
@@ -43,17 +43,23 @@ public:
 		this->NoDraw=false;
 		destruir=Cancel=reshapeBool=false;
 	};
-	virtual ~Forms(){};
+	virtual ~Forms()
+	{
+		delete coord;
+		delete []name;
+	};
 	static void Cancelar(Forms*f){f->Cancel=true;};
 	static void Destruir(Forms*f){f->destruir=true;};
 	static void SetName(char*name,Forms*f)
 	{
+		delete[]f->name;
 		f->name=new char[strlen(name)+1];
 		f->name[strlen(name)]=0;
 		for(unsigned i=0;i<strlen(name);i++)
 			f->name[i]=name[i];
 	}
 	static void SetCRD(CRD*coord,Forms*f){
+		delete f->coord;
 		f->coord=new CRD(*coord);
 	}
 	static CRD*GetCoord(Forms*f){return f->coord;};
@@ -61,7 +67,6 @@ public:
 		this->active=ActDesact;
 	};
 	bool GetActiveDesavt(){return active;};
-	virtual float LetterWigth(){return Wigth;}
 	static void teXt(char*c,GLfloat x,GLfloat y,GLfloat R,GLfloat G,GLfloat B,unsigned LetterSize,Forms*f){
 	//dibujo el char c en la posicion x,y,z con color RGB
 	
@@ -94,6 +99,7 @@ public:
 		this->TotalWigth=wigth;
 		this->TotalHeight=height;
 	}
+	virtual float LetterWigth(){return Wigth;}
 	virtual bool Pulsado(float x,float y){
 		if(x>=this->coord->x&&x<=this->coord->x+this->Wigth&&y>=this->coord->y&&y<=this->coord->y+this->Height)
 			return true;
@@ -109,8 +115,12 @@ public:
 	virtual char*GetEscritura(){
 		return "NULL";};
 	virtual bool GetEstoyEscribindo(){return false;}
-	virtual void NewCRD(CRD*crd){this->coord=new CRD(*crd);};
-	virtual void NewCRD(char*Formsname,CRD*crd){this->coord=new CRD(*crd);};
+	virtual void NewCRD(CRD*crd)
+	{
+		delete this->coord;
+		this->coord=new CRD(*crd);
+	};
+	virtual void NewCRD(char*Formsname,CRD*crd){NewCRD(crd);};
 	virtual void AddText(char letra){};
 	virtual void AddNewText(char*newTexts){};
 	virtual void SubText(){};
@@ -121,6 +131,7 @@ public:
 		this->coord->z=z;
 	}
 	virtual void SetCoord(CRD*coord){
+		delete this->coord;
 		this->coord=new CRD(*coord);
 	}
 	virtual void SetColor(GLfloat R,GLfloat G,GLfloat B){};

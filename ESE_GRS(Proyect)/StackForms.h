@@ -11,7 +11,11 @@ private:
 	unsigned cont;
 public:
 	StackForms(){cont=0;cant=10;forms=new Forms*[cant];};
-	~StackForms(){};
+	~StackForms()
+	{
+		for(unsigned i=0;i<cont;i++)
+			delete forms[i];
+	};
 	static void Add(Forms*form,StackForms*sf){
 		if(form->Cancel)
 			return;
@@ -35,8 +39,7 @@ public:
 		delete sf->forms;
 		sf->forms=NewForms;
 	}
-	sf->forms[sf->cont++]=form;	
-	
+	sf->forms[sf->cont++]=form;		
 }
 	static void Sub(char*name,StackForms*sf)
 	{
@@ -47,7 +50,7 @@ public:
 				for(unsigned ii=i;ii<sf->cont-1;ii++)
 					sf->forms[ii]=sf->forms[ii+1];
 				sf->cont--;
-				
+				//delete[] sf->forms[sf->cont];
 				break;
 			}
 		}

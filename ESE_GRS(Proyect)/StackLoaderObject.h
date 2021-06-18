@@ -7,7 +7,7 @@ public:
 	//////////////////////////////////////////////////VARIABLES////////////////////////
 	int contLoaderObject;
     int cantLoaderObject;
-	GLfloat angules[6];
+	GLfloat*angules;
 	double*CoordReales;
 	bool Salir,errorCarga;
 	/////////DINAMICOS///////////////
@@ -19,11 +19,18 @@ public:
 {
 	contLoaderObject=0;
     cantLoaderObject=10;
+	angules=new GLfloat[6];
     Stack=new LoaderObject*[cantLoaderObject];//inicializo el arreglo
 	CoordReales=new double[3];
 	Salir=errorCarga=false;
 };
-	~StackLoaderObject(){}
+	~StackLoaderObject()
+	{
+		delete[]angules;
+		delete[]CoordReales;
+		for(unsigned i=0;i<(unsigned)contLoaderObject;i++)
+			delete Stack[i];
+	}
 	////////////////PUSH/////////////////////////
 	static void push(char*c,StackLoaderObject*slo,double R,double G,double B){
 	//agrego un nuevo LoaderObject(.obj con direccion *c) en el Stack 

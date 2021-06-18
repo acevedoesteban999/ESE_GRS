@@ -11,7 +11,10 @@ public:
 		cant=10;
 		animations=new Animacion*[cant];
 	};
-	~StackAnimation(){};
+	~StackAnimation()
+	{
+		delete[]animations;
+	};
 	void Draw()
 	{
 		if(active&&!NoDraw)

@@ -23,18 +23,18 @@ public:
 		this->name[strlen(name)]=0;
 		for(unsigned i=0;i<strlen(name);i++)
 			this->name[i]=name[i];
-	  PuntoCentro=new CRD;
+	  PuntoCentro=new CRD();
 	  PuntosCrearPlano=new CRD[4];
-	  puNt1=new CRD;
-	  puNt2=new CRD;
-	  puNt3=new CRD;
-	  puNt4=new CRD;
+	  puNt1=new CRD();
+	  puNt2=new CRD();
+	  puNt3=new CRD();
+	  puNt4=new CRD();
 	  PlanoType=TypePlano::PLANE;
-	  items=new Items();
+	  items=new Items[1];
 	  trasladarplano=0;
 	};
 	Plano(char*name,CRD*Punt1,CRD*Punt2,CRD*Punt3,TypePlano tp){
-		items=new Items();
+		items=new Items[1];
 		this->PlanoType=tp;
 		trasladarplano=0;
 		pintarPlano=true;
@@ -117,7 +117,14 @@ public:
 
 	
 };
-	~Plano(void){};
+	~Plano(void)
+	{
+		delete[]items;
+		delete[]name;
+		delete PuntoCentro,puNt1,puNt2,puNt3,puNt4;
+		delete[]PuntosCrearPlano;
+
+	};
 	static CRD Distncia(CRD*punt,Plano*p){
 	CRD puntPlano,V;
 	double A=p->A,B=p->B,C=p->C,D=p->D;

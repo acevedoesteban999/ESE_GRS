@@ -8,20 +8,26 @@ public:
 	TypePlano NewPlanoType;
 	unsigned contNPl,toDrawNPl,cantB,contB,PlanoCheckeeado;
 	bool draw,drawAll;
-	StackBoceto(){
+	StackBoceto()
+	{
 		contB=contNPl=0;
 		toDrawNPl=3;
 		cantB=10;
 		bocetos=new Plano*[cantB];
 		//bocetos[contB++]=new Plano("Principal Sketch");
 		PlanoCheckeeado=0;
-		coord=new CRD(0,0,0);
-		coorNewPlano=new CRD[3];
+		coord=new CRD();
+		coorNewPlano=new CRD[4];
 		draw=true;
 		drawAll=false;
 		NewPlanoType=TypePlano::SPECIFICPLANE;
 	};
-	~StackBoceto(){};
+	~StackBoceto()
+	{
+		delete[]bocetos;
+		delete coord;
+		delete[]coorNewPlano;
+	};
 	static void SetDrawAll(bool drawall,StackBoceto*sb){sb->drawAll=drawall;};
 	static void Add(Plano*p,StackBoceto*b)
 	{
@@ -46,10 +52,11 @@ public:
 	static void Pintar_NoPintar_LineaSuspensiva(bool pintarNoPintar,StackBoceto*b){
 //		b->bocetos[b->PlanoCheckeeado]->Pintar_NoPintar_LineaSuspensiva(pintarNoPintar,b->bocetos[b->PlanoCheckeeado]);
 	}
-	static void ActualizaLastCood(CRD*coord,StackBoceto*b){
-	b->coord=new CRD(*coord);
-	if(b->contB)
-	   b->BocetoActual(b)->ActualiWidthHeight(&Plano::CoordRestringida(b->coord,b->BocetoActual(b)),b->BocetoActual(b));
+	static void ActualizaLastCood(CRD*coord,StackBoceto*b)
+	{
+		b->coord=new CRD(*coord);
+		if(b->contB)
+			b->BocetoActual(b)->ActualiWidthHeight(&Plano::CoordRestringida(b->coord,b->BocetoActual(b)),b->BocetoActual(b));
 	}
 	static void AddPoint(CRD coord,StackBoceto*b){
 		b->BocetoActual(b)->add(&coord,b->BocetoActual(b));

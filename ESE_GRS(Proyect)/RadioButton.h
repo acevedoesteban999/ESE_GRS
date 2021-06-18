@@ -10,7 +10,10 @@ private:
 public:
 	bool Checket,SoloLabel;
 	Label*l;
-	RadioButton(){};
+	RadioButton()
+	{
+		l=new Label();
+	};
 	RadioButton(char*RadioButtonName,CRD coord,char*escritura,float TotalWigth,float TotalHeight,bool Checket=false):Forms(RadioButtonName,coord,15,15,TotalWigth,TotalHeight){
 		SoloLabel=false;
 		this->Checket=Checket;
@@ -23,7 +26,10 @@ public:
 		this->Wigth=20;
 		this->Height=20;
 	};
-	~RadioButton(){};
+	~RadioButton()
+	{
+		delete l;
+	};
 	void Draw(){
 		if(!this->NoDraw)
 		{

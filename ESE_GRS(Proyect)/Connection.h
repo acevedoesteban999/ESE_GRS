@@ -18,19 +18,26 @@ protected:
 	SOCKADDR_IN serveraddr,clientaddr;
 	bool IsConectado;
 	bool error;
-	char*errorstr,*ip,*message; 
-	char buffer[1024];
+	char*errorstr,*ip,*message,*buffer; 
 	unsigned Port;
 public:
 	Connection(){
 		t=ConnectionType::CONNECTION;
 		IsConectado=error=false;
-		errorstr=new char(0);
-		ip=new char(0);
-		message=new char(0);
+		errorstr=new char[1];
+		ip=new char[1];
+		message=new char[1];
+		buffer=new char[1024];
 		Port=0;
 	};
-	virtual ~Connection(){};
+	virtual ~Connection()
+	{
+		delete []errorstr;
+		delete[]ip;
+		delete[]message;
+		delete []buffer;
+	
+	};
 	virtual void CloseConnection(){};
 	virtual bool inicializa(const char*Ip, unsigned long Port){return false;};
 	virtual char* Recibir()
@@ -47,7 +54,7 @@ public:
 			 }
 			 if(n==-1)
 			 {
-					errorstr="Error 1 ";
+					errorstr="C_Error 1 ";
 					error=true;
 					return NULL;
 			 }
@@ -254,7 +261,7 @@ private:
 public:
 	PuertoSerie():Connection()
 	{
-		Puerto=new char(0);
+		Puerto=new char[1];
 		this->t=ConnectionType::SERIAL_PORT;
 	};
 	//PuertoSerie(System::String^PuertoCom, unsigned long Velocidad);
@@ -264,11 +271,12 @@ public:
     }
 	void CloseConnection()
 	{
+		delete[]Puerto;
 		if(IsConectado)
-	   {
-		  IsConectado=false;
-		  CloseHandle(handler);
-	   }
+		{
+		   IsConectado=false;
+		   CloseHandle(handler);
+	    }
 	
 	}
 	bool inicializa(const char* PuertoCom, unsigned long Velocidad)

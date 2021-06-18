@@ -16,7 +16,10 @@ public:
 	TimeDuration tim;
 	TextBoxType tbt;
 	bool dosClicks;
-	TextBox(){};
+	TextBox()
+	{
+		escritura=new char[1];
+	};
 	TextBox(char*name,CRD crd,float wigth,float TotalWigth,float TotalHeight,char*Escritura="",unsigned max=0,TextBoxType tBt=TextBoxType::DEFAULT):Forms(name,crd,0,20,TotalWigth,TotalHeight){
 	    punt=false;
 		this->tbt=tBt;
@@ -40,7 +43,10 @@ public:
 		t=Type::TEXTBOX;
 	
 	};
-	~TextBox(){};
+	~TextBox()
+	{
+		delete[]escritura;
+	};
 	bool Escribiendo(){
 		if(active)
 		   return escribiendo;

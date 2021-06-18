@@ -5,6 +5,7 @@ int main(int argv,char*argc[]){
 	glutInit(&argv,argc);//inicio el GLUT
 	ESE_GRS*ESE_GRS_Proyect=new ESE_GRS;
 	glutMainLoop();//le digo q se quede esperando eventos 
+	delete ESE_GRS_Proyect;
 	return 0;
 }
 

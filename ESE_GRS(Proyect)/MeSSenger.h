@@ -16,7 +16,12 @@ private:
 	TimeDuration*t;
 public:
 	bool Drawing;
-	MeSSenger(){Drawing=false;};
+	MeSSenger()
+	{
+		meSSenger=new char[1];
+		t=new TimeDuration();
+		Drawing=false;
+	};
 	MeSSenger(char*meSSenger,position Position,GLfloat wigth,GLfloat height,float Time=3,GLfloat R=1,GLfloat G=1,GLfloat B=1,unsigned BigLV=0,GLfloat x=0,GLfloat y=0,GLfloat z=0)
 {
 	this->meSSenger=new char[strlen(meSSenger)+1];
@@ -49,7 +54,11 @@ public:
 		this->BigLV=BigLV;
 		Drawing=true;
 };
-	~MeSSenger(void){};
+	~MeSSenger(void)
+	{
+		delete[]meSSenger;
+		delete t;
+	};
 	static void textMSS(char*c,GLfloat x,GLfloat y,GLfloat z,GLfloat R,GLfloat G,GLfloat B,bool big,bool moreBig){
 	//dibujo el char c en la posicion x,y,z con color RGB
 	

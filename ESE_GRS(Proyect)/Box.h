@@ -32,7 +32,11 @@ public:
 	   TimeDurationBool=false;
 	   DrawLineForElement=true;
 	}
-	~Box(){};
+	~Box()
+	{
+		for(unsigned i=0;i<cont;i++)
+			delete forms[i];
+	};
 	void ChecketCont(Box*b){
 		if(b->cont>=b->cant)
 		{
@@ -175,7 +179,7 @@ public:
 		{
 			forms[i]->NewCRD(&((*forms[i]->coord-*this->coord)+*newcoord));
 		}
-		*this->coord=*newcoord;
+		Forms::SetCRD(newcoord,this);
 	}
 	void NewCRD(char*Formsname,CRD*crd)
 	{

@@ -14,15 +14,20 @@ public:
 	unsigned cont,cant;
 	GLfloat*SPlinePoints;
 	bool SplineAsignar;
-	Items(){
-	cont=0;
-	cant=100;
-	PoIntS=new CRD[cant];
-	t=ItemsType::ITEMS;
-	SplineAsignar=true;
-	SPlinePoints=new GLfloat;
+	Items()
+	{
+		cont=0;
+		cant=100;
+		PoIntS=new CRD[cant];
+		t=ItemsType::ITEMS;
+		SplineAsignar=true;
+		SPlinePoints=new GLfloat[1];
 	};
-	~Items(){};
+	~Items()
+	{
+		delete []PoIntS;
+		delete []SPlinePoints;
+	};
 	void Draw(){
 		glPointSize(5);
 		glColor3f(0,1,0);
@@ -98,6 +103,7 @@ public:
 	      cant+=100;
 	      for(unsigned i=0;i<cont;i++)
 		     newPoints[i]=PoIntS[i];
+		  delete[]PoIntS;
 	      PoIntS=newPoints;
 	}
 	if(PoIntS[cont-1]==*point)
