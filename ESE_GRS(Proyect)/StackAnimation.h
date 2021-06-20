@@ -13,7 +13,8 @@ public:
 	};
 	~StackAnimation()
 	{
-		delete[]animations;
+		for(unsigned i=0;i<cont;i++)
+			delete animations[i];
 	};
 	void Draw()
 	{
@@ -27,7 +28,7 @@ public:
 		{
 			if(!strcmp(AnimationName,animations[i]->name))
 			{
-
+				delete animations[i];
 				for(unsigned ii=i;ii<cont-1;ii++)
 					animations[ii]=animations[ii+1];
 				cont--;

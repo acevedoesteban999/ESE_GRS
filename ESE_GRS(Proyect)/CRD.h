@@ -3,10 +3,11 @@ class CRD
 {
 public:
 	double x,y,z;
-	CRD(void){
-	this->x=0;
-	this->y=0;
-	this->z=0;
+	CRD(void)
+	{
+		this->x=0;
+		this->y=0;
+		this->z=0;
 	};
 	CRD(double x,double y,double z)
 	{
@@ -14,9 +15,9 @@ public:
 	}
 	CRD(double*coords)
 	{
-	 this->x=coords[0];
-	 this->y=coords[1];
-	 this->z=coords[2];
+		 this->x=coords[0];
+		 this->y=coords[1];
+		 this->z=coords[2];
 	}
 	~CRD(){};
 	static void set(float x,float y,float z,CRD*crd)

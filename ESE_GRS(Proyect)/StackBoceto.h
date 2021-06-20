@@ -42,7 +42,7 @@ public:
 			b->cantB+=10;
 			for(unsigned i=0;i<b->contB;i++)
 				Newp[i]=b->bocetos[i];
-			delete b->bocetos;
+			delete[]b->bocetos;
 			b->bocetos=Newp;
 		}
 		b->bocetos[b->contB++]=p;
@@ -67,7 +67,7 @@ public:
 		{
 			if(!strcmp(name,b->bocetos[i]->name))
 			{
-
+				delete b->bocetos[i];
 				for(unsigned ii=i;ii<b->contB-1;ii++)
 					b->bocetos[ii]=b->bocetos[ii+1];
 				b->contB--;

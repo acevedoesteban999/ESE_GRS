@@ -63,8 +63,7 @@ public:
 	static void default_menu(int opcion);
 	static void MenuIdioma(int opcion);
 	//////////////DATOS
-    static void SaveObj(char*address,LoaderObject*l);
-	static void cargarInitDatos();
+   	static void cargarInitDatos();
 	static void salvarInitDatos();
 	static void recivirDatosCOM();
     static void CalcularCoordenadas();

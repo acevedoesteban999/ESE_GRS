@@ -55,6 +55,7 @@ public:
 		   slo->cantLoaderObject+=10;
 		   for(int i=0;i<slo->cantLoaderObject;i++)
 			   newdata[i]=slo->Stack[i];
+		   delete[]slo->Stack;
 		   slo->Stack=newdata;
  	       }
 	   slo->Stack[slo->contLoaderObject++]=newLoaderObject;

@@ -36,7 +36,7 @@ public:
 		sf->cant+=10;
 		for(unsigned i=0;i<sf->cont;i++)
 			NewForms[i]=sf->forms[i];
-		delete sf->forms;
+		delete[]sf->forms;
 		sf->forms=NewForms;
 	}
 	sf->forms[sf->cont++]=form;		
@@ -47,10 +47,10 @@ public:
 		{
 			if(sf->ExistForm(name,sf->forms[i]))
 			{
+				delete sf->forms[i];
 				for(unsigned ii=i;ii<sf->cont-1;ii++)
 					sf->forms[ii]=sf->forms[ii+1];
 				sf->cont--;
-				//delete[] sf->forms[sf->cont];
 				break;
 			}
 		}

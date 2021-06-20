@@ -124,7 +124,8 @@ public:
 			this->cantRB+=10;
 			for(unsigned i=0;i<this->contRB;i++)
 				newRB[i]=this->RB[i];
-		 this->RB=newRB;
+			delete[]this->RB;
+			this->RB=newRB;
 		}
 
 		this->RB[this->contRB++]=rb;
@@ -136,6 +137,7 @@ public:
 			{
 				if(!strcmp(this->RB[i]->name,nameRB))
 				{
+	                delete RB[i];
 					for(unsigned ii=i;ii<this->contRB-1;i++)
 						this->RB[i]=this->RB[i+1];
 					break;

@@ -37,6 +37,7 @@ public:
 				this->max=max;
 		}
 		cont=0;
+		escritura=new char[1];
 		AddNewText(Escritura);
 		Tope=0;
 		dosClicks=escribiendo=false;
@@ -56,7 +57,8 @@ public:
 		return escritura;
 	};
 	void AddNewText(char*newText){
-		 escritura=new char[max+1];
+		delete[]escritura;
+		escritura=new char[max+1];
 		if(strlen(newText)>max)
 		{
 		  
