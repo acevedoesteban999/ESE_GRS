@@ -9,26 +9,30 @@ Inventor.**
 ## Lenguaje
 >C++ 
 
-## Tipo de Conexiones
-> - Puerto serie
-> - Sokets(Eternet o Wifi)
+## Plataforma
+>Windows
 
 ## Librerias utilizadas
 > - OpenGL(Simular el brazo en un entorno 3D)
 > - winsock(Conexiones por Sokets)
 > - libxl(Comunicación de la Aplicacion con Autodesk Inventor)
 
+## Conexiones
+> - Puerto Serie
+> - Sokets(Eternet y Wifi)
 
 ***Importante para el desarrollo en Visual Studio 2012***
 > 1. Configuration Properites->General->characterSet=Not Set
 > 2. Configuration Properites->General->Common Language Runtime Support=No Common Language Runtime Support
 > 3. C/C++->General->Additional Include Directories=.../libxl/include_cpp && .../freeglut/include
-> 4. linker->General->Additional Library Directories=.../lib(For freegut && xlms)
-> 5. linker->Input->Additinal Dependencies=freeglut.dll && libxl.dll
+> 4. Linker->General->Additional Library Directories=.../lib(For freegut && xlms)
+> 5. Linker->Input->Additinal Dependencies=freeglut.dll && libxl.dll
 
 ***Creación y mantenimiento del brazo físico:***
 >Telegram:@ACB273
+
 ***Comunicación entre sensores y arduino:***
 >Telegram:@Andros_Cuba_98
+
 ***Comunicación arduino PC y desarrollo de la aplicación:***
 >Telegram:@EstebanACB2
