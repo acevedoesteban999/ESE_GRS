@@ -6,9 +6,6 @@ generar superficies complejas utilizando planos y superficies a partir
 de puntos, líneas y curvas con un acabado final en el editor 3D Autodesk 
 Inventor.**
 
-## Descargar  
->No asignado aún
-
 ## Plataforma
 >Windows
 
