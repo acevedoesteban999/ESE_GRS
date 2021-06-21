@@ -6,20 +6,23 @@ generar superficies complejas utilizando planos y superficies a partir
 de puntos, líneas y curvas con un acabado final en el editor 3D Autodesk 
 Inventor.**
 
-## Lenguaje
->C++ 
+## Descargar  
+>No asignado aún
 
 ## Plataforma
 >Windows
 
+## Lenguaje
+>C++ 
+
 ## Librerias utilizadas
 > - OpenGL(Simular el brazo en un entorno 3D)
-> - winsock(Conexiones por Sokets)
+> - winsock(Conexiones por Sockets)
 > - libxl(Comunicación de la Aplicacion con Autodesk Inventor)
 
 ## Conexiones
 > - Puerto Serie
-> - Sokets(Eternet y Wifi)
+> - Sockets(Eternet y Wifi)
 
 ## Sobre los desarrolladores
 >***Creación y mantenimiento del brazo físico:***
@@ -35,5 +38,5 @@ Inventor.**
 > 1. Configuration Properites->General->characterSet=Not Set
 > 2. Configuration Properites->General->Common Language Runtime Support=No Common Language Runtime Support
 > 3. C/C++->General->Additional Include Directories=.../libxl/include_cpp && .../freeglut/include
-> 4. Linker->General->Additional Library Directories=.../lib(For freegut && xlms)
+> 4. Linker->General->Additional Library Directories=.../freegut/lib/ && .../xlms/lib/)
 > 5. Linker->Input->Additinal Dependencies=freeglut.dll && libxl.dll
