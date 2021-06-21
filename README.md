@@ -24,8 +24,10 @@ Inventor.**
 ## Sobre los desarrolladores
 >***Creación y mantenimiento del brazo físico:***
 > - Telegram:@ACB273
+>
 >***Comunicación entre sensores y arduino:***
 > - Telegram:@Andros_Cuba_98
+>
 >***Comunicación arduino PC y desarrollo de la aplicación:***
 > - Telegram:@EstebanACB2
 
