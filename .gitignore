@@ -1,11 +1,3 @@
-#Important
-#Add to proyect->Prop
-#Configuration Properites->General->characterSet=Not Set
-#Configuration Properites->General->Common Language Runtime Support=No Common Language Runtime Support
-#C/C++->General->Additional Include Directories=.../libxl/include_cpp && .../freeglut/include
-#linker->General->Additional Library Directories=.../lib(For freegut && xlms)
-#linker->Input->Additinal Dependencies=freeglut.dll && libxl.dll
- 
 #Listado de archivos ignorados
 ESE_GRS(Proyect).sdf
 ESE_GRS(Proyect).sln
