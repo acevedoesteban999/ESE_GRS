@@ -8,6 +8,8 @@ Inventor.**
 
 ![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS.png)
 
+[Enlace directo a la descarga](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS/ESE_GRS.rar)
+
 ## Plataforma
 >Windows
 
