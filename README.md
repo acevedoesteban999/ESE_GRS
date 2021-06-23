@@ -6,10 +6,10 @@ generar superficies complejas utilizando planos y superficies a partir
 de puntos, líneas y curvas con un acabado final en el editor 3D Autodesk 
 Inventor.**
 
+
+## [Descargar ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/tree/master/media/ESE_GRS)
+
 ![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS.png)
-
-
-## >[Enlace a la descarga](https://github.com/Esteban191900/ESE_GRS-Class/tree/master/media/ESE_GRS)
 
 ## Plataforma
 >Windows
