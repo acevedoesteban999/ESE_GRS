@@ -35,6 +35,22 @@ public:
 					string s="ESE_GRS-XLS/";
 					s+=Planos[elements[i]]->name;
 					s+=".xls";
+					fstream f;
+					bool exist;
+					unsigned cont=0;
+					do
+					{
+					f.open((char*)s.c_str(),ios::in);
+					exist=f.is_open();
+					if(exist)
+					{
+						s=s.substr(0,s.length()-4-(cont==0?0:cont<10?2:3));
+						s+=string("_")+to_string(cont);
+						s+=".xls";
+						cont++;
+					}
+					f.close();
+					}while (exist);
 					book->save((char*)s.c_str());
 					book->release();
 					book=xlCreateBook();
@@ -55,14 +71,35 @@ public:
 							sheet->writeNum(row,1,Planos[elements[i]]->items->PoIntS[j].y);
 							sheet->writeNum(row++,2,Planos[elements[i]]->items->PoIntS[j].z);
 						}
-					
-						string s="ESE_GRS-XLS/";
-						s+="All_Sketchs";
-						s+=".xls";
-						book->save((char*)s.c_str());
 					}
+					string s="ESE_GRS-XLS/";
+					s+="All_Sketchs";
+					s+=".xls";
+					fstream f;
+					bool exist;
+					unsigned cont=0;
+					do
+					{
+					f.open((char*)s.c_str(),ios::in);
+					exist=f.is_open();
+					if(exist)
+					{
+						s=s.substr(0,s.length()-4-(cont==0?0:cont<10?2:3));
+						s+=string("_")+to_string(cont);
+						s+=".xls";
+						cont++;
+					}
+					f.close();
+					}while (exist);
+					
+
+					
+					
+					
+					
+					book->save((char*)s.c_str());
 				}
-				book->release();
+				book->release();	
 			}
 			else
 				return false;

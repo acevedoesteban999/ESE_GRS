@@ -1185,7 +1185,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 				messeng=new MeSSenger( Frases(47),position::CENTER_TOP,wigth,height,5,1,0,0,2);
 				if(ModoSonido)sonidos(2);
 			}
-			delete u;
+			delete[]u;
 			interfaz=0;
 			if(ModoSonido)sonidos(8);
 			break;

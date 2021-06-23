@@ -1,16 +1,16 @@
 Formato: &  + nombre_archivo.obj  +  Red  +  Green  +  Blue
 //en caso de no exixtir los vaores de RGB se toma por defecto 0.0 0.0 0.0(Negro)
 //la direccion no debe de tener mas de 100 carcteres
-&data\obj\1.obj 0.8 0.8 0.8
-&data\obj\2.obj 0.045 0.045 0.045
-&data\obj\3.obj 0.555 0.555 0.555
-&data\obj\4.obj 0.191 0.191 0.891
-&data\obj\5.obj 0.600 0.600 0.600
-&data\obj\6.obj 0.640 0.855 0.187
-&data\obj\7.obj 0.755 0.755 0.755
-&data\obj\8.obj 0.034 0.840 0.023
-&data\obj\9.obj 0.025 0.855 0.0
-&data\obj\10.obj 0.855 0.855 0.855	
-&data\obj\11.obj 0.755 0.755 0.755
-&data\obj\12.obj 0.655 0.655 0.655
-&data\obj\13.obj 0.0 0.072 0.955
+/&data\obj\1.obj 0.8 0.8 0.8
+/&data\obj\2.obj 0.045 0.045 0.045
+/&data\obj\3.obj 0.555 0.555 0.555
+/&data\obj\4.obj 0.191 0.191 0.891
+/&data\obj\5.obj 0.600 0.600 0.600
+/&data\obj\6.obj 0.640 0.855 0.187
+/&data\obj\7.obj 0.755 0.755 0.755
+/&data\obj\8.obj 0.034 0.840 0.023
+/&data\obj\9.obj 0.025 0.855 0.0
+/&data\obj\10.obj 0.855 0.855 0.855	
+/&data\obj\11.obj 0.755 0.755 0.755
+/&data\obj\12.obj 0.655 0.655 0.655
+/&data\obj\13.obj 0.0 0.072 0.955
