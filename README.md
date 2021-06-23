@@ -1,10 +1,10 @@
 # Proyecto ESE_GRS 
 
-**Este proyecto tiene como objetivo el desarrollo de una aplicación
+Este proyecto tiene como objetivo el desarrollo de una aplicación
 para simular el movimiento del brazo ESE_GRS de 6 articulaciones y 
 generar superficies complejas utilizando planos y superficies a partir 
 de puntos, líneas y curvas con un acabado final en el editor 3D Autodesk 
-Inventor.**
+Inventor.
 
 
 ## [Descargar ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/tree/master/media/ESE_GRS)
