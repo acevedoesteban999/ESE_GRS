@@ -1,3 +1,4 @@
+#pragma once
 #include "Forms.h"
 #include "CRD.h"
 class StackAnimation:public Forms
@@ -15,6 +16,7 @@ public:
 	{
 		for(unsigned i=0;i<cont;i++)
 			delete animations[i];
+		delete[]animations;
 	};
 	void Draw()
 	{

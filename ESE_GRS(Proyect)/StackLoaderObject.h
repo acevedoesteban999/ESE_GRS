@@ -30,6 +30,7 @@ public:
 		delete[]CoordReales;
 		for(unsigned i=0;i<(unsigned)contLoaderObject;i++)
 			delete Stack[i];
+		delete[]Stack;
 	}
 	////////////////PUSH/////////////////////////
 	static void push(char*c,StackLoaderObject*slo,double R,double G,double B){

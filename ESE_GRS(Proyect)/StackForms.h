@@ -15,6 +15,7 @@ public:
 	{
 		for(unsigned i=0;i<cont;i++)
 			delete forms[i];
+		delete[]forms;
 	};
 	static void Add(Forms*form,StackForms*sf){
 		if(form->Cancel)

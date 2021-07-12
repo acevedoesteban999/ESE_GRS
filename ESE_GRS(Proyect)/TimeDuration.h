@@ -1,5 +1,5 @@
-#include <ctime>
 #pragma once
+#include <ctime>
 class TimeDuration
 {
 public:

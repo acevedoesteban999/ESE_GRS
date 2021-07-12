@@ -23,6 +23,7 @@ public:
 	{
 		for(unsigned i=0;i<contRB;i++)
 			delete RB[i];
+		delete[]RB;
 	};
 	void NewTotalProp(float wigth,float height){
 		Forms::NewTotalProp(wigth,height);

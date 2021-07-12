@@ -1,3 +1,4 @@
+#pragma once
 #include "Forms.h"
 #include <math.h>
 class Animacion:public Forms

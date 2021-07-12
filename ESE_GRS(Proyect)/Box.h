@@ -1,3 +1,4 @@
+#pragma once
 #include "Forms.h"
 class Box:public Forms{
 
@@ -36,6 +37,7 @@ public:
 	{
 		for(unsigned i=0;i<cont;i++)
 			delete forms[i];
+		delete[]forms;
 	};
 	void ChecketCont(Box*b){
 		if(b->cont>=b->cant)

@@ -2725,7 +2725,7 @@ void ESE_GRS::recivirDatosCOM(){
 		   if(c!=NULL)//si no esta vacio  
 		     {
 			  unsigned strleN=strlen(c);
-			  Verificacion(c,&strleN); //Add y/o guado el error los errores arrasrtandos
+			  Verificacion(c,strleN); //Add y/o guado el error los errores arrasrtandos
 		      for(unsigned i=0;i<strleN;i+=2)	//Un for por si llegan mas de 2 bytes
 			  {
 				contt++;
@@ -2954,40 +2954,40 @@ void ESE_GRS::cargarInitDatos(){
 
 		newdata=new char[strlen(toSaveIp)+1];
 		newdata[strlen(toSaveIp)]=0;
-			for(unsigned i=0;i<strlen(toSaveIp);i++)
-				newdata[i]=toSaveIp[i];
-			toSaveIp=newdata; 
-			SpecialKeys(GLUT_KEY_F4,0,0);
+		for(unsigned i=0;i<strlen(toSaveIp);i++)
+			newdata[i]=toSaveIp[i];
+		toSaveIp=newdata; 
+		SpecialKeys(GLUT_KEY_F4,0,0);
 	}
 	
 	}
-void ESE_GRS::Verificacion(char*cc,unsigned*strleN){
-	unsigned RealStrleN=*strleN;
+void ESE_GRS::Verificacion(char*cc,unsigned&strleN){
+	unsigned RealStrleN=strleN;
 			  bool adjunt=false;
 			  if(bytBool)
 			         {
-				     if(*strleN%2==0)
+				     if(strleN%2==0)
 				        adjunt=true;
 					 if(ModoLogger)cout<<"Se ha adjuntado {"<<DataProcessor::printfBits(byt)<<"} a {"<<DataProcessor::printfBits(cc[0])<<"}"<<endl;
-					 char*newc=new char[*strleN+2];
-				     newc[*strleN+1]=0;
+					 char*newc=new char[strleN+2];
+				     newc[strleN+1]=0;
 					 newc[0]=cc[0];
 				     newc[1]=byt;
-				     for(unsigned i=1;i<*strleN;i++)
+				     for(unsigned i=1;i<strleN;i++)
 					     newc[i+1]=cc[i];
 				     cc=newc;
-				     *strleN=strlen(cc);
+				     strleN=strlen(cc);
 				     bytBool=false;
 			        }
-			  if((*strleN)%2!=0)
+			  if((strleN)%2!=0)
 			       {
 				     if(!bytBool)
 				        {
-						if(ModoLogger)cout<<"Cuidado,ha llegado "<<RealStrleN<<" bytes"<<(adjunt?"(+1)porque se ha adjuntado un elemento q estaba en espera,":",")<<"{"<<DataProcessor::printfBits(cc[*strleN-1])<<"}=>esperando a adjuntarse"<<endl;
+						if(ModoLogger)cout<<"Cuidado,ha llegado "<<RealStrleN<<" bytes"<<(adjunt?"(+1)porque se ha adjuntado un elemento q estaba en espera,":",")<<"{"<<DataProcessor::printfBits(cc[strleN-1])<<"}=>esperando a adjuntarse"<<endl;
 						adjunt=false;
-						byt=cc[*strleN-1];
-				        cc[*strleN-1]=0;
-				        *strleN=strlen(cc);
+						byt=cc[strleN-1];
+				        cc[strleN-1]=0;
+				        strleN=strlen(cc);
 				        bytBool=true;
 				        }
 			       }

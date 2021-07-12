@@ -1,3 +1,4 @@
+#pragma once
 #include "Forms.h"
 class Label:public Forms
 {

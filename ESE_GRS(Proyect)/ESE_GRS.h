@@ -32,7 +32,6 @@ enum Language
 
 {
 public:
-
 	ESE_GRS();
 	~ESE_GRS();
 	////////////DIBUJAR
@@ -67,7 +66,7 @@ public:
 	static void salvarInitDatos();
 	static void recivirDatosCOM();
     static void CalcularCoordenadas();
-	static void Verificacion(char*cc,unsigned*strleN);
+	static void Verificacion(char*cc,unsigned&strleN);
 	//HILOS
 	static void ThreadCOM();
 	static void ThreadCargObject();

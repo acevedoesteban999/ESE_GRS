@@ -24,9 +24,11 @@ public:
 	};
 	~StackBoceto()
 	{
-		delete[]bocetos;
 		delete coord;
 		delete[]coorNewPlano;
+		for(unsigned i=0;i<contB;i++)
+			delete bocetos[i];
+		delete[]bocetos;
 	};
 	static void SetDrawAll(bool drawall,StackBoceto*sb){sb->drawAll=drawall;};
 	static void Add(Plano*p,StackBoceto*b)
