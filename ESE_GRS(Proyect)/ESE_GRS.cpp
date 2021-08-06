@@ -423,16 +423,16 @@ char*Frases(unsigned frase)
 					return "Server Closed";
 
 				case 103:
-					return "(INGLES)Acceso";
+					return "Access";
 
 				case 104:
-					return "(INGLES)Sin Acceso";
+					return "No Access";
 
 				case 105:
-					return "(INGLES)Acceso Concedido";
+					return "Access Granted";
 
 				case 106:
-					return "(INGLES)Acceso Denegado";
+					return "Access Denied";
 
 			   default:
 				   return "Not Find";
