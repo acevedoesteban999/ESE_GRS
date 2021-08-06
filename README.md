@@ -4,7 +4,7 @@ Este proyecto tiene como objetivo el desarrollo de una aplicación
 para simular el movimiento del brazo ESE_GRS de 6 articulaciones y 
 generar superficies complejas utilizando planos y superficies a partir 
 de puntos, líneas y curvas con un acabado final en el editor 3D Autodesk 
-Inventor. Puede vincularse con el ESE_GRSConnectionSimulator para usar 
+Inventor. Puede vincularse con el [ESE_GRSConnectionSimulator](https://github.com/Esteban1914/ESE_GRS_ConnectionSimulator) para usar 
 mas servicios.
 
 
