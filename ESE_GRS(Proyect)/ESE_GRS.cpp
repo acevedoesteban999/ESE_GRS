@@ -1,6 +1,6 @@
 #include "ESE_GRS.h"
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="1.4.4";
+														char*ESE_GRS_Version="1.5.0";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -22,6 +22,8 @@ bool ActiveDesactAcept=false;
 bool ActiveDesactCancel=false;
 bool ModoSonido=true;
 bool bytBool=false;
+bool Acces=false;
+bool FirstAcces=false;
 char byt;
 char*toSaveCOM="COM2",*toSaveIp="127.0.0.1";
 unsigned toSaveSpeed=9600,toSavePort=55555;
@@ -51,7 +53,7 @@ Connection*p=new Connection();
 TimeDuration tCOM(true);
 StackBoceto*ManejadorSketchs=new StackBoceto();
 thread*t1=new thread();
-mutex m;
+mutex MutexManejadorForms,MutexAcces;
 MeSSenger*messeng=new MeSSenger();
 StackForms*ManejadorForms=new StackForms();
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
@@ -420,6 +422,18 @@ char*Frases(unsigned frase)
 				case 102:
 					return "Server Closed";
 
+				case 103:
+					return "(INGLES)Acceso";
+
+				case 104:
+					return "(INGLES)Sin Acceso";
+
+				case 105:
+					return "(INGLES)Acceso Concedido";
+
+				case 106:
+					return "(INGLES)Acceso Denegado";
+
 			   default:
 				   return "Not Find";
 		break;
@@ -729,6 +743,18 @@ char*Frases(unsigned frase)
 				case 102:
 					return "Servidor Cerrado";
 
+				case 103:
+					return "Acceso";
+
+				case 104:
+					return "Sin Acceso";
+
+				case 105:
+					return "Acceso Concedido";
+
+				case 106:
+					return "Acceso Denegado";
+
 				default:
 				return "No Encontrado";	
 
@@ -741,6 +767,7 @@ char*Frases(unsigned frase)
 }
 void DestruirVariablesGlobales()
 {
+	MutexManejadorForms.lock();
 	if(recibir_serie||!ManejadorObject->Salir)
 	{
 		recibir_serie=false;
@@ -765,6 +792,7 @@ void DestruirVariablesGlobales()
 	delete cooRd;
 	delete[]toSaveCOM;
 	delete[]toSaveIp;
+	MutexManejadorForms.unlock();
 }	
 ////////////////CONTRUCTOR Y DESTRUCTOR//////////////////////////////////////////////
 ESE_GRS::ESE_GRS(){
@@ -961,7 +989,9 @@ void ESE_GRS::Entorno(){
 	  messeng->Drawing_and_Decremt(messeng);//Textos de los mensajes superiores centrados 
 	  if(!BoxAbout&&!Boxf1&&!BoxReconnect&&!BoxExit)
 		text("o",-2.0,-1.5,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8);
+	  MutexManejadorForms.lock();
 	  ManejadorForms->DrawForms(ManejadorForms);//Dibujo los Forms
+	  MutexManejadorForms.unlock();
 	  glPopMatrix();
 	  //pinto el eje de coordenadas del systema
 	  glPushMatrix();//Dibujo el eje de coordenadas del sistema
@@ -1138,7 +1168,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		    ManejadorForms->Sub("BoxInterfazConnectionsButtonAcept",ManejadorForms);
 		    ManejadorForms->Sub("BoxInterfazConnectionsButtonCancel",ManejadorForms);
 		    ManejadorForms->Add(Interfaz(0),ManejadorForms);
-			default_menu(-5);
+			/*if(p->GetType()==ConnectionType::SERIAL_PORT)
+				 default_menu(-5);*/
 		    return box;
 		break;
 
@@ -1220,7 +1251,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			ManejadorForms->Sub("BoxInterfazConnectionsButtonAcept",ManejadorForms);
 		    ManejadorForms->Sub("BoxInterfazConnectionsButtonCancel",ManejadorForms);
 			ManejadorForms->Add(Interfaz(0),ManejadorForms);
-			default_menu(-5);
+			if(p->GetType()==ConnectionType::SERIAL_PORT)
+				default_menu(-5);
 			return box;
 			break;
 
@@ -1387,12 +1419,12 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		box->SetName("BoxInterfazConnections",box);
 		box->SetCRD(new CRD(10,40,0),box);
 		glutDestroyMenu(MenuCD);
-		f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::TCP_IP_CLIENT?toSaveIp:toSaveCOM,15);
+		f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::SOCKET_CLIENT?toSaveIp:toSaveCOM,15);
 		box->AddForm(f,box);
-		f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::TCP_IP_CLIENT?(char*)to_string(toSavePort).c_str():(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
+		f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::SOCKET_CLIENT?(char*)to_string(toSavePort).c_str():(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
 		box->AddForm(f,box);
 		f=new RadioButtonGroup("RadioButtonGroupConnectionType",*new CRD(0,0,0),wigth,height);
-		f->RBGAddRB("RadioButtomEternet",Frases(25),Connecttype==ConnectionType::TCP_IP_CLIENT?1:0);
+		f->RBGAddRB("RadioButtomEternet",Frases(25),Connecttype==ConnectionType::SOCKET_CLIENT?1:0);
 		f->RBGAddRB("RadioButtomSerialPort",Frases(26),Connecttype==ConnectionType::SERIAL_PORT?1:0);
 		box->AddForm(f,box);
 		break;
@@ -1731,6 +1763,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	{
 	   bool eRror=false;
 	   string s;
+	   MutexManejadorForms.lock();
 	   switch (ManejadorForms->PresionarForm((float)x,(float)y,ManejadorForms))
 	   {
 	   case 0:
@@ -1743,7 +1776,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   {
 				  if(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetElemChecket()==2)
 				  {
-					 p->SetType(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetRBGChecket("RadioButtonGroupConnectionType")?ConnectionType::SERIAL_PORT:ConnectionType::TCP_IP_CLIENT,p);
+					 p->SetType(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetRBGChecket("RadioButtonGroupConnectionType")?ConnectionType::SERIAL_PORT:ConnectionType::SOCKET_CLIENT,p);
 					 Connecttype=p->GetType();
 					 ManejadorForms->Add(Interfaz(3),ManejadorForms);
 				  }
@@ -1803,6 +1836,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   }
 			   else if(ManejadorForms->GetForm("BoxExit",ManejadorForms)->BoxGetElemChecket()==1)
 			   {
+				   MutexManejadorForms.unlock();
 				   default_menu(-13);
 			   }
 		   }
@@ -1986,7 +2020,24 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 				if(BoxAbout)
 					ManejadorForms->Add(Interfaz(8),ManejadorForms);
 				if(ModoSonido)sonidos(9);
-				ManejadorForms->Add(Interfaz(0,INTERFZType::ACEPT),ManejadorForms);
+				ManejadorForms->Add(Interfaz(0,INTERFZType::ACEPT),ManejadorForms);	
+				if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+				{
+					MutexAcces.lock();
+					if(!Acces)
+						Acceso(Acces);
+					MutexAcces.unlock();
+				}
+				
+				InitMenu();
+				
+				/*m1.lock();
+				if(recibir_serie&&ConnectionType::SOCKET_CLIENT&&!Acces)
+				{
+					p->GetType()==ConnectionType::SERIAL_PORT?Acces=true:Acces=false;
+					Acceso(Acces);
+				}*/
+				//m1.unlock();
 			break;
 
 			case Type::BUTTONCANCELRB:
@@ -1996,6 +2047,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					ManejadorForms->Add(Interfaz(8),ManejadorForms);
 				if(ModoSonido)sonidos(9);
 				ManejadorForms->Add(Interfaz(0,INTERFZType::CANCEL),ManejadorForms);
+				InitMenu();
 			break;
 
 			case Type::BUTTONEXIT:
@@ -2068,6 +2120,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 				}
 			 break;     
 	   }
+	MutexManejadorForms.unlock();	
 	}
    
   
@@ -2077,7 +2130,6 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	movRatYinit=(float)y;
 	
    }
-	
 	glutPostRedisplay();
 }
 void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
@@ -2410,14 +2462,15 @@ void ESE_GRS::default_menu(int opcion){
 
 
 	case -1://Inicio la conexion
-		default_menu(-5);
+		/*if(p->GetType()==ConnectionType::SERIAL_PORT)
+			default_menu(-5);*/
 		delete p;
 		if(Connecttype==ConnectionType::SERIAL_PORT)
 		{
 		   p=new PuertoSerie();
 		}
-		else if(Connecttype==ConnectionType::TCP_IP_CLIENT)
-			p=new TcP_ip_Client();
+		else if(Connecttype==ConnectionType::SOCKET_CLIENT)
+			p=new Socket_Client();
 		if(!p->inicializa( ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxChar"),atol(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxUnsigned"))))
 		  {
 			  if(ModoSonido)sonidos(1);
@@ -2442,8 +2495,11 @@ void ESE_GRS::default_menu(int opcion){
 			   ManejadorForms->Add(new Label("labelChar",p->getChar(),*(new CRD(87,-5,0)),0,0,1,0,wigth,height),ManejadorForms);
 			   ManejadorForms->Add(new Label("labelUnsigned",(char*)to_string(p->getunsigned()).c_str(),*(new CRD(87,5,0)),0,0,1,0,wigth,height),ManejadorForms);
 			   ManejadorForms->SetColor("labelESE_GRS",0,1,0,ManejadorForms);
-
-
+			   if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+			   {
+				   ManejadorForms->Add(new Label("labelAcceso",Frases(104),*(new CRD(0,15,0)),0,0,1,0,wigth,height),ManejadorForms);
+				   ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(1,1,0);
+			   }
 			   StackAnimation*sa=new StackAnimation("StackAnimationsConnection");
 			   sa->STANSetAnimation("AnimacionRoja",*new CRD(wigth-100,height-50,0),75,wigth,height,-25,1,0,0,1.5);
 			   sa->STANSetAnimation("AnimacionVerde",*new CRD(wigth-100,height-50,0),75,wigth,height,0,0,1,0,1.5);
@@ -2453,7 +2509,9 @@ void ESE_GRS::default_menu(int opcion){
 
 
 		       recibir_serie=true;
+
 			   t1=new thread(ThreadCOM);
+			   p->Trasmitir("ESEGRS WIN");
 			   contMenuToDraw=-1;
 			   delete messeng;
 			   messeng=new MeSSenger(msg,position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
@@ -2465,7 +2523,7 @@ void ESE_GRS::default_menu(int opcion){
 					   toSaveCOM[i]=p->getChar()[i];
 				   toSaveSpeed=p->getunsigned();
 		       }
-		       else if(p->GetType()==ConnectionType::TCP_IP_CLIENT)
+		       else if(p->GetType()==ConnectionType::SOCKET_CLIENT)
 			   {
 				   toSaveIp=new char[strlen(p->getChar())+1];
 				   toSaveIp[strlen(p->getChar())]=0;
@@ -2484,7 +2542,6 @@ void ESE_GRS::default_menu(int opcion){
 
 
 	case -2://detengo la conexion 
-			ManejadorForms->Sub("StackAnimationsConnection",ManejadorForms);
 			recibir_serie=false;
 			if(p->GetType()==ConnectionType::SERIAL_PORT)
 			{
@@ -2500,10 +2557,15 @@ void ESE_GRS::default_menu(int opcion){
 			ManejadorForms->Sub("labelChar",ManejadorForms);
 			ManejadorForms->Sub("labelUnsigned",ManejadorForms);
 			ManejadorForms->SetColor("labelESE_GRS",(GLfloat)0.7,(GLfloat)0.7,(GLfloat)0.7,ManejadorForms);	
+			ManejadorForms->Sub("StackAnimationsConnection",ManejadorForms);
+			ManejadorForms->Sub("labelAcceso",ManejadorForms);
 			EsperandoReedireccionar=true;
 			ErrorConnect=false;
+			Acces=false;
+			FirstAcces=false;
 			ESE_GRS::InitMenu();
-			default_menu(-5);
+			if(p->GetType()==ConnectionType::SERIAL_PORT)
+				default_menu(-5);
 			 if(Boxf1)
 					ManejadorForms->Add(Interfaz(7),ManejadorForms);
 			if(ModoSonido)sonidos(10);
@@ -2514,14 +2576,14 @@ void ESE_GRS::default_menu(int opcion){
 			ManejadorForms->SetDraw(false,"BoxInterfazPricipal",ManejadorForms);
 			ManejadorForms->SetDraw(false,"BoxInterfazPricipalButtonAcept",ManejadorForms);
 			ManejadorForms->SetDraw(false,"BoxInterfazPricipalButtonCancel",ManejadorForms);
-		    InitMenu();
+		    //InitMenu();
 		break;
 
 	case -6:	//Oculto Menu
 			ManejadorForms->SetDraw(true,"BoxInterfazPricipal",ManejadorForms);
 			ManejadorForms->SetDraw(true,"BoxInterfazPricipalButtonAcept",ManejadorForms);
 			ManejadorForms->SetDraw(true,"BoxInterfazPricipalButtonCancel",ManejadorForms);
-		    InitMenu();
+		    //InitMenu();
 		break;
 	case -7:	//Oculto SetAngules
 			if(SetAngules)
@@ -2690,8 +2752,12 @@ void ESE_GRS::recivirDatosCOM(){
 		  {
 			if(p->GetType()==ConnectionType::SERIAL_PORT?p->inicializa(toSaveCOM,toSaveSpeed):p->inicializa(toSaveIp,toSavePort))
 			{
+				if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+					p->Trasmitir("ESEGRS WIN");
 				ErrorConnect=false;
+				MutexManejadorForms.lock();
 				ManejadorForms->Add(Interfaz(9),ManejadorForms);
+				MutexManejadorForms.unlock();
 				if(ModoSonido)sonidos(5);
 				delete messeng;
 				messeng=new MeSSenger(Frases(91),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
@@ -2699,7 +2765,7 @@ void ESE_GRS::recivirDatosCOM(){
 			}  
 		  	return;
 		  }
-	      char*c=p->Recibir();//Recivo un dato
+		  char*c=p->Recibir();//Recivo un dato
 		  if(!recibir_serie)
 			  return;
 		  if(p->Error())	 //Si algo dio error
@@ -2717,15 +2783,52 @@ void ESE_GRS::recivirDatosCOM(){
 				}
 				ErrorConnect=true;
 				p->CloseConnection();
+				MutexManejadorForms.lock();
 				ManejadorForms->Add(Interfaz(9),ManejadorForms);
+				MutexManejadorForms.unlock();
+				Acces=false;
 				if(ModoSonido)sonidos(1);
 				delete[]c;
 				return;
 		 }
 		   if(c!=NULL)//si no esta vacio  
 		     {
+				 if(!Acces)
+				 {
+					 if(!strcmp(c,"ESE_GRS USER"))
+					 {
+						 delete messeng;
+						 messeng=new MeSSenger(Frases(105),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
+						 MutexManejadorForms.lock();
+						 ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(103));
+						 ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(0,1,0);
+						 MutexManejadorForms.unlock();
+						 Acces=true;
+						 MutexAcces.lock();
+						 Acceso(Acces);
+						 MutexAcces.unlock();
+						 if(ModoSonido)sonidos(5);
+						 return;
+					 }
+				 }
+				 else if(Acces)
+				 {
+					 if(!strcmp(c,"ESE_GRS !USER"))
+					 {
+						 delete messeng;
+						 messeng=new MeSSenger(Frases(106),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
+						 MutexManejadorForms.lock();
+						 ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(104));
+						 ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(1,1,0);
+						 MutexManejadorForms.unlock();
+						 Acces=false;
+						 Acceso(Acces);
+						 if(ModoSonido)sonidos(1);
+						 return;
+					 }
+				 }
 			  unsigned strleN=strlen(c);
-			  Verificacion(c,strleN); //Add y/o guado el error los errores arrasrtandos
+			  c=Verificacion(c,strleN); //Add y/o guado el error los errores arrasrtandos
 		      for(unsigned i=0;i<strleN;i+=2)	//Un for por si llegan mas de 2 bytes
 			  {
 				contt++;
@@ -2746,6 +2849,8 @@ void ESE_GRS::recivirDatosCOM(){
 						if(ModoLogger)cout<<Frases(55)<<endl;
 						delete messeng;
 						messeng=new MeSSenger(Frases(55),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
+						EsperandoReedireccionar=true;
+						if(ModoSonido)sonidos(1);
 						continue;
 					}
 	   				if(!EsperandoReedireccionar&&(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0))	///////////VERIFICACION//////////
@@ -2753,6 +2858,8 @@ void ESE_GRS::recivirDatosCOM(){
 						if(ModoLogger)cout<<Frases(54)<<endl;
 						delete messeng;
 						messeng=new MeSSenger(Frases(54),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
+						EsperandoReedireccionar=true;
+						if(ModoSonido)sonidos(1);
 						continue;
 					}
 				 }
@@ -2779,26 +2886,46 @@ void ESE_GRS::recivirDatosCOM(){
 					   break;
 					
 					   case 11:  //////////////////////////////////Next Focus/////////////////////////
-						   if(ModoSonido)sonidos(9);
-						   ManejadorForms->NextFocus("BoxInterfazPricipal",ManejadorForms);
-						   if(ModoLogger)cout<<Frases(58);
+						   if(Acces)
+						   {
+							   if(ModoSonido)sonidos(9);
+							   MutexManejadorForms.lock();
+							   ManejadorForms->NextFocus("BoxInterfazPricipal",ManejadorForms);
+							   MutexManejadorForms.unlock();
+							   if(ModoLogger)cout<<Frases(58);
+						   }
 					   break;			
 					   case 15:   //////////////////////////////////Focus Click//////////////
-						   a=ManejadorForms->FocusClick("BoxInterfazPricipal",ManejadorForms);
-			               teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
-						   if(ModoLogger)cout<<Frases(59);
+						   if(Acces)
+						   {
+								MutexManejadorForms.lock();
+								a=ManejadorForms->FocusClick("BoxInterfazPricipal",ManejadorForms);
+								MutexManejadorForms.unlock();
+								teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
+								if(ModoLogger)cout<<Frases(59);
+						   }
 					   break;
 						   
 					   case 19:  //////////////////////////////////Acept Button//////////////////////////
-						   aa=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetCoord(ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms));
-			               teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aa->x,(int)aa->y);
-						   if(ModoLogger)cout<<Frases(60);
+						   if(Acces)
+						   {
+							   MutexManejadorForms.lock();
+							   aa=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetCoord(ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms));
+							   MutexManejadorForms.unlock();
+							   teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aa->x,(int)aa->y);
+							   if(ModoLogger)cout<<Frases(60);
+						   }
 			  	       break;
 
 					   case 23://////////////////////////////////Cancel Button//////////////////////////
-							aa=ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->GetCoord(ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms));
-			                teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aa->x,(int)aa->y);
-							if(ModoLogger)cout<<Frases(61);
+						   if(Acces)
+						   {
+							   MutexManejadorForms.lock();
+							   aa=ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->GetCoord(ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms));
+							   MutexManejadorForms.unlock();
+							   teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aa->x,(int)aa->y);
+						   }
+						if(ModoLogger)cout<<Frases(61);
 					   break;
 
 					   default:
@@ -2837,14 +2964,18 @@ void ESE_GRS::recivirDatosCOM(){
 						   if(ManejadorSketchs->contNPl<3||CambiarPointSpecificPlano!=3)
 						   {
 							   ManejadorSketchs->AddPuntoNewPlano(cooRd,ManejadorSketchs,CambiarPointSpecificPlano);
+							   MutexManejadorForms.lock();
 							   ManejadorForms->Add(Interfaz(-1),ManejadorForms);
+							   MutexManejadorForms.unlock();
 							   if(ManejadorSketchs->contNPl==3)
 								   ManejadorForms->ActivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
 						   }
 					   }
 					   else if(interfaz==2)//Interfaz de Dibujo
 				       {
-				          ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",true); 
+						  MutexManejadorForms.lock();
+						  ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",true); 
+						  MutexManejadorForms.unlock();
 						  ManejadorSketchs->AddPoint(*cooRd,ManejadorSketchs);
 						  if(ModoSonido)sonidos(4);
 					   }
@@ -2961,7 +3092,7 @@ void ESE_GRS::cargarInitDatos(){
 	}
 	
 	}
-void ESE_GRS::Verificacion(char*cc,unsigned&strleN){
+char* ESE_GRS::Verificacion(char*cc,unsigned&strleN){
 	unsigned RealStrleN=strleN;
 			  bool adjunt=false;
 			  if(bytBool)
@@ -2971,11 +3102,12 @@ void ESE_GRS::Verificacion(char*cc,unsigned&strleN){
 					 if(ModoLogger)cout<<"Se ha adjuntado {"<<DataProcessor::printfBits(byt)<<"} a {"<<DataProcessor::printfBits(cc[0])<<"}"<<endl;
 					 char*newc=new char[strleN+2];
 				     newc[strleN+1]=0;
-					 newc[0]=cc[0];
-				     newc[1]=byt;
+					 newc[0]=byt;
+					 newc[1]=cc[0];
 				     for(unsigned i=1;i<strleN;i++)
 					     newc[i+1]=cc[i];
-				     cc=newc;
+				     delete[]cc;
+					 cc=newc;
 				     strleN=strlen(cc);
 				     bytBool=false;
 			        }
@@ -2991,7 +3123,14 @@ void ESE_GRS::Verificacion(char*cc,unsigned&strleN){
 				        bytBool=true;
 				        }
 			       }
-			 // return cc;
+			 return cc;
+}
+void ESE_GRS::Acceso(bool acceso)
+{
+	if(acceso)
+		default_menu(-5);
+	else
+		default_menu(-6);
 }
 void ESE_GRS::CalcularCoordenadas()
   {
@@ -3017,15 +3156,11 @@ void ESE_GRS::CalcularCoordenadas()
 /////////////////////////THREADS//////////////////////////////////////////////////
 void ESE_GRS::ThreadCOM()
 {
-	m.lock();
 	while(recibir_serie)
-	 recivirDatosCOM();
-	m.unlock();
-
+ 	 recivirDatosCOM();
 }
 void ESE_GRS::ThreadCargObject()
 {
-	m.lock();
 	ManejadorObject->pushByTxt("ESE_GRS.oninit",ManejadorObject);//cargo el txt con las direcciones de los .obj
 	CargObjct=true;
 	ManejadorObject->Salir=true;
@@ -3040,7 +3175,6 @@ void ESE_GRS::ThreadCargObject()
 		if(ModoSonido)sonidos(2);
 		system("cls");
 	}
-	m.unlock();
 }
 
 

@@ -66,7 +66,8 @@ public:
 	static void salvarInitDatos();
 	static void recivirDatosCOM();
     static void CalcularCoordenadas();
-	static void Verificacion(char*cc,unsigned&strleN);
+	static char* Verificacion(char*cc,unsigned&strleN);
+	static void Acceso(bool acceso);
 	//HILOS
 	static void ThreadCOM();
 	static void ThreadCargObject();

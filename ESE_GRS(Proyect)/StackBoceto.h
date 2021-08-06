@@ -73,7 +73,8 @@ public:
 				for(unsigned ii=i;ii<b->contB-1;ii++)
 					b->bocetos[ii]=b->bocetos[ii+1];
 				b->contB--;
-				b->bocetos[b->contB]->~Plano();
+				if(b->contB)
+					b->bocetos[b->contB]->~Plano();
 				break;
 			}
 		}

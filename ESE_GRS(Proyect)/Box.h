@@ -305,7 +305,7 @@ public:
 		else
 		   this->Focus++;	
 	};
-	double* BoxFocusClick(){
+	double* BoxFocusClick() {
 		double*toReturn=new double[2];
 		toReturn[0]=0;
 		toReturn[1]=0;
