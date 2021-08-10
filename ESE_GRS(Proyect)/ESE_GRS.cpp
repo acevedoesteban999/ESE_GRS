@@ -1,6 +1,6 @@
 #include "ESE_GRS.h"
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="1.5.0";
+														char*ESE_GRS_Version="1.5.1";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -23,7 +23,9 @@ bool ActiveDesactCancel=false;
 bool ModoSonido=true;
 bool bytBool=false;
 bool Acces=false;
-bool FirstAcces=false;
+bool PlanoAcceso=false;
+bool VariablesDestruidas=false;
+char*NamePlanoAcceso=new char[1];
 char byt;
 char*toSaveCOM="COM2",*toSaveIp="127.0.0.1";
 unsigned toSaveSpeed=9600,toSavePort=55555;
@@ -53,7 +55,7 @@ Connection*p=new Connection();
 TimeDuration tCOM(true);
 StackBoceto*ManejadorSketchs=new StackBoceto();
 thread*t1=new thread();
-mutex MutexManejadorForms,MutexAcces;
+mutex MutexManejadorForms,MutexAcces,MutexManejadorSketchs;
 MeSSenger*messeng=new MeSSenger();
 StackForms*ManejadorForms=new StackForms();
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
@@ -767,35 +769,136 @@ char*Frases(unsigned frase)
 }
 void DestruirVariablesGlobales()
 {
-	MutexManejadorForms.lock();
-	if(recibir_serie||!ManejadorObject->Salir)
+	if(!VariablesDestruidas)
 	{
-		recibir_serie=false;
-		ManejadorObject->Salir=true;
-		if(p->GetType()==ConnectionType::SERIAL_PORT)
+		VariablesDestruidas=true;
+		MutexManejadorForms.lock();
+		MutexManejadorSketchs.lock();
+		if(recibir_serie||!ManejadorObject->Salir)
 		{
-			t1->join();
-			p->CloseConnection();
+			recibir_serie=false;
+			ManejadorObject->Salir=true;
+			if(p->GetType()==ConnectionType::SERIAL_PORT)
+			{
+				t1->join();
+				p->CloseConnection();
+			}
+			else
+			{
+				 p->CloseConnection();
+				 t1->join();
+			}		 
 		}
 		else
-		{
-			 p->CloseConnection();
-			 t1->join();
-		}		 
+			delete p;
+		delete ManejadorForms;
+		delete messeng;
+		delete ManejadorSketchs;
+		delete ManejadorObject;
+		delete cooRd;
+		delete[]toSaveCOM;
+		delete[]toSaveIp;
+		delete[]NamePlanoAcceso;
+		MutexManejadorForms.unlock();
+		MutexManejadorSketchs.unlock();
 	}
-	else
-		delete p;
-	delete ManejadorForms;
-	delete messeng;
-	delete ManejadorSketchs;
-	delete ManejadorObject;
-	delete cooRd;
-	delete[]toSaveCOM;
-	delete[]toSaveIp;
-	MutexManejadorForms.unlock();
 }	
+string ConvertDou_Str(double d)
+{
+	string s;
+	if(d<0)
+	{
+		d*=-1;
+		s+="_-";
+	}
+	while (d>255)
+	{
+		d-=255;
+		s+=255;
+	}
+	if(d)
+		s+=d;
+	return s;
+}
+double ConvertStr_Dou(string s)
+{
+	double toReturn=0;
+	bool neg=false;
+	if(s.length()&&s[0]=='_'&&s[1]=='-')
+		neg=true;
+	unsigned i=0;
+	if(neg)
+		i=2;
+	for(i;i<s.length();i++)
+	{
+		if(s[i]<0)
+			toReturn+=256+s[i];
+		else
+			toReturn+=s[i];
+	}
+	if(neg)
+		toReturn*=-1;
+	return toReturn;
+
+}
+void Exit()
+{
+	exit(0);
+}
+string PlanoATransmitir()
+{
+	string ss="ESE_GRS PLAN;";
+	ss+=ConvertDou_Str((double)strlen(ManejadorSketchs->BocetoActual(ManejadorSketchs)->name));
+	ss+=";";
+
+	ss+=ManejadorSketchs->BocetoActual(ManejadorSketchs)->name;
+	ss+=";";
+
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].x);
+	ss+=";";
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].y);
+	ss+=";";
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].z);
+	ss+=";";
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].x);
+	ss+=";";
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].y);
+	ss+=";";
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].z);
+	ss+=";";
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].x);
+	ss+=";";
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].y);
+	ss+=";";
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].z);
+	ss+=";";
+
+	ss+=ConvertDou_Str((double)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PlanoType);
+	ss+=";";
+
+	ss+=ConvertDou_Str((double)ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano);
+	ss+=";";
+
+	ss+=ConvertDou_Str((double)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->t);
+	ss+=";";
+	
+	ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont);
+	ss+=";";
+	for(unsigned i=0;i<ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont;i++)
+	{
+		ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].x);
+		ss+=";";
+		ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].y);
+		ss+=";";
+		ss+=ConvertDou_Str(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].z);
+		ss+=";";
+	}
+	return ss;
+
+}
 ////////////////CONTRUCTOR Y DESTRUCTOR//////////////////////////////////////////////
 ESE_GRS::ESE_GRS(){
+	atexit(Exit);
 	//Constructor	
 	//funciones d inicialiacion del GLUT(OPENGL)
 	glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH);//inicio con cloes del rgb,doble buffer y buffer de profundidad
@@ -852,7 +955,8 @@ ESE_GRS::ESE_GRS(){
 	ManejadorForms->Add(sa,ManejadorForms);
 }
 ESE_GRS::~ESE_GRS(){
-		//no hace falta explicar VERDAD?
+	//no hace falta explicar VERDAD?
+	DestruirVariablesGlobales();
 }
 ////////////////INICIALIZADORES//////////////////////////////////////////////////////
 void ESE_GRS::initProyecc(){
@@ -1004,7 +1108,9 @@ void ESE_GRS::Entorno(){
 	  smallEjeCoord((GLfloat)(50/movWheel));
 	  glPopMatrix();
 	  glTranslatef((GLfloat)trasladarX,(GLfloat)trasladarY,(GLfloat)trasladarZ);//desplazamiento de la vista
-      ManejadorSketchs->Draw(ManejadorSketchs,(interfaz==2)?true:false);//Dibujo los Bocetos con sus planos e Items
+	  MutexManejadorSketchs.lock();
+	  ManejadorSketchs->Draw(ManejadorSketchs,(interfaz==2)?true:false);//Dibujo los Bocetos con sus planos e Items
+	  MutexManejadorSketchs.unlock();
 	  ManejadorObject->draw(ManejadorObject,contMenuToDraw);//Dibujo los Objetos .obj
 	  if(contMenuToDraw<0)//Si estoy en modo ensamblaje con o sin visulaizacion de las piezas(-1)(-2) dibujo el punto final con un Punto Negro
 	  {
@@ -1097,9 +1203,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 	ManejadorSketchs->Pintar_NoPintar_LineaSuspensiva(false,ManejadorSketchs);
 	bool desactivaAcept=false,desactiaCancel=false;
 	string s;
-	unsigned*Specialinterfaz;
-	if(interfzAponer==7||interfzAponer==8||interfzAponer==9||interfzAponer==10)
-		Specialinterfaz=new unsigned(interfaz);
+	unsigned LastInterfaz=interfaz;
 	switch(t)
 	{
 	case INTERFZType::ACEPT:////////////////////////////////ACEPT//////////////////////////////////
@@ -1320,6 +1424,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		box->AddForm(f,box,10);
 		if(!recibir_serie)
 			desactivaAcept=true;
+		if(LastInterfaz==2&&p->GetType()==ConnectionType::SOCKET_CLIENT)
+			p->Trasmitir("ESE_GRS!PLAN");
 		break;
 	case 2://///////////////////////////INTERFAZ_2////////////////////////
 		ManejadorSketchs->ActualizaLastCood(cooRd,ManejadorSketchs); 
@@ -1349,7 +1455,16 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			box->AddForm(f,box,10);
 		}
 		desactivaAcept=true;
-		
+		if(LastInterfaz==1&&p->GetType()==ConnectionType::SOCKET_CLIENT)
+		{
+			string ss=PlanoATransmitir();
+			char*toSend=new char[ss.length()+1];
+			toSend[ss.length()]=0;
+			for(unsigned i=0;i<ss.length();i++)
+				toSend[i]=ss[i];
+			p->Trasmitir(toSend);
+			delete[]toSend;
+		}
 		break;
 	case -5://///////////////////////////////////INTERFAZ_-5/////////////////////////
 		ManejadorSketchs->SetDraw(false,ManejadorSketchs);
@@ -1452,7 +1567,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		}
 		break; 
 	case 7:	  //F1
-		interfaz=*Specialinterfaz;
+		interfaz=LastInterfaz;
 		if(!Boxf1)
 		{
 			if(BoxReconnect||BoxExit)
@@ -1516,7 +1631,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		}
 		//break; no break por returns
 	case 8:	//About
-		interfaz=*Specialinterfaz;
+		interfaz=LastInterfaz;
 		if(!BoxAbout)
 		{
 			if(BoxExit)
@@ -1572,7 +1687,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		}
 		//break; no break por returns
 	case 9:	//Reconexion
-		interfaz=*Specialinterfaz;
+		interfaz=LastInterfaz;
 		if(!BoxReconnect)
 		{
 			if(BoxExit)
@@ -1628,7 +1743,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		}
 		//break; no break por returns
 	case 10:   //Salir
-		interfaz=*Specialinterfaz;
+		interfaz=LastInterfaz;
 		if(!BoxExit)
 		{
 			if(Boxf1)
@@ -1764,6 +1879,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	   bool eRror=false;
 	   string s;
 	   MutexManejadorForms.lock();
+	   MutexManejadorSketchs.lock();
 	   switch (ManejadorForms->PresionarForm((float)x,(float)y,ManejadorForms))
 	   {
 	   case 0:
@@ -1836,6 +1952,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   }
 			   else if(ManejadorForms->GetForm("BoxExit",ManejadorForms)->BoxGetElemChecket()==1)
 			   {
+				   MutexManejadorSketchs.unlock();
 				   MutexManejadorForms.unlock();
 				   default_menu(-13);
 			   }
@@ -1896,19 +2013,41 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					case 1:////////////RADIOBUTTONGROUP ITEMS
 						RadioButtomPintar=ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBGChecket("radioButtonGroupInterfaz2");
 						if(RadioButtomPintar==0)///POINTS
+						{
 							Plano::ActualizaItem(ItemsType::POINTSS,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+								p->Trasmitir("ESE_GRS POIN");
+						}
 						else if(RadioButtomPintar==1)//LINES
+						{
 							Plano::ActualizaItem(ItemsType::LINES,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+								p->Trasmitir("ESE_GRS LINE");
+						}
 						else if(RadioButtomPintar==2)//STRIP_LINE
+						{
 							Plano::ActualizaItem(ItemsType::LINE_STRIP,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+								p->Trasmitir("ESE_GRS STRI");
+						}
 						else if(RadioButtomPintar==3)//SPLINE
+						{
 							Plano::ActualizaItem(ItemsType::SPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+								p->Trasmitir("ESE_GRS SPLI");
+						}
 						else if(RadioButtomPintar==4)//BSPLINE
+						{
 							Plano::ActualizaItem(ItemsType::BSPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+								p->Trasmitir("ESE_GRS BSPL");
+						}
 						break;
 					case 2:///////CANCEL Point
 						if(	ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetActiveDesact("RadioButtomCancelLast"))
 						{
+						if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+							p->Trasmitir("ESE_GRS CANC");
 						Plano::CancelLastPoint(ManejadorSketchs->BocetoActual(ManejadorSketchs));
 						if(ModoSonido)sonidos(6);
 						if(!ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont)
@@ -1919,9 +2058,17 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					case 3://Mostrar\ocultar Plano
 						ManejadorSketchs->Pintar_NoPintar_LineaSuspensiva(true,ManejadorSketchs);
 						if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBChecket("RadioButtomMostrarPlano"))
+						{
 							ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=true;
+							if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+								p->Trasmitir("ESE_GRS MOPT");
+						}
 						else
+						{
 							ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=false;
+							if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+								p->Trasmitir("ESE_GRS MOPF");
+						}
 						break;
 					}
 				   break;
@@ -2120,7 +2267,8 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 				}
 			 break;     
 	   }
-	MutexManejadorForms.unlock();	
+	   MutexManejadorSketchs.unlock();
+	   MutexManejadorForms.unlock();	
 	}
    
   
@@ -2471,6 +2619,8 @@ void ESE_GRS::default_menu(int opcion){
 		}
 		else if(Connecttype==ConnectionType::SOCKET_CLIENT)
 			p=new Socket_Client();
+		else
+			p=new Connection();
 		if(!p->inicializa( ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxChar"),atol(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxUnsigned"))))
 		  {
 			  if(ModoSonido)sonidos(1);
@@ -2543,6 +2693,12 @@ void ESE_GRS::default_menu(int opcion){
 
 	case -2://detengo la conexion 
 			recibir_serie=false;
+			if(PlanoAcceso)
+			{
+				PlanoAcceso=false;
+				ManejadorSketchs->Sub(NamePlanoAcceso,ManejadorSketchs);
+				ManejadorSketchs->SetDraw(false,ManejadorSketchs);
+			}
 			if(p->GetType()==ConnectionType::SERIAL_PORT)
 			{
 				t1->join();
@@ -2562,7 +2718,6 @@ void ESE_GRS::default_menu(int opcion){
 			EsperandoReedireccionar=true;
 			ErrorConnect=false;
 			Acces=false;
-			FirstAcces=false;
 			ESE_GRS::InitMenu();
 			if(p->GetType()==ConnectionType::SERIAL_PORT)
 				default_menu(-5);
@@ -2793,41 +2948,67 @@ void ESE_GRS::recivirDatosCOM(){
 		 }
 		   if(c!=NULL)//si no esta vacio  
 		     {
-				 if(!Acces)
+				 unsigned strleN=strlen(c);
+				 if(!Acces&&strleN>11)
 				 {
-					 if(!strcmp(c,"ESE_GRS USER"))
-					 {
-						 delete messeng;
-						 messeng=new MeSSenger(Frases(105),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
-						 MutexManejadorForms.lock();
-						 ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(103));
-						 ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(0,1,0);
-						 MutexManejadorForms.unlock();
-						 Acces=true;
-						 MutexAcces.lock();
-						 Acceso(Acces);
-						 MutexAcces.unlock();
-						 if(ModoSonido)sonidos(5);
-						 return;
+					if(!strcmp(c,"ESE_GRS USER"))
+					{
+						delete messeng;
+						messeng=new MeSSenger(Frases(105),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
+						MutexManejadorForms.lock();
+						ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(103));
+						ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(0,1,0);
+						MutexManejadorForms.unlock();
+						Acces=true;
+						MutexAcces.lock();
+						Acceso(Acces);
+						MutexAcces.unlock();
+						if(ModoSonido)sonidos(5);
+						if(PlanoAcceso)
+						{
+							PlanoAcceso=false;
+							MutexManejadorSketchs.lock();
+							ManejadorSketchs->Sub(NamePlanoAcceso,ManejadorSketchs);
+							ManejadorSketchs->SetDraw(false,ManejadorSketchs);
+							MutexManejadorSketchs.unlock();
+						}
+						return;
 					 }
+					if(EsperandoReedireccionar)
+					{
+						delete messeng;
+						messeng=new MeSSenger(Frases(65),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,1,1,0,2);
+						if(ModoLogger)cout<<Frases(64);
+						if(ModoSonido)sonidos(6);
+						return;
+					}
+					if(ChekEntada(c))
+						 return;
 				 }
-				 else if(Acces)
-				 {
+				 else if(Acces&&strleN>11)
+				 {		
 					 if(!strcmp(c,"ESE_GRS !USER"))
 					 {
-						 delete messeng;
-						 messeng=new MeSSenger(Frases(106),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
-						 MutexManejadorForms.lock();
-						 ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(104));
-						 ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(1,1,0);
-						 MutexManejadorForms.unlock();
-						 Acces=false;
-						 Acceso(Acces);
-						 if(ModoSonido)sonidos(1);
-						 return;
+						delete messeng;
+						messeng=new MeSSenger(Frases(106),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
+						MutexManejadorForms.lock();
+						ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(104));
+						ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(1,1,0);
+						MutexManejadorForms.unlock();
+						Acces=false;
+						Acceso(Acces);
+						if(ModoSonido)sonidos(1);
+						if(PlanoAcceso)
+						{
+							PlanoAcceso=false;
+							MutexManejadorSketchs.lock();
+							ManejadorSketchs->Sub(NamePlanoAcceso,ManejadorSketchs);
+							ManejadorSketchs->SetDraw(false,ManejadorSketchs);
+							MutexManejadorSketchs.unlock();
+						}
+						return;
 					 }
 				 }
-			  unsigned strleN=strlen(c);
 			  c=Verificacion(c,strleN); //Add y/o guado el error los errores arrasrtandos
 		      for(unsigned i=0;i<strleN;i+=2)	//Un for por si llegan mas de 2 bytes
 			  {
@@ -2879,10 +3060,22 @@ void ESE_GRS::recivirDatosCOM(){
 							if(ModoSonido)sonidos(3);
 							CalcularCoordenadas();
 						    ShowAngules();
+							MutexManejadorSketchs.lock();
 							ManejadorSketchs->ActualizaLastCood(cooRd,ManejadorSketchs); 
 							if(interfaz==-5)
 								ManejadorSketchs->ActualizaNewPlanoToCreate(cooRd,ManejadorSketchs,deFult);
+							MutexManejadorSketchs.unlock();
 							contt=0;
+							if(interfaz==2&&p->GetType()==ConnectionType::SOCKET_CLIENT)
+							{
+								string ss=PlanoATransmitir();
+								char*toSend=new char[ss.length()+1];
+								toSend[ss.length()]=0;
+								for(unsigned i=0;i<ss.length();i++)
+									toSend[i]=ss[i];
+								p->Trasmitir(toSend);
+								delete[]toSend;
+							}
 					   break;
 					
 					   case 11:  //////////////////////////////////Next Focus/////////////////////////
@@ -2952,15 +3145,17 @@ void ESE_GRS::recivirDatosCOM(){
 				    bool pintar=DataProcessor::PorcesarDatos(c[i],c[i+1],angles);//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
 		  	        CalcularCoordenadas();
 			        ShowAngules();
+					MutexManejadorSketchs.lock();
 					if(interfaz==2)//Actualizo la ultima coordenada en el StackBoceto
 				       ManejadorSketchs->ActualizaLastCood(cooRd,ManejadorSketchs);
 					else if(interfaz==-5)
 						ManejadorSketchs->ActualizaNewPlanoToCreate(cooRd,ManejadorSketchs,deFult);
-						 
+					MutexManejadorSketchs.unlock();
 					if(pintar) 
 					{ 
 					   if(interfaz==-1) //interfaz de Add new Boceto
 					   {
+						   MutexManejadorSketchs.lock();
 						   if(ManejadorSketchs->contNPl<3||CambiarPointSpecificPlano!=3)
 						   {
 							   ManejadorSketchs->AddPuntoNewPlano(cooRd,ManejadorSketchs,CambiarPointSpecificPlano);
@@ -2970,13 +3165,16 @@ void ESE_GRS::recivirDatosCOM(){
 							   if(ManejadorSketchs->contNPl==3)
 								   ManejadorForms->ActivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
 						   }
+						   MutexManejadorSketchs.unlock();
 					   }
-					   else if(interfaz==2)//Interfaz de Dibujo
+					   else if(interfaz==2||PlanoAcceso)//Interfaz de Dibujo
 				       {
 						  MutexManejadorForms.lock();
 						  ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",true); 
 						  MutexManejadorForms.unlock();
+						  MutexManejadorSketchs.lock();
 						  ManejadorSketchs->AddPoint(*cooRd,ManejadorSketchs);
+						  MutexManejadorSketchs.unlock();
 						  if(ModoSonido)sonidos(4);
 					   }
 			        }//end if(pintar)		
@@ -3127,11 +3325,170 @@ char* ESE_GRS::Verificacion(char*cc,unsigned&strleN){
 }
 void ESE_GRS::Acceso(bool acceso)
 {
+	if(interfaz)
+		ManejadorForms->Add(Interfaz(0),ManejadorForms);
 	if(acceso)
 		default_menu(-5);
 	else
 		default_menu(-6);
 }
+bool ESE_GRS::ChekEntada(char*c)
+{
+	char asd[13];
+	asd[12]=0;
+	for(unsigned i=0;i<12;i++)
+		asd[i]=c[i];
+	if(!strcmp(asd,"ESE_GRS!PLAN"))
+	{
+		if(PlanoAcceso)
+		{
+			PlanoAcceso=false;
+			MutexManejadorSketchs.lock();
+			ManejadorSketchs->Sub(NamePlanoAcceso,ManejadorSketchs);
+			ManejadorSketchs->SetDraw(false,ManejadorSketchs);
+			MutexManejadorSketchs.unlock();
+			return true;
+		}
+	}
+	if(!strcmp(asd,"ESE_GRS PLAN"))
+	{
+		string ss(c);
+		unsigned uns;
+		CRD crd[3];
+		CRD*crd1=new CRD[1];
+		ss=ss.substr(13,ss.length()-1);
+		if(PlanoAcceso)
+		{
+			MutexManejadorSketchs.lock();
+			ManejadorSketchs->Sub(NamePlanoAcceso,ManejadorSketchs);
+			MutexManejadorSketchs.unlock();
+		}
+		uns=(unsigned)ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		delete[]NamePlanoAcceso;
+		NamePlanoAcceso=new char[uns+1];
+		NamePlanoAcceso[uns]=0;
+		for(unsigned i=0;i<uns;i++)
+			NamePlanoAcceso[i]=ss[i];
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[0].x=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[0].y=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[0].z=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[1].x=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[1].y=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[1].z=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[2].x=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[2].y=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		crd[2].z=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		TypePlano t=(TypePlano)(int)ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		bool pintPlano=(bool)ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));	
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		ItemsType it=(ItemsType)(int)ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));	
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		uns=(unsigned)ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+		ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+		if(uns)
+		{
+			delete[]crd1;
+			crd1=new CRD[uns];
+			for(unsigned i=0;i<uns;i++)
+			{
+				crd1[i].x=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+				ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+				crd1[i].y=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+				ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+				crd1[i].z=ConvertStr_Dou(ss.substr(0,ss.find_first_of(';')));
+				ss=ss.substr(ss.find_first_of(';')+1,ss.length());
+			}
+		}
+		Plano*p=new Plano(NamePlanoAcceso,&crd[1],&crd[2],&crd[0],t);
+		p->items->t=it;
+		MutexManejadorSketchs.lock();
+		ManejadorSketchs->Add(p,ManejadorSketchs);
+		for(unsigned i=0;i<uns;i++)
+		{
+			ManejadorSketchs->bocetos[ManejadorSketchs->contB-1]->items->Add(&crd1[i]);
+		}
+		PlanoAcceso=true;
+		ManejadorSketchs->bocetos[ManejadorSketchs->contB-1]->pintarPlano=true;
+		ManejadorSketchs->SetDraw(true,ManejadorSketchs);
+		ManejadorSketchs->SetDrawAll(false,ManejadorSketchs);
+		ManejadorSketchs->PlanoCheckeeado=ManejadorSketchs->contB-1;
+		ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=pintPlano;
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	else if(!strcmp(asd,"ESE_GRS POIN"))
+	{
+		MutexManejadorSketchs.lock();
+		Plano::ActualizaItem(ItemsType::POINTSS,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	else if(!strcmp(asd,"ESE_GRS LINE"))
+	{
+		MutexManejadorSketchs.lock();
+		Plano::ActualizaItem(ItemsType::LINES,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	else if(!strcmp(asd,"ESE_GRS STRI"))
+	{
+		MutexManejadorSketchs.lock();
+		Plano::ActualizaItem(ItemsType::LINE_STRIP,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	else if(!strcmp(asd,"ESE_GRS SPLI"))
+	{
+		MutexManejadorSketchs.lock();
+		Plano::ActualizaItem(ItemsType::SPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	else if(!strcmp(asd,"ESE_GRS BSPL"))
+	{
+		MutexManejadorSketchs.lock();
+		Plano::ActualizaItem(ItemsType::BSPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	else if(!strcmp(asd,"ESE_GRS CANC"))
+	{
+		MutexManejadorSketchs.lock();
+		Plano::CancelLastPoint(ManejadorSketchs->BocetoActual(ManejadorSketchs));
+		if(ModoSonido)sonidos(6);
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	else if(!strcmp(asd,"ESE_GRS MOPT"))
+	{
+		MutexManejadorSketchs.lock();
+		ManejadorSketchs->Pintar_NoPintar_LineaSuspensiva(true,ManejadorSketchs);
+		ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=true;
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	else if(!strcmp(asd,"ESE_GRS MOPF"))
+	{
+		MutexManejadorSketchs.lock();
+		ManejadorSketchs->Pintar_NoPintar_LineaSuspensiva(true,ManejadorSketchs);
+		ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=false;
+		MutexManejadorSketchs.unlock();
+		return true;
+	}
+	return false;
+};
 void ESE_GRS::CalcularCoordenadas()
   {
 	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6;

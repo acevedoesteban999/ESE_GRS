@@ -3,7 +3,7 @@
 #include <math.h>
 #include "Items.h"
 enum TypePlano{
-XY,XZ,YZ,FREE,SPECIFICPLANE,PLANE
+PLANE,XY,XZ,YZ,FREE,SPECIFICPLANE
 };
 class Plano
 {
@@ -11,7 +11,7 @@ public:
 	Items*items;
 	char*name;
 	CRD*PuntoCentro;
-	CRD*PuntosCrearPlano;
+	CRD*PuntosCrearPlano,*PuntosAlCrearPlano;
 	CRD*puNt1,*puNt2,*puNt3,*puNt4;
 	float distmax,trasladarplano;
 	TypePlano PlanoType;
@@ -25,6 +25,7 @@ public:
 			this->name[i]=name[i];
 	  PuntoCentro=new CRD();
 	  PuntosCrearPlano=new CRD[4];
+	  PuntosAlCrearPlano=new CRD[3];
 	  puNt1=new CRD();
 	  puNt2=new CRD();
 	  puNt3=new CRD();
@@ -32,8 +33,13 @@ public:
 	  PlanoType=TypePlano::PLANE;
 	  items=new Items[1];
 	  trasladarplano=0;
+	  A=B=C=D=0;
 	};
 	Plano(char*name,CRD*Punt1,CRD*Punt2,CRD*Punt3,TypePlano tp){
+		PuntosAlCrearPlano=new CRD[3];
+		PuntosAlCrearPlano[0]=*Punt1;
+		PuntosAlCrearPlano[1]=*Punt2;
+		PuntosAlCrearPlano[2]=*Punt3;
 		items=new Items[1];
 		this->PlanoType=tp;
 		trasladarplano=0;
@@ -66,54 +72,54 @@ public:
 		for(unsigned i=0;i<strlen(name);i++)
 			this->name[i]=name[i];
 		PuntoCentro=new CRD((*Punt1+*Punt2+*Punt3)/3);
-	CRD v1,v2;
-	double d1,d2,d3,d4,d5,d6;
-	v1.x=Punt1->x-Punt2->x;
-	v1.y=Punt1->y-Punt2->y;
-	v1.z=Punt1->z-Punt2->z;
-	v2.x=Punt1->x-Punt3->x;
-	v2.y=Punt1->y-Punt3->y;
-	v2.z=Punt1->z-Punt3->z;
-	d1=v1.y*v2.z;
-	d2=v1.z*v2.y;
-	d3=v1.x*v2.z;
-	d4=v1.z*v2.x;
-	d5=v1.x*v2.y;
-	d6=v1.y*v2.x;
-	this->A=d1-d2;
-	this->B=-(d3-d4);
-	this->C=d5-d6;
-	this->D=-(A*PuntoCentro->x+B*PuntoCentro->y+C*PuntoCentro->z);
-	if(A<0)
-	{
-	A*=-1;
-	B*=-1;
-	C*=-1;
-	D*=-1;
-	}
-	while((A>100||A<-100)||(B>100||B<-100)||(C>100||C<-100))
-	{
-		A/=10;
-		B/=10;
-		C/=10;
-		D/=10;
-	}
-	if(A==0&&B==0)
-	{
-		this->PlanoType=TypePlano::XY;
-	}
-	else if(A==0&&C==0)
-	{
-		this->PlanoType=TypePlano::XZ;
-	}
-	else if(B==0&&C==0)
-	{
-		this->PlanoType=TypePlano::YZ;
-	}
-	distmax=100;
-	Plano::ActualiWidthHeight(Punt1,this,true);
-	Plano::ActualiWidthHeight(Punt2,this);
-	Plano::ActualiWidthHeight(Punt3,this);
+		CRD v1,v2;
+		double d1,d2,d3,d4,d5,d6;
+		v1.x=Punt1->x-Punt2->x;
+		v1.y=Punt1->y-Punt2->y;
+		v1.z=Punt1->z-Punt2->z;
+		v2.x=Punt1->x-Punt3->x;
+		v2.y=Punt1->y-Punt3->y;
+		v2.z=Punt1->z-Punt3->z;
+		d1=v1.y*v2.z;
+		d2=v1.z*v2.y;
+		d3=v1.x*v2.z;
+		d4=v1.z*v2.x;
+		d5=v1.x*v2.y;
+		d6=v1.y*v2.x;
+		this->A=d1-d2;
+		this->B=-(d3-d4);
+		this->C=d5-d6;
+		this->D=-(A*PuntoCentro->x+B*PuntoCentro->y+C*PuntoCentro->z);
+		if(A<0)
+		{
+		A*=-1;
+		B*=-1;
+		C*=-1;
+		D*=-1;
+		}
+		while((A>100||A<-100)||(B>100||B<-100)||(C>100||C<-100))
+		{
+			A/=10;
+			B/=10;
+			C/=10;
+			D/=10;
+		}
+		if(A==0&&B==0)
+		{
+			this->PlanoType=TypePlano::XY;
+		}
+		else if(A==0&&C==0)
+		{
+			this->PlanoType=TypePlano::XZ;
+		}
+		else if(B==0&&C==0)
+		{
+			this->PlanoType=TypePlano::YZ;
+		}
+		distmax=100;
+		Plano::ActualiWidthHeight(Punt1,this,true);
+		Plano::ActualiWidthHeight(Punt2,this);
+		Plano::ActualiWidthHeight(Punt3,this);
 
 	
 };
@@ -123,6 +129,7 @@ public:
 		delete[]name;
 		delete PuntoCentro,puNt1,puNt2,puNt3,puNt4;
 		delete[]PuntosCrearPlano;
+		delete[]PuntosAlCrearPlano;
 
 	};
 	static CRD Distncia(CRD*punt,Plano*p){

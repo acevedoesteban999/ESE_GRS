@@ -68,6 +68,7 @@ public:
     static void CalcularCoordenadas();
 	static char* Verificacion(char*cc,unsigned&strleN);
 	static void Acceso(bool acceso);
+	static bool ChekEntada(char*c);
 	//HILOS
 	static void ThreadCOM();
 	static void ThreadCargObject();

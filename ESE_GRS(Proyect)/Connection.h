@@ -712,7 +712,6 @@ public:
 		}*/
 		IsConectado=true;
 		this->Trasmitir("ESEGRS WIN");
-		cout<<server;
 		error=false;
 		delete[]ip;
 		this->ip=new char[strlen(Ip)+1];
