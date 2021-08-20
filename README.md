@@ -11,6 +11,8 @@ Inventor. Puede vincularse con el [ESE_GRSConnectionSimulator](https://github.co
 ## [Descargar ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/tree/master/media/ESE_GRS)
 
 ![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS.png)
+![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS1.png)
+
 
 ## Plataforma
 >Windows
