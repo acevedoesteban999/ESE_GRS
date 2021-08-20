@@ -18,11 +18,11 @@ public:
 	double A,B,C,D;//Secuencia Ax+By+Cz+D=0
 	bool pintarPlano;
 	Plano(char*name){
-		pintarPlano=true;
-	 this->name=new char[strlen(name)+1];
-		this->name[strlen(name)]=0;
-		for(unsigned i=0;i<strlen(name);i++)
-			this->name[i]=name[i];
+	  pintarPlano=true;
+	  this->name=new char[strlen(name)+1];
+	  this->name[strlen(name)]=0;
+	  for(unsigned i=0;i<strlen(name);i++)
+		 this->name[i]=name[i];
 	  PuntoCentro=new CRD();
 	  PuntosCrearPlano=new CRD[4];
 	  PuntosAlCrearPlano=new CRD[3];
@@ -36,6 +36,26 @@ public:
 	  A=B=C=D=0;
 	};
 	Plano(char*name,CRD*Punt1,CRD*Punt2,CRD*Punt3,TypePlano tp){
+		if(tp==TypePlano::PLANE||tp==TypePlano::FREE)
+		{
+			 pintarPlano=true;
+			  this->name=new char[strlen(name)+1];
+			  this->name[strlen(name)]=0;
+			  for(unsigned i=0;i<strlen(name);i++)
+				 this->name[i]=name[i];
+			  PuntoCentro=new CRD();
+			  PuntosCrearPlano=new CRD[4];
+			  PuntosAlCrearPlano=new CRD[3];
+			  puNt1=new CRD();
+			  puNt2=new CRD();
+			  puNt3=new CRD();
+			  puNt4=new CRD();
+			  PlanoType=TypePlano::PLANE;
+			  items=new Items[1];
+			  trasladarplano=0;
+			  A=B=C=D=0;
+			  return;
+		}
 		PuntosAlCrearPlano=new CRD[3];
 		PuntosAlCrearPlano[0]=*Punt1;
 		PuntosAlCrearPlano[1]=*Punt2;
@@ -117,9 +137,9 @@ public:
 			this->PlanoType=TypePlano::YZ;
 		}
 		distmax=100;
-		Plano::ActualiWidthHeight(Punt1,this,true);
-		Plano::ActualiWidthHeight(Punt2,this);
-		Plano::ActualiWidthHeight(Punt3,this);
+			Plano::ActualiWidthHeight(Punt1,this,true);
+			Plano::ActualiWidthHeight(Punt2,this);
+			Plano::ActualiWidthHeight(Punt3,this);
 
 	
 };
@@ -135,7 +155,7 @@ public:
 	static CRD Distncia(CRD*punt,Plano*p){
 	CRD puntPlano,V;
 	double A=p->A,B=p->B,C=p->C,D=p->D;
-	double t=(-D-A*punt->x-B*punt->y-C*punt->z)/(A*A+B*B+C*C);//calculo el parametro t como la inteseccion de la recta creada por le punot y la normal del plano y el plano
+	double t=(-D-A*punt->x-B*punt->y-C*punt->z)/(A*A+B*B+C*C);//calculo el parametro t como la inteseccion de la recta creada por le punto y la normal del plano y el plano
 	puntPlano.x=punt->x+A*t;//calculo la coordenada x el punto de interseccion entre la recta y el plano
 	puntPlano.y=punt->y+B*t;//calculo la coordenada y el punto de interseccion entre la recta y el plano
 	puntPlano.z=punt->z+C*t;//calculo la coordenada z el punto de interseccion entre la recta y el plano

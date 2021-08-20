@@ -61,14 +61,18 @@ public:
 	static void MenuToDraw(int caso);
 	static void default_menu(int opcion);
 	static void MenuIdioma(int opcion);
+	static void MenuAcceso(int opcion);
 	//////////////DATOS
    	static void cargarInitDatos();
 	static void salvarInitDatos();
 	static void recivirDatosCOM();
     static void CalcularCoordenadas();
-	static char* Verificacion(char*cc,unsigned&strleN);
+	static char* VerificacionDatos(char*cc,unsigned&strleN);
 	static void Acceso(bool acceso);
-	static bool ChekEntada(char*c);
+	static bool ChekEntada(char*c,unsigned&i);
+	static bool VerificacionSeguridad(char*c,unsigned i);
+	static bool CodigoCliente(char*c,unsigned i);
+	static bool CodigoServer(char*c,unsigned&i);
 	//HILOS
 	static void ThreadCOM();
 	static void ThreadCargObject();

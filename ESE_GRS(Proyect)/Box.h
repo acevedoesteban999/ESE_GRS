@@ -300,7 +300,7 @@ public:
 		
 	};
 	void BoxNextFocus(){
-		if(this->Focus==cont-1)
+		if(this->Focus>=(int)(cont-1))
 		   this->Focus=-1;
 		else
 		   this->Focus++;	
