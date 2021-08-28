@@ -3324,6 +3324,9 @@ void ESE_GRS::recivirDatosCOM(){
 		(99)01100011->ESE_GRS PUENTE_WEB
 	   (103)01100111->ESE_GRS !!!!!!!!!!!!!!!!!!!!!!!!!!TANSMITE_PLANO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	   (107)01101011->ESE_GRS PUENTE_WEB_CON_DATOS_A_LA_WEB
+	   (111)01101111->ESE_GRS PERDER ESE
+		(115)01110011->ESE_GRS RESPUESTA_PUETE_WEB
+		(119)01110100->CLIENTE DESCONECTADO
 						*/
 		  if(StopThread)
 			   return;
