@@ -814,6 +814,8 @@ public:
 							//bufers+=BuFFeR;
 							break;
 						}
+					if(!bufers.length())
+							bufers+=BuFFeR;
 				}
 				do
 				{
