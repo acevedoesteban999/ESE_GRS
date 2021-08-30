@@ -1026,7 +1026,7 @@ public:
 			toReciv=Recibir();
 			if(toReciv!=NULL)
 				if(toReciv[0]==(char)39)
-				err=false;
+					err=false;
 		}
 		if(err)
 		{
