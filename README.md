@@ -8,7 +8,7 @@ Inventor. Puede vincularse con el [ESE_GRSConnectionSimulator](https://github.co
  para usar otros servicios.
 
 
-## [Descargar ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/tree/master/media/ESE_GRS)
+## [Descargar ESE_GRS](https://github.com/Esteban1914/ESE_GRS-Class/raw/master/media/ESE_GRS/ESE_GRS.rar)
 
 ![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS.png)
 ![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS1.png)
