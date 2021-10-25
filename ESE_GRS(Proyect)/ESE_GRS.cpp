@@ -1,6 +1,6 @@
 #include "ESE_GRS.h"
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="2.0.0";
+														char*ESE_GRS_Version="2.1.0";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -32,6 +32,7 @@ unsigned toSaveSpeed=9600,toSavePort=55555,toSavePortWeb=8080;
 unsigned STRLEN,BoxInterfazPricipal=0,RadioButtonRestriccion=0;
 unsigned bocetoARemover=0,RadioButtomPintar=0,PlanoChecket=0,bocetoACrear=0,BoxInterfaz0=0;
 unsigned CambiarPointSpecificPlano=3;
+unsigned contClientesServer=0;
 int interfaz=0;
 int contMenuToDraw=-1;
 int contt=0;
@@ -437,62 +438,75 @@ char*Frases(unsigned frase)
 					return "Access Denied";
 
 				case 107:
-					return "(Ingles)Solicitar Acceso";
+					return "Request Access";
 
 				case 108:
-					return "(Ingles)Quitar Acceso";
+					return "Remove Access";
 
 				case 109:
-					return "(Ingles)Se tiene Acceso";
+					return "You have access";
 
 				case 110:
-					return "(Ingles)No se tiene Acceso";
+					return "No Access";
 
 				case 111:
 					return "Web Host";
 
 				case 112:
-					return "(Ingles)Esperando Redireccionar para transmitir boceto";
+					return "Waiting for Redirect to transmit sketch";
 
 				case 113:
-					return "(Ingles)Boceto Transmitido";
+					return "Sketch Transmitted";
 
 				case 114:
-					return "(Ingles)Redireccionado";
+					return "Redirected";
 
 				case 115:
-					return "(Ingles)Sin Redireccionar";
+					return "Without Redirection";
 
 				case 116:
-					return "(Ingles)Quitar Boceto";
+					return "Remove Sketch";
 
 				case 117:
-					return "(Ingles)Agregar Boceto";
+					return "Add Sketch";
 
 				case 118:
-					return "(Ingles)Item:Puntos";
+					return "Item: Points";
 
 				case 119:
-					return "(Ingles)Item:Lineas";
+					return "Item: Lines";
 				
 				case 120:
-					return "(Ingles)Item:StripLineas";
+					return "Item: StripLines";
 				
 				case 121:
-					return "(Ingles)Item:SpLines";
+					return "Item: SpLines";
 				
 				case 122:
-					return "(Ingles)Item:Bspline";
+					return "Item: Bspline";
 				
 				case 123:
-					return "(Ingles)Cancelar ultimo punto";
+					return "Cancel last point";
 				
 				case 124:
-					return "(Ingles)Mostrar Plano";
+					return "Show Plane";
 				
 				case 125:
-					return "(Ingles)Ocultar Plano";
-			   default:
+					return "Hide Plane";
+				
+				case 126:
+					return "Get USER";
+
+				case 127:
+					return "Lose USER";
+				
+				case 128:
+					return "Start Host";
+					///////////!!!!!!!!!!!?////////////////////////////
+
+
+
+				default:
 				   return "Not Find";
 		break;
 				
@@ -577,7 +591,7 @@ char*Frases(unsigned frase)
 				return "A Remover:  " ;
 				
 				case 25:
-				return "TCP_IP" ;
+				return "Unirse al Host" ;
 				
 				case 26:
 				return "Puerto Serie" ;
@@ -876,6 +890,8 @@ char*Frases(unsigned frase)
 				case 127:
 					return "Perder USER";
 				
+				case 128:
+					return "Iniciar Host";
 				default:
 				return "No Encontrado";	
 
@@ -1276,7 +1292,7 @@ void ESE_GRS::InitMenu()
 	}
 	else
 	{
-		if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+		if(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER)
 			glutAddSubMenu("USER",SubMenuAcceso);
 		glutAddSubMenu(Frases(39),SubMenuVista);//Vista
 		if(ModoSonido)
@@ -1334,6 +1350,10 @@ void ESE_GRS::Entorno(){
 		text("o",-2.0,-1.5,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8);
 	  MutexManejadorForms.lock();
 	  ManejadorForms->DrawForms(ManejadorForms);//Dibujo los Forms
+	  if(p->GetType()==ConnectionType::SOCKET_SERVER&&p->GetCientesStatus())
+	  {
+		  ManejadorForms->GetForm("labelContClientes",ManejadorForms)->AddNewText((char*)to_string(p->getContClientesServer()).c_str());
+	  }
 	  MutexManejadorForms.unlock();
 	  glPopMatrix();
 	  //pinto el eje de coordenadas del systema
@@ -1675,7 +1695,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		box->AddForm(f,box,10);
 		if(!recibir_serie)
 			desactivaAcept=true;
-		if(!EsperandoReedireccionar&&LastInterfaz==2&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+		if(!EsperandoReedireccionar&&LastInterfaz==2&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
 		{
 			char toSend[3];
 			toSend[0]=63;
@@ -1712,7 +1732,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			box->AddForm(f,box,10);
 		}
 		desactivaAcept=true;
-		if(LastInterfaz==1&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+		if(LastInterfaz==1&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 		{
 			if(!EsperandoReedireccionar)
 			{
@@ -1805,14 +1825,16 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		box->SetName("BoxInterfazConnections",box);
 		box->SetCRD(new CRD(10,40,0),box);
 		glutDestroyMenu(MenuCD);
-		f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::SOCKET_CLIENT?toSaveIp:Connecttype==ConnectionType::WEBSOCKET_CLIENT?toSaveHost:toSaveCOM,15);
+		f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::SOCKET_CLIENT?toSaveIp:Connecttype==ConnectionType::SOCKET_SERVER?"INADDR_ANY":Connecttype==ConnectionType::WEBSOCKET_CLIENT?toSaveHost:toSaveCOM,15);
 		box->AddForm(f,box);
-		f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::SOCKET_CLIENT?(char*)to_string(toSavePort).c_str():Connecttype==ConnectionType::WEBSOCKET_CLIENT?(char*)to_string(toSavePortWeb).c_str():(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
+		f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,(Connecttype==ConnectionType::SOCKET_CLIENT||Connecttype==ConnectionType::SOCKET_SERVER)?(char*)to_string(toSavePort).c_str():Connecttype==ConnectionType::WEBSOCKET_CLIENT?(char*)to_string(toSavePortWeb).c_str():(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
 		box->AddForm(f,box);
 		f=new RadioButtonGroup("RadioButtonGroupConnectionType",*new CRD(0,0,0),wigth,height);
-		f->RBGAddRB("RadioButtomEternet",Frases(25),Connecttype==ConnectionType::SOCKET_CLIENT?1:0);
-		f->RBGAddRB("RadioButtomWebSocket",Frases(111),Connecttype==ConnectionType::WEBSOCKET_CLIENT?1:0);
 		f->RBGAddRB("RadioButtomSerialPort",Frases(26),Connecttype==ConnectionType::SERIAL_PORT?1:0);
+		f->RBGAddRB("RadioButtomEternet",Frases(25),Connecttype==ConnectionType::SOCKET_CLIENT?1:0);
+		f->RBGAddRB("RadioButtomSerialPort",Frases(128),Connecttype==ConnectionType::SOCKET_SERVER?1:0);
+		f->RBGAddRB("RadioButtomWebSocket",Frases(111),Connecttype==ConnectionType::WEBSOCKET_CLIENT?1:0);
+		
 		box->AddForm(f,box);
 		break;
 	case 4://///////////////////////////INTERFAZ_4////////////////////////
@@ -2098,6 +2120,11 @@ void ESE_GRS::reshape(int x,int y){
 	ManejadorForms->GetForm("labelCoordX",ManejadorForms)->NewCRD(new CRD(wigth-120,115,0));
 	ManejadorForms->GetForm("labelCoordY",ManejadorForms)->NewCRD(new CRD(wigth-120,130,0));
 	ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->NewCRD(new CRD(wigth-120,145,0));
+	if(recibir_serie&&p->GetType()==ConnectionType::SOCKET_SERVER)
+	{
+		ManejadorForms->GetForm("labelServer",ManejadorForms)->NewCRD(new CRD(wigth-190,0,0));
+		ManejadorForms->GetForm("labelContClientes",ManejadorForms)->NewCRD(new CRD(wigth-165,20,0));
+	}
 
 	glViewport(0,0,x,y);//creo una zona de la ventana con el contenido  
 	glMatrixMode(GL_MODELVIEW);
@@ -2165,9 +2192,27 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   {
 				  if(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetElemChecket()==2)
 				  {
-					  p->SetType(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetRBGChecket("RadioButtonGroupConnectionType")==1?ConnectionType::WEBSOCKET_CLIENT:ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetRBGChecket("RadioButtonGroupConnectionType")==2?ConnectionType::SERIAL_PORT:ConnectionType::SOCKET_CLIENT,p);
-					 Connecttype=p->GetType();
-					 ManejadorForms->Add(Interfaz(3),ManejadorForms);
+					  Connecttype=ConnectionType::CONNECTION;
+					  switch (ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetRBGChecket("RadioButtonGroupConnectionType"))
+					  {
+ 					   case 0:
+						  Connecttype=ConnectionType::SERIAL_PORT;
+							  break;
+
+					   case 1:
+						   Connecttype=ConnectionType::SOCKET_CLIENT;
+							  break;
+
+					    case 2:
+							 Connecttype=ConnectionType::SOCKET_SERVER;
+						    break;
+
+					    case 3:
+							 Connecttype=ConnectionType::WEBSOCKET_CLIENT;
+							break;
+					  }
+					  p->SetType(Connecttype,p);
+					  ManejadorForms->Add(Interfaz(3),ManejadorForms);
 				  }
 			   }
 		   }	
@@ -2290,7 +2335,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						if(RadioButtomPintar==0)///POINTS
 						{
 							Plano::ActualizaItem(ItemsType::POINTSS,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
 								toSend[0]=67;
@@ -2302,7 +2347,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						else if(RadioButtomPintar==1)//LINES
 						{
 							Plano::ActualizaItem(ItemsType::LINES,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
 								toSend[0]=71;
@@ -2314,7 +2359,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						else if(RadioButtomPintar==2)//STRIP_LINE
 						{
 							Plano::ActualizaItem(ItemsType::LINE_STRIP,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
 								toSend[0]=75;
@@ -2326,7 +2371,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						else if(RadioButtomPintar==3)//SPLINE
 						{
 							Plano::ActualizaItem(ItemsType::SPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
 								toSend[0]=79;
@@ -2338,7 +2383,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						else if(RadioButtomPintar==4)//BSPLINE
 						{
 							Plano::ActualizaItem(ItemsType::BSPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
 								toSend[0]=83;
@@ -2351,7 +2396,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					case 2:///////CANCEL Point
 						if(	ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetActiveDesact("RadioButtomCancelLast"))
 						{
-						if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+						if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
 								toSend[0]=87;
@@ -2371,7 +2416,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBChecket("RadioButtomMostrarPlano"))
 						{
 							ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=true;
-							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
 								toSend[0]=91;
@@ -2383,7 +2428,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						else
 						{
 							ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=false;
-							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
 								toSend[0]=95;
@@ -2604,11 +2649,10 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	}
    
   
-   if(boton==GLUT_LEFT_BUTTON && state==GLUT_DOWN )//girar al puslar clik dercho con el mouse(misma opcion q el movRat para el primer clic no te varie la rotacion)
+   else if(boton==GLUT_LEFT_BUTTON && state==GLUT_DOWN )//girar al puslar clik dercho con el mouse(misma opcion q el movRat para el primer clic no te varie la rotacion)
    {
 	movRatXinit=(float)x;
 	movRatYinit=(float)y;
-	
    }
 	glutPostRedisplay();
 }
@@ -2945,14 +2989,26 @@ void ESE_GRS::default_menu(int opcion){
 		/*if(p->GetType()==ConnectionType::SERIAL_PORT)
 			default_menu(-5);*/
 		delete p;
-		if(Connecttype==ConnectionType::SERIAL_PORT)
-		   p=new PuertoSerie();
-		else if(Connecttype==ConnectionType::SOCKET_CLIENT)
-			p=new Socket_Client();
-		else if(Connecttype==ConnectionType::WEBSOCKET_CLIENT)
-			p=new WebSocket_Client();
-		else
+		switch (Connecttype)
+		{
+		case CONNECTION:
 			p=new Connection();
+			break;
+		case SOCKET_SERVER:
+			p=new Socket_Server();
+			break;
+		case SOCKET_CLIENT:
+			p=new Socket_Client();
+			break;
+		case SERIAL_PORT:
+			 p=new PuertoSerie();
+			break;
+		case WEBSOCKET_CLIENT:
+			p=new WebSocket_Client();
+			break;
+		}
+		if(Connecttype==ConnectionType::CONNECTION)
+			break;
 		if(!p->inicializa( ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxChar"),atol(ManejadorForms->GetForm("BoxInterfazConnections",ManejadorForms)->BoxGetEscritura("textBoxUnsigned"))))
 		  {
 			  if(ModoSonido)sonidos(1);
@@ -2976,13 +3032,18 @@ void ESE_GRS::default_menu(int opcion){
 			   char*msg=p->GetMesage(p);
 			   if(ModoLogger)cout<<endl<<p->getChar()<<":"<<p->getunsigned()<<endl;
 		      //add
-			   ManejadorForms->Add(new Label("labelChar",p->getChar(),*(new CRD(87,-5,0)),0,0,1,0,wigth,height),ManejadorForms);
-			   ManejadorForms->Add(new Label("labelUnsigned",(char*)to_string(p->getunsigned()).c_str(),*(new CRD(87,5,0)),0,0,1,0,wigth,height),ManejadorForms);
-			   ManejadorForms->SetColor("labelESE_GRS",0,1,0,ManejadorForms);
+			    ManejadorForms->Add(new Label("labelChar",p->getChar(),*(new CRD(87,-5,0)),0,0,1,0,wigth,height),ManejadorForms);
+			    ManejadorForms->Add(new Label("labelUnsigned",(char*)to_string(p->getunsigned()).c_str(),*(new CRD(87,5,0)),0,0,1,0,wigth,height),ManejadorForms);
+			    ManejadorForms->SetColor("labelESE_GRS",0,1,0,ManejadorForms);
 			    ManejadorForms->Add(new Label("labelRedireccionar",Frases(115),*(new CRD(0,19,0)),1,0,1,0,wigth,height),ManejadorForms);
 				ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->SetColor(1,1,0);
-			   if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
-			   {
+				if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+			    {
+				   if(p->GetType()==ConnectionType::SOCKET_SERVER)
+				   {
+					   ManejadorForms->Add(new Label("labelServer","Server",*(new CRD(wigth-190,0,0)),1,0,1,0,wigth,height),ManejadorForms);
+					   ManejadorForms->Add(new Label("labelContClientes",(char*)to_string(p->getContClientesServer()).c_str(),*(new CRD(wigth-165,20,0)),1,1,1,0,wigth,height),ManejadorForms);
+				   }
 				   ManejadorForms->Add(new Label("labelAcceso",Frases(104),*(new CRD(0,39,0)),1,0,1,0,wigth,height),ManejadorForms);
 				   ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(1,1,0);
 			   }
@@ -3029,6 +3090,10 @@ void ESE_GRS::default_menu(int opcion){
 					   toSaveHost[i]=p->getChar()[i];
 				   toSavePortWeb=p->getunsigned();
 			   }
+				else if(p->GetType()==ConnectionType::SOCKET_SERVER)
+				{
+					 toSavePort=p->getunsigned();
+				}
 			   ESE_GRS::InitMenu();
 			   if(Boxf1)
 					ManejadorForms->Add(Interfaz(7),ManejadorForms);
@@ -3064,6 +3129,8 @@ void ESE_GRS::default_menu(int opcion){
 			ManejadorForms->Sub("StackAnimationsConnection",ManejadorForms);
 			ManejadorForms->Sub("labelRedireccionar",ManejadorForms);
 			ManejadorForms->Sub("labelAcceso",ManejadorForms);
+			ManejadorForms->Sub("labelServer",ManejadorForms);
+			ManejadorForms->Sub("labelContClientes",ManejadorForms);
 			EsperandoReedireccionar=true;
 			ErrorConnect=false;
 			Acces=false;
@@ -3726,7 +3793,7 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 			ManejadorSketchs->ActualizaNewPlanoToCreate(cooRd,ManejadorSketchs,deFult);
 		MutexManejadorSketchs.unlock();
 		contt=0;
-		if(interfaz==2&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+		if(interfaz==2&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 		{
 			//PlanoATransmitir();
 			string ss=PlanoATransmitir();
@@ -3800,7 +3867,7 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 }
 bool ESE_GRS::CodigoServer(char*c,unsigned&i)
 {
-	if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
+	if(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER)
 	{
 		if(!Acces)
 		{
@@ -3876,10 +3943,6 @@ bool ESE_GRS::CodigoServer(char*c,unsigned&i)
 				return false;
 			}
 		}
-	}
-	else if(p->GetType()==ConnectionType::WEBSOCKET_CLIENT)
-	{
-
 	}
 	return false;
 }

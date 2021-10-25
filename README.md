@@ -1,4 +1,4 @@
-# Proyecto ESE_GRS 
+# Proyecto ESE_GRS v2.1.0
 
 Este proyecto tiene como objetivo el desarrollo de una aplicación
 para simular el movimiento del brazo ESE_GRS de 6 articulaciones y 

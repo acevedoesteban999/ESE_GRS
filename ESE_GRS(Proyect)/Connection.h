@@ -561,6 +561,10 @@ enum ConnectionType
 {
  CONNECTION,SOCKET_SERVER,SOCKET_CLIENT,SERIAL_PORT,WEBSOCKET_CLIENT
 };
+enum TypeClient
+{
+	Null,HTML,Windows,ESEGRS
+};
 class Connection
 {
 protected:
@@ -584,7 +588,7 @@ public:
 	};
 	virtual void CloseConnection(){};
 	virtual bool inicializa(const char*Ip, unsigned long Port){return false;};
-	virtual char* Recibir()
+	virtual char* Recibir(SOCKET socket=NULL)
 	{
 		/*if(EstaConectado())
 		{
@@ -635,6 +639,8 @@ public:
 	 };
 	virtual char*getChar(){return nullptr;};
 	virtual unsigned getunsigned(){return 0;};
+	virtual unsigned getContClientesServer(){return 0;};
+	virtual bool GetCientesStatus(){return false;};
 	bool Error(){return error;};
 	bool EstaConectado(){return IsConectado;};
 	char* ErrorStr(){return errorstr;};
@@ -766,7 +772,7 @@ public:
 
 		return true;
 	};
-	virtual char* Recibir()
+	virtual char* Recibir(SOCKET socket=NULL)
 	{
 		if(EstaConectado())
 		{
@@ -791,20 +797,20 @@ public:
 			 struct timeval tvReciv;
 			 tvReciv.tv_sec=0;
 			 tvReciv.tv_usec=55555;
-			 int n=recv(server,BuFFeR,1023,0);
+			 int n=recv(socket==NULL?server:socket,BuFFeR,1023,0);
 			 if(n!=0&&n!=-1)
 			 {
 				BuFFeR[n]=0;
 				bufers+=BuFFeR;
 				if(bufers.length()!=n)
 				{
-					for(unsigned i=0;i<n;i++)
+					for(unsigned i=0;(int)i<n;i++)
 						if(BuFFeR[i]==0 && i!=n-1)
 						{
 							//BuFFeR[i]=(char)1;
 							//bool _0=true;
 							bufers.clear();
-							for(unsigned ii=0;ii<n;ii++)
+							for(unsigned ii=0;(int)ii<n;ii++)
 							{
 								if(i==ii)
 									bufers+=(char)0;
@@ -838,7 +844,7 @@ public:
 			 }
 			  if(n==0)
 			 {
-				 string s("Error 0, dato no recivido, conexion cerrada");
+				 string s("Error 0");
 				 delete[]errorstr;
 				 errorstr=new char[s.length()+1];
 				 errorstr[s.length()]=0;
@@ -846,12 +852,12 @@ public:
 					 errorstr[i]=s[i];
 				 error=true;
 				 cout<<errorstr<<endl;
-				 CloseConnection();
+				 socket==NULL?CloseConnection():closesocket(socket);
 				 return NULL;
 			 }
 			 if(n==-1)
 			 {
-					string s("Error 1, Conexion perdida");
+					string s("Error 1");
 					delete[]errorstr;
 					errorstr=new char[s.length()+1];
 					errorstr[s.length()]=0;
@@ -859,7 +865,7 @@ public:
 						errorstr[i]=s[i];
 					error=true;
 					cout<<errorstr<<endl;
-					CloseConnection();
+					socket==NULL?CloseConnection():closesocket(socket);
 					return NULL;
 			 }
 			 else if(BuFFeR==NULL)
@@ -895,6 +901,7 @@ public:
 	 };
 	virtual char*getChar(){return ip;};
 	unsigned getunsigned(){return Port;};
+	SOCKET getServer(){return server;};
 };
 class WebSocket_Client:public Socket_Client
 {
@@ -1156,7 +1163,7 @@ public:
 			 }
 		}
 	 };
-	char* Recibir()
+	char*Recibir(SOCKET socket=NULL)
 	{
 		//if(EstaConectado())
 		//{
@@ -1469,7 +1476,7 @@ public:
 	this->Speed=Velocidad;
 	return true;
 }
-	char* Recibir()
+	char* Recibir(SOCKET socket=NULL)
 	{
 		char*cadena=NULL;
 		if(EstaConectado())
@@ -1509,3 +1516,820 @@ public:
 	unsigned getunsigned(){return Speed;};
 };
 
+
+class Server:public Socket_Client
+{
+class StackClients
+	{
+	class SocketCliente
+		{
+		public:
+			SOCKET ID;
+			SOCKADDR_IN Addr;
+			time_t date;
+			TypeClient t;
+			SocketCliente()
+			{
+				t=TypeClient::Null;
+			};
+			~SocketCliente(){}
+			void ActualizaDate()
+			{
+				date=time(0);
+			}
+		    operator SOCKET()
+			{
+				return ID;
+			}
+		};
+	public:
+		unsigned cont,cant;
+		SocketCliente*clientes;
+		int user,ESE;
+		StackClients(int max=10)
+		{
+			this->cont=0;
+			this->cant=max;
+			clientes=new SocketCliente[max];
+			user=ESE=-1;
+		}
+		~StackClients()
+		{
+			delete[]clientes;
+		}
+		void Add(SOCKET id,SOCKADDR_IN addr)
+		{
+			if(cont<cant)
+			{
+				clientes[cont].ID=id;
+				clientes[cont].Addr=addr;
+				clientes[cont++].ActualizaDate();
+			}
+		}
+		bool RemoveByIndex(unsigned i)
+		{
+			if(cont>0&&i<cont)
+			{
+				closesocket(clientes[i]);	
+				for(unsigned ii=i;ii<cont-1;ii++)
+					clientes[ii]=clientes[ii+1];
+				cont--;
+				RemoveClient(i);
+				return true;
+			}
+			return false;
+		}
+		void ActuTypeByIndex(TypeClient t,unsigned i)
+		{
+			if(t==TypeClient::ESEGRS)
+			{
+				if(ESE==-1)
+				{
+					ESE=i;
+					this->clientes[i].t=t;
+				}
+				else
+					this->clientes[i].t=TypeClient::Null;
+			}
+			else
+			{
+				this->clientes[i].t=t;
+			}
+		}
+		SocketCliente GetSocketCliente(SOCKET s)
+		{
+			for(unsigned i=0;i<cont;i++)
+				if(s==clientes[i])
+					return clientes[i];
+		}
+		SocketCliente GetSocketClienteByIndex(unsigned i)
+		{
+				return clientes[i];
+		}
+		void ActualizaUser(unsigned i)
+		{
+			if(i<cont&&user==-1)
+				if(clientes[i].t==TypeClient::Windows)
+					user=i;
+		}
+		void RemoveClient(unsigned i)
+		{
+			RemoverUser(i);
+			RemoverESE(i);
+				/*for(unsigned ii=0;ii<cont;ii++)
+					if(clientes[ii].t==TypeClient::WEB||clientes[ii].t==TypeClient::Windows)
+					{
+						userR=user;
+						user=ii;
+						userNew=userRemov=true;
+						throw(true);
+					}*/
+			if(user>(int)i)
+				user--;
+			if(ESE>(int)i)
+				ESE--;
+		}
+		void RemoverUser(unsigned i)
+		{
+			if(i==user)
+			{
+				user=-1;
+			}
+		}
+		void RemoverESE(unsigned i)
+		{
+			if(i==ESE)
+			{
+				ESE=-1;
+			}
+		}
+	};
+protected:
+	fd_set descriptoresLectura;
+	StackClients ManejadorClientes;	
+	struct timeval tv;
+	bool LoopThread;
+	thread*th;
+	bool StatusClientes;
+public:
+	void Select()
+	{
+		LoopThread=true;
+		cout<<"Esperando clientes"<<endl;
+		while(LoopThread)
+		{
+			FD_ZERO(&descriptoresLectura);
+			FD_SET(server,&descriptoresLectura);
+			for (unsigned i=0; i<ManejadorClientes.cont; i++)
+				FD_SET(ManejadorClientes.clientes[i],&descriptoresLectura);
+			select(server,&descriptoresLectura,NULL,NULL,NULL);
+			if(!LoopThread)
+				return;
+			if(FD_ISSET(server,&descriptoresLectura))
+			{
+				SOCKET client;
+				int clientaddrSize=sizeof(clientaddr);
+				if((client=accept(server,(SOCKADDR*)&clientaddr,&clientaddrSize))<0)
+				{
+				   cout<<"Cuidado!!,Error al conectarse un cliente"<<endl;
+				}
+				else
+				{
+					if(ManejadorClientes.cont==ManejadorClientes.cant)
+					{
+						closesocket(client);
+						StatusClientes=true;
+						continue;
+					}
+					cout<<"\n++++"<<"Cliente Conectado:\nID:";
+					ManejadorClientes.Add(client,clientaddr);
+					cout<<client<<"\nIP:"<<inet_ntoa(ManejadorClientes.clientes[ManejadorClientes.cont-1].Addr.sin_addr)<<endl;
+					StatusClientes=true;
+				}
+			}
+			else
+			{
+				for(unsigned i=0;i<ManejadorClientes.cont;i++)
+				{
+					if(!FD_ISSET(ManejadorClientes.clientes[i],&descriptoresLectura))
+						continue;
+					//memset(buffer,0,sizeof(buffer));
+					//int n=recv(ManejadorClientes.clientes[i],buffer,1024,0);
+					int n=1;
+					if(Recibir(ManejadorClientes.clientes[i])==NULL)
+					{
+						if(this->error)
+							n=-1;
+
+					}
+					switch(n)
+					{
+					case -1:
+						cout<<"Error al leer al cliente, cliente desconectado";
+					case 0:
+						SocketServer_CerrarSocketByIndex(i);
+						break;
+					default:
+							//buffer[(unsigned)n]=0;
+						/*cout<<"////////////////////Resivido de "<<ManejadorClientes.clientes[i]<<"///////////////////"<<endl<<bufers.c_str()<<"//////////////////////////////////////////////////////////"<<endl;*/
+						string sw(bufers);
+						
+						for(unsigned j=0;j<sw.length();j+=2)
+						{
+							try
+							{
+								if(sw.find("GET / HTTP")!=string::npos)/*!strcmp((char*)sw.substr(0,10).c_str(),"GET / HTTP"))*/
+								{
+									j+=sw.length();
+									this->Trasmitir(RespuestaClienteHTML(),ManejadorClientes.clientes[i]);
+									this->ManejadorClientes.ActuTypeByIndex(TypeClient::HTML,i);
+									throw(true);
+								}
+								if(DataProcessor::CodigoServer(bufers[j],bufers[j+1]))
+								{
+									DataUnion du;
+									char toSend[3];
+									toSend[0]=(char)1;
+									toSend[1]=(char)1;
+									toSend[2]=0;
+									switch (bufers[j])
+									{
+																	/*COMANDOS
+											///////////Comando de Dibujo/////////
+											(7)-000001 11->Redireccionar
+											(11)000011 11->CambiarFocus de la caja
+											(15)000010 11->Click al Focus
+											(19)000100 11->AceptButton
+											(23)000101 11->CancelButton
+											///////////Comando de Servidor////////
+											(35)00100011->ESEGRS ESEGRS_BRAZO
+											(39)00100111->ESEGRS WINDOWS
+											(43)00101011->ESEGRS WEB
+											(47)00101111->ESEGRS HTML
+											(51)00110011->ESEGRS USER
+											(55)00110111->ESEGRS!USER
+											(59)00111011->ESEGRS BOCETO
+											(63)00111111->ESEGRS!BOCETO
+											(67)01000011->ESEGRS POINT
+											(71)01000111->ESEGRS LINE
+											(75)01001011->ESEGRS STRIPLINE
+											(79)01001111->ESEGRS SPLINE
+											(83)01010011->ESEGRS BSPLINE
+											(85)01010111->ESEGRS CANCEL
+											(91)01011011->ESEGRS MOSTRAR_PLANO
+											(95)01011111->ESEGRS!MOSTRAR_PLANO
+											(99)01100011->ESEGRS 
+											(103)01100111->ESEGRS !!!!!!!!!!!!!!!!!!!!!!!!1TANSMITE_PLANO!!!!!!!!!!!!!!!!!!!!!!!!!!1
+											(107)01101011->ESEGRS PUENTE_WEB
+											(111)01101111->ESEGRS PERDER ESE
+											(115)01110011->ESEGRS RESPUESTA_PUETE_WEB
+											(119)01110100->CLIENTE DESCONECTADO
+															*/
+									case 59://New Boceto transferir plano
+										du.SetStrCodif(&bufers[j+1]);
+										j+=du.u.Unsigned+strlen(du.u.String)+1-2;
+										if(SocketServer_ClientIsUser(i))
+											Trasmitir((char*)bufers.c_str());
+										throw(true);
+									case 35://///////////////////////GANAR ESEGRS////////////////////////////
+										this->ManejadorClientes.ActuTypeByIndex(TypeClient::ESEGRS,i);
+										if(ManejadorClientes.ESE==i)
+										{
+											toSend[0]=(char)35;
+											Trasmitir(toSend,ManejadorClientes.clientes[i]);
+										}
+										throw(true);
+									case 111:////////////////////////PERDER ESE///////////////////
+										toSend[0]=(char)111;
+										ManejadorClientes.RemoverESE(i);
+										Trasmitir(toSend,ManejadorClientes.clientes[i]);
+										throw(true);
+									case 39:///////////////////////////CONNECT USER WINDOWS////////////////////
+										this->ManejadorClientes.ActuTypeByIndex(TypeClient::Windows,i);
+										toSend[0]=(char)39;
+										Trasmitir(toSend,ManejadorClientes.clientes[i]);
+										throw(true);
+									//case 43:///////////////////////////CONNECT USER WEB///////////////////////
+									//	this->ManejadorClientes.ActuTypeByIndex(TypeClient::WEB,i);
+									//	toSend[0]=(char)43;
+									//	Trasmitir(toSend,ManejadorClientes.clientes[i]);
+									//	throw(true);
+									case 51://///////////GANAR USER////////////////////
+										toSend[0]=(char)55;
+										if(ManejadorClientes.user==-1)
+										{
+											ManejadorClientes.ActualizaUser(i);
+											if(ManejadorClientes.user!=-1)
+											{
+												toSend[0]=(char)51;
+											}
+										}
+										Trasmitir(toSend,ManejadorClientes.clientes[i]);
+										throw(true);
+									case 55://////////////////////////////PERDER!USER/////////////////////////
+										toSend[0]=(char)55;
+										ManejadorClientes.RemoverUser(i);
+										Trasmitir(toSend,ManejadorClientes.clientes[i]);
+										throw(true);
+									    //case 99://////////////////////////////////////////////////
+										//if(SocketServer_ClientPuenteWeb(i))
+										//{
+										//	if(SocketServer_ExistCliente_NoUSER(true))
+										//		toSend[0]=(char)103;
+										//}
+										//else
+										//	if(SocketServer_ExistCliente_NoUSER(false))
+										//	{
+										//		toSend[0]=(char)103;
+										//	}*/
+										//this->ManejadorClientes.ActuTypeByIndex(TypeClient::PUENTE_WEB,i);
+										//if(ManejadorClientes.PuenteWeb==i)
+										//	toSend[0]=99;
+										//Trasmitir(toSend,ManejadorClientes.clientes[i]);
+										//throw(true);
+									//case 107://///////////////////////CONNECT PUENTE WEB/////////////////////////
+									//		ManejadorClientes.ActuTypeByIndex(TypeClient::PUENTE_WEB,i);
+									//		if(ManejadorClientes.PuenteWeb==i)
+									//		{
+									//			toSend[0]=(char)107;
+									//		}
+									//		Trasmitir(toSend,ManejadorClientes.clientes[i]);
+									//		
+									//		/*toSend[0]=(char)107;
+									//		if(ManejadorClientes.ESE!=-1&&ManejadorClientes.user!=-1)
+									//			toSend[1]=(char)4;
+									//		else if(ManejadorClientes.ESE!=-1)
+									//			toSend[1]=(char)3;
+									//		else if(ManejadorClientes.user!=-1)
+									//			toSend[1]=(char)2;
+									//		Trasmitir(toSend,ManejadorClientes.clientes[i]);*/
+									//	throw(true);
+									//case 115:
+									//	if(ManejadorClientes.PuenteWeb!=-1&&bufers.length()>1)
+									//	{
+									//		switch(bufers[j+1])
+									//		{
+									//			case 2:///////////YA HAY USER////////
+									//			if(ManejadorClientes.user!=-1)
+									//			{
+									//				toSend[0]=(char)55;
+									//				Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.user]);
+									//				ManejadorClientes.RemoverUser(ManejadorClientes.user);
+									//		
+									//			}
+									//			ManejadorClientes.user=ManejadorClientes.PuenteWeb;
+									//			ActStatusClient(true);
+									//			break;
+									//		case 3://////////YA HAY ESE///////////////
+									//			if(ManejadorClientes.ESE!=-1)
+									//			{
+									//				toSend[0]=(char)111;
+									//				Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.ESE]);
+									//				ManejadorClientes.RemoverESE(ManejadorClientes.ESE);
+									//			}
+									//			ManejadorClientes.ESE=ManejadorClientes.PuenteWeb;
+									//			ActStatusClient(true);
+									//			break;
+									//		case 4://///////YA ESTNN EL USER Y EL ESE/////////
+									//			if(ManejadorClientes.user!=-1)
+									//			{
+									//				toSend[0]=(char)55;
+									//				Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.user]);
+									//				ManejadorClientes.RemoverUser(ManejadorClientes.user);
+									//			}
+									//			ManejadorClientes.user=ManejadorClientes.PuenteWeb;
+									//			ActStatusClient(true);										
+									//			if(ManejadorClientes.ESE!=-1)
+									//			{
+									//				toSend[0]=(char)111;
+									//				Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.ESE]);
+									//				ManejadorClientes.RemoverESE(ManejadorClientes.ESE);
+									//			}
+									//			ManejadorClientes.ESE=ManejadorClientes.PuenteWeb;
+									//			ActStatusClient(true);	
+									//			break;
+									//		}
+									//	}
+									//throw(true);
+									}		 
+								}
+								if(DataProcessor::CodigoESE(bufers[j],bufers[j+1])||DataProcessor::CodigoServer(bufers[j],bufers[j+1])||DataProcessor::CodigoSeguridad(bufers[j],bufers[j+1]))
+								{
+									if(SocketServer_ClientIsUser(i))
+										Trasmitir((char*)bufers.c_str());
+									else if(SocketServer_ClientESE(i))
+										Trasmitir((char*)bufers.c_str(),NULL,true);
+									j+=bufers.length();
+								}
+							}catch(bool)
+							{
+							}
+						}
+					break;		
+					}	
+				}
+			}	
+		}
+	}
+	Server():Socket_Client()
+	{
+		this->t=ConnectionType::SOCKET_SERVER;
+		ip=new char[1];
+		LoopThread=StatusClientes=false;
+		tv.tv_sec=0;
+		tv.tv_usec=500000;
+		
+	}
+	~Server()
+	{
+		  this->CloseConnection();
+	};
+	void CloseConnection(){
+		if(this->EstaConectado())
+		{
+			
+			LoopThread=false;
+			for(unsigned i=0;i<ManejadorClientes.cont;i++)
+				closesocket(ManejadorClientes.clientes[i]);
+			Socket_Client::CloseConnection();
+			th->join();
+		}
+	} 
+	bool inicializa(const char* Ip, unsigned long Port)
+	 {
+		WSAStartup(MAKEWORD(2,0),&wsData);
+		if((server=socket(AF_INET,SOCK_STREAM,0))<0)
+		{
+			this->error=true;
+			string s("Error 1 ,Socket no creado");
+			delete[]errorstr;
+			errorstr=new char[s.length()+1];
+			errorstr[s.length()]=0;
+			for(unsigned i=0;i<s.length();i++)
+				 errorstr[i]=s[i];
+			cout<<errorstr<<endl;
+			return false;
+		}
+		if(!strcmp(Ip,"INADDR_ANY"))
+			serveraddr.sin_addr.s_addr=INADDR_ANY;
+		else
+			serveraddr.sin_addr.s_addr=inet_addr((const char*)Ip);   //INADDR_ANY;
+		
+		serveraddr.sin_family=AF_INET;
+		serveraddr.sin_port=htons((u_short)Port);
+		if(::bind(server,(SOCKADDR*)&serveraddr,sizeof(serveraddr))!=0)
+		{
+			this->error=true;
+			string s("Error 2 , bind no iniciado");
+			delete[]errorstr;
+			errorstr=new char[s.length()+1];
+			errorstr[s.length()]=0;
+			for(unsigned i=0;i<s.length();i++)
+				 errorstr[i]=s[i];
+			cout<<errorstr<<endl;
+			return false;
+	   }
+		if(listen(server,0)!=0)
+		{
+			this->error=true;
+			string s("Error 3 , listen no iniciado");
+			delete[]errorstr;
+			errorstr=new char[s.length()+1];
+			errorstr[s.length()]=0;
+			for(unsigned i=0;i<s.length();i++)
+				 errorstr[i]=s[i];
+			cout<<errorstr<<endl;
+			return false;
+		}
+
+		error=false;
+		IsConectado=true;
+		if(!ActualizIP())
+		{
+			delete[]ip;
+			this->ip=new char[strlen(Ip)+1];
+			this->ip[strlen(Ip)]=0;
+			for(unsigned i=0;i<strlen(Ip);i++)
+	   		   this->ip[i]=Ip[i];
+		}
+		this->Port=Port;
+		cout<<"Server incicado en "<<ip<<":"<<Port<<endl;
+		th=new thread(&Server::Select,this);
+
+		return true;
+	 
+	 }
+	void Trasmitir(char*buffer,SOCKET s=NULL,bool ESEGRS=false){
+		int n=-2;
+		if(s!=NULL)
+		{
+			n=send(s,buffer,strlen(buffer),0);
+		}
+		else
+		{
+			
+			if(!ESEGRS)
+			{
+				for(unsigned i=0;i<ManejadorClientes.cont;i++)
+					if(i!=ManejadorClientes.user&&ManejadorClientes.clientes[i].t==TypeClient::Windows)
+						Trasmitir(buffer,ManejadorClientes.clientes[i]);
+			}
+			else
+				for(unsigned i=0;i<ManejadorClientes.cont;i++)
+					if(ManejadorClientes.clientes[i].t==TypeClient::Windows)
+						Trasmitir(buffer,ManejadorClientes.clientes[i]);
+		}
+		 if(n==0)
+		 {
+			cout<<"Error 0 , no se ha podido transmitir, cliente:"<<s<<" desconectado"<<endl;
+			return;
+		  }
+		  if(n==-1)
+		  {
+			cout<<"Error 1, cliente:"<<s<<" desconectado"<<endl;
+			return;
+		  }
+	 };
+	char*RespuestaClienteHTML()
+	{
+		return "HTTP/1.1 200 OK\r\n"
+			"Content-Type text/html\r\n"
+			"\r\n"
+			"<!DOCTYPE html>"
+			"<html lang=\"en\">"
+			"<head>"
+			"<meta charset=\"UTF-8\">"
+			"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+			"<title>ESEGRS SERVER</title>"
+			"</head>"
+			"<body>"
+				"<div style=\"text-align: center;\">"
+				"<h1 >ESEGRS Server</h1>"
+				"<h3 style=\"font-family: Georgia, 'Times New Roman', Times, serif;\">"
+				"Aqui se encuentra alojado el servidor en C++ a partir de Sockets."
+				"Para empezar a  utilizar  nuestros servicios descargue la "
+				"<a href=\"https://github.com/Esteban191900/ESEGRS-Class\" target=\"_blank\">App" 
+				"para windows</a>, o desde el <a href=\"https://esteban191900.github.io/ESEGRS_WEBGL_THREEJS/\" target=\"_blank\">"
+				"simulador online</a>"
+            "</h3>"
+			"</body>"
+			"</html>";
+	}
+	char*getChar(){return ip;};
+	unsigned getunsigned(){return Port;};
+	void SocketServer_CerrarSocketByIndex(unsigned i)
+	{
+		if(ManejadorClientes.RemoveByIndex(i))
+		{
+			cout<<endl<<"\n----Cliente desconectado:"<<ManejadorClientes.clientes[i]<<endl;	
+			StatusClientes=true;
+		}
+		
+	}
+	/*char*SocketServer_List()
+	{
+		if(!ManejadorClientes.cont)
+		{
+			string s("Lista vacia");
+			char*ListaVacia=new char[s.length()+1];
+			ListaVacia[s.length()]=0;
+			for(unsigned i=0;i<s.length();i++)
+				ListaVacia[i]=s[i];
+			return ListaVacia;
+		}
+		string s;
+		for(unsigned i=0;i<ManejadorClientes.cont;i++)
+		{
+		s+="_Id:";
+		s+=to_string(ManejadorClientes.clientes[i]);
+		s+="\n_Tipo:";
+		s+=(ManejadorClientes.clientes[i].t==TypeClient::HTML?"HTML":ManejadorClientes.clientes[i].t==TypeClient::Windows?"WIND":ManejadorClientes.clientes[i].t==TypeClient::WEB?"WEB":ManejadorClientes.clientes[i].t==TypeClient::ESEGRS?"ESE":"NULL");
+		s+="\n_Acceso:";
+		s+=(ManejadorClientes.user==i||ManejadorClientes.ESE==i)?"TRUE":"FALSE";
+		s+="\n_Ip:";
+		s+=inet_ntoa(ManejadorClientes.clientes[i].Addr.sin_addr);
+		s+="\n_Fecha:";
+		s+=ctime(&ManejadorClientes.clientes[i].date);
+		s+="\n\n";
+		}
+		char*toReturn=new char[s.length()+1];
+		toReturn[s.length()]=0;
+		for(unsigned i=0;i<s.length();i++)
+			toReturn[i]=s[i];
+		return toReturn;
+
+	}*/
+	/*char*SocketServer_ClienteList(unsigned i)
+	{
+		if(ManejadorClientes.cont<=i)
+		{
+			string s("Lista vacia");
+			char*ListaVacia=new char[s.length()+1];
+			ListaVacia[s.length()]=0;
+			for(unsigned i=0;i<s.length();i++)
+				ListaVacia[i]=s[i];
+			return ListaVacia;
+		}
+		string s;
+		s+="_Id:";
+		s+=to_string(ManejadorClientes.clientes[i]);
+		s+="\n_Tipo:";
+		s+=(ManejadorClientes.clientes[i].t==TypeClient::HTML?"HTML":ManejadorClientes.clientes[i].t==TypeClient::Windows?"WIND":ManejadorClientes.clientes[i].t==TypeClient::WEB?"WEB":ManejadorClientes.clientes[i].t==TypeClient::ESEGRS?"ESE":ManejadorClientes.clientes[i].t==TypeClient::PUENTE_WEB?"PuenteWeb":"NULL");
+		s+="\n_Acceso:";
+		s+=(ManejadorClientes.user==i||ManejadorClientes.ESE==i)?"TRUE":"FALSE";
+		s+="\n_Ip:";
+		s+=inet_ntoa(ManejadorClientes.clientes[i].Addr.sin_addr);
+		s+="\n_Fecha:";
+		s+=ctime(&ManejadorClientes.clientes[i].date);	
+		
+		char*toReturn=new char[s.length()+1];
+		toReturn[s.length()]=0;
+		for(unsigned i=0;i<s.length();i++)
+			toReturn[i]=s[i];
+		return toReturn;
+	}*/
+	/*bool SocketServer_ClientAcceso(unsigned i)
+	{
+		if(i<ManejadorClientes.cont&&ManejadorClientes.clientes[i].t==TypeClient::WEB||ManejadorClientes.clientes[i].t==TypeClient::Windows||ManejadorClientes.clientes[i].t==TypeClient::PUENTE_WEB)
+			return true;
+		return false;
+	}*/
+	bool SocketServer_ClientIsUser(unsigned i)
+	{
+		if(ManejadorClientes.user==i)
+			return true;
+		return false;
+	}
+	/*unsigned GetContClients(){return ManejadorClientes.cont;};*/
+	/*unsigned SocketServer_ClientUserIndex()
+	{
+		return ManejadorClientes.user;
+	};
+	unsigned SocketServer_ClientESEIndex(){
+		return ManejadorClientes.ESE;
+	};*/
+	bool SocketServer_ClientESE(unsigned i)
+	{
+		if(i<ManejadorClientes.cont&&ManejadorClientes.ESE==i)
+			return true;
+		return false;
+	}
+	/*void SocketServer_PonerUser(unsigned i)
+	{
+		ManejadorClientes.ActualizaUser(i);
+		if(ManejadorClientes.user==i)
+		{
+			char toSend[3];
+			toSend[0]=(char)51;
+			toSend[1]=(char)1;
+			toSend[2]=0;
+			Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.user]);
+			if(ManejadorClientes.PuenteWeb!=-1)
+				Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.PuenteWeb]);
+			ActStatusClient(true);
+		}
+	}*/
+	bool ActualizIP()
+	{
+		if(serveraddr.sin_addr.s_addr!=INADDR_ANY)
+			return false;
+		char host[256];
+		struct  hostent*host_entry;
+		int hostname;
+		hostname=gethostname(host,sizeof(host));
+		if(hostname!=-1)
+		{
+			host_entry=gethostbyname(host);
+			if(host_entry!=NULL)
+			{
+				char*IP;
+				delete[]ip;
+				IP=inet_ntoa(*((struct in_addr*)host_entry->h_addr_list[0]));
+				ip=new char[strlen(IP)+1];
+				ip[strlen(IP)]=0;
+				for(unsigned i=0;i<strlen(IP);i++)
+					ip[i]=IP[i];
+				return true;
+			}
+		}
+		return false;
+	}
+	/*bool SocketServer_ExistCliente_NoUSER(bool puente)
+	{
+		for(unsigned i=0;i<ManejadorClientes.cont;i++)
+			if(!puente)
+				if(ManejadorClientes.user!=i&&(ManejadorClientes.clientes[i].t==TypeClient::Windows||ManejadorClientes.clientes[i].t==TypeClient::WEB||ManejadorClientes.clientes[i].t==TypeClient::PUENTE_WEB))
+				{
+					return true;
+				}
+				else
+					if(ManejadorClientes.user!=i&&(ManejadorClientes.clientes[i].t==TypeClient::Windows||ManejadorClientes.clientes[i].t==TypeClient::WEB))
+						return true;
+		return false;
+	}
+	void SocketServer_QuitarUser(unsigned i)
+	{
+
+		char toSend[3];
+		
+		if(i==ManejadorClientes.user)
+		{
+			toSend[0]=(char)55;
+			toSend[1]=(char)1;
+			toSend[2]=0;
+			Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.user]);
+			if(ManejadorClientes.PuenteWeb!=-1&&ManejadorClientes.PuenteWeb!=i)
+				Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.PuenteWeb]);
+		}
+		ManejadorClientes.RemoverUser(i);
+		ActStatusClient(true);
+	};
+	void SocketServer_QuitarESE(unsigned i)
+	{
+
+		char toSend[3];
+		
+		if(i==ManejadorClientes.ESE)
+		{
+			toSend[0]=(char)111;
+			toSend[1]=(char)1;
+			toSend[2]=0;
+			Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.ESE]);
+			if(ManejadorClientes.PuenteWeb!=-1&&ManejadorClientes.PuenteWeb!=i)
+				Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.PuenteWeb]);
+		}
+		ManejadorClientes.RemoverESE(i);
+		ActStatusClient(true);
+	};
+	void SocketServer_QuitarOnlyUSER(unsigned i)
+	{
+		char toSend[3];
+		if(i==ManejadorClientes.user)
+		{
+			toSend[0]=(char)55;
+			toSend[1]=(char)1;
+			toSend[2]=0;
+			Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.user]);
+			ManejadorClientes.RemoverUser(i);
+			ActStatusClient(true);
+		}
+	}
+	void SocketServer_QuitarOnlyESE(unsigned i)
+	{
+		char toSend[3];
+		if(i==ManejadorClientes.ESE)
+		{
+			toSend[0]=(char)111;
+			toSend[1]=(char)1;
+			toSend[2]=0;
+			Trasmitir(toSend,ManejadorClientes.clientes[ManejadorClientes.ESE]);
+			ManejadorClientes.RemoverESE(i);
+			ActStatusClient(true);
+		}
+	}*/
+	
+	SOCKET GetSocket(){return server;};
+	unsigned GetContClientes(){return ManejadorClientes.cont;};
+	bool StatusClientes_bool()
+	{
+		if(StatusClientes)
+		{
+			StatusClientes=false;
+			return true;
+		}
+		return false;
+	}								
+	/*char* ActionAfterError()
+	{
+		if(error=true)
+		{
+		   return ConnectClient();
+		}
+		return "No habia un error";
+	};*/
+	/*char* ConnectClient()
+	{
+		int clientaddrSize=sizeof(clientaddr);
+		   if((cliente=accept(server,(SOCKADDR*)&clientaddr,&clientaddrSize))<0)
+		   {
+			  this->error=true;
+			  this->errorstr="Error al conectar un cliente";
+			  return this->errorstr;
+		   }
+		   this->message="Cliente Conectado";
+		   error=false;
+		   return this->message;
+	}*/		  
+};
+class Socket_Server: public Socket_Client
+{
+public:
+	Server SerVer;
+	Socket_Server():Socket_Client()
+	{
+		this->t=ConnectionType::SOCKET_SERVER;
+	};
+	virtual ~Socket_Server()
+	{
+	};
+	bool inicializa(const char* Ip, unsigned long Port)
+	{
+		if(!SerVer.inicializa(Ip,Port))
+			return false;
+		if(!Socket_Client::inicializa(SerVer.getChar(),SerVer.getunsigned()))
+			return false;
+		char toSend[3];
+		toSend[0]=(char)51;
+		toSend[1]=(char)1;
+		toSend[2]=0;
+		this->Trasmitir(toSend,SerVer.getServer());
+		return true;
+	}
+	void CloseConnection()
+	{
+		SerVer.CloseConnection();
+		Socket_Client::CloseConnection();
+	}
+	unsigned getContClientesServer(){return SerVer.GetContClientes();};
+	bool GetCientesStatus(){return SerVer.StatusClientes_bool();};
+};
