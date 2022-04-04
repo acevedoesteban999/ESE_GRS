@@ -166,7 +166,7 @@ public:
 	virtual unsigned RBGGetMaxChecket(){return 0;};
 	virtual bool RBGGetRBChecket(char*name){return false;};
 	virtual void RBGSetRBChecket(char*RBname,bool checket){};
-	virtual void RBGAddRB(char*name,char*escritura,bool Checket=false){};
+	virtual void RBGAddRB(char*name,char*escritura,bool Checket=false,bool active=true){};
 	virtual void RBGSubRB(char*nameRB){};
 	virtual bool RBGGetRBActiveDesavt(char*nameRB){return false;};
 	//Box

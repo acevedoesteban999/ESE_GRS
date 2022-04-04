@@ -108,7 +108,7 @@ public:
 	{
 		return  Type::RADIOBUTTON; 
 	}
-	void RBGAddRB(char*RadioButtonName,char*escritura,bool Cheket=false){
+	void RBGAddRB(char*RadioButtonName,char*escritura,bool Cheket=false,bool active=true){
 		
 		if(Cheket)
 		    {
@@ -119,6 +119,7 @@ public:
 		if(this->Wigth<(float)(strlen(escritura)*10+20))
 			this->Wigth=(float)(strlen(escritura)*10+20);
 		RadioButton*rb=new RadioButton(RadioButtonName,*new CRD(this->coord->x,(double)(this->coord->y+this->Height),this->coord->z),escritura,this->TotalWigth,this->TotalHeight,Cheket);
+		rb->active=active;
 		if(this->contRB>=this->cantRB)
 		{
 			RadioButton**newRB=new RadioButton*[this->cantRB+10];

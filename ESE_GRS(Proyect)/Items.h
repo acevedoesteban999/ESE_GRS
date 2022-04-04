@@ -13,6 +13,7 @@ public:
 	ItemsType t;
 	unsigned cont,cant;
 	GLfloat*SPlinePoints;
+	GLfloat asd[9];
 	bool SplineAsignar;
 	Items()
 	{
@@ -74,6 +75,7 @@ public:
 				}
 			}
 			
+
 			glMap1f(GL_MAP1_VERTEX_3,0,100,3,cont,SPlinePoints);
 			glEnable(GL_MAP1_VERTEX_3);
 			glBegin(GL_LINE_STRIP); 
@@ -92,9 +94,55 @@ public:
 				glVertex3f((GLfloat)PoIntS[i].x,(GLfloat)PoIntS[i].y,(GLfloat)PoIntS[i].z);
 			glEnd();
 			glLineWidth(1);*/
+			glLineWidth(4);
+			glColor3f((GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9);	
+			if(this->SplineAsignar)
+			{
+				this->SplineAsignar=false;
+				SPlinePoints=new GLfloat[this->cont*3];
+				for(unsigned i=0;i<this->cont*3;i+=3)
+				{
+					SPlinePoints[i]=(GLfloat)PoIntS[unsigned(i/3)].x;
+					SPlinePoints[i+1]=(GLfloat)PoIntS[unsigned(i/3)].y;
+					SPlinePoints[i+2]=(GLfloat)PoIntS[unsigned(i/3)].z;
+				}
+			}
+
+
+			for(unsigned i=0;i<cont;i+=3)
+			{
+				if(cont-i<3)
+					break;
+				asd[0]=SPlinePoints[2*i];
+				asd[1]=SPlinePoints[2*i+1];
+				asd[2]=SPlinePoints[2*i+2];
+
+				asd[3]=SPlinePoints[2*i+3];
+				asd[4]=SPlinePoints[2*i+4];
+				asd[5]=SPlinePoints[2*i+5];
+
+				asd[6]=SPlinePoints[2*i+6];
+				asd[7]=SPlinePoints[2*i+7];
+				asd[8]=SPlinePoints[2*i+8];
+	
+
+				glMap1f(GL_MAP1_VERTEX_3,0,100,3,3,asd);
+				glEnable(GL_MAP1_VERTEX_3);
+				glBegin(GL_LINE_STRIP); 
+				for(unsigned ii = 0; ii <= 100; ii++)
+					glEvalCoord1d((GLfloat)ii);
+				glEnd();
+			}	
+			glLineWidth(1);
+
 		break;
 		}
 	};
+
+
+
+
+
 	void Add(CRD*point)
 	{
 	if(cont>=cant)

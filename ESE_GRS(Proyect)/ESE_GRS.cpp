@@ -1,6 +1,6 @@
 #include "ESE_GRS.h"
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="2.1.0";
+														char*ESE_GRS_Version="2.2.0";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -1291,9 +1291,13 @@ void ESE_GRS::InitMenu()
 		glutAddMenuEntry(Frases(98),-14);//Salir
 	}
 	else
+
+
 	{
+		/*
 		if(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER)
 			glutAddSubMenu("USER",SubMenuAcceso);
+		*/
 		glutAddSubMenu(Frases(39),SubMenuVista);//Vista
 		if(ModoSonido)
 		   glutAddMenuEntry(Frases(94),-11);//desact modo mute
@@ -1350,10 +1354,12 @@ void ESE_GRS::Entorno(){
 		text("o",-2.0,-1.5,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8);
 	  MutexManejadorForms.lock();
 	  ManejadorForms->DrawForms(ManejadorForms);//Dibujo los Forms
+	  /*
 	  if(p->GetType()==ConnectionType::SOCKET_SERVER&&p->GetCientesStatus())
 	  {
 		  ManejadorForms->GetForm("labelContClientes",ManejadorForms)->AddNewText((char*)to_string(p->getContClientesServer()).c_str());
 	  }
+	  */
 	  MutexManejadorForms.unlock();
 	  glPopMatrix();
 	  //pinto el eje de coordenadas del systema
@@ -1695,6 +1701,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		box->AddForm(f,box,10);
 		if(!recibir_serie)
 			desactivaAcept=true;
+		/*
 		if(!EsperandoReedireccionar&&LastInterfaz==2&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
 		{
 			char toSend[3];
@@ -1703,6 +1710,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			toSend[2]=0;
 			p->Trasmitir(toSend);
 		}
+		*/
 		break;
 	case 2://///////////////////////////INTERFAZ_2////////////////////////
 		ManejadorSketchs->ActualizaLastCood(cooRd,ManejadorSketchs); 
@@ -1732,6 +1740,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			box->AddForm(f,box,10);
 		}
 		desactivaAcept=true;
+		/*
 		if(LastInterfaz==1&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 		{
 			if(!EsperandoReedireccionar)
@@ -1756,6 +1765,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 				MutexMessag.unlock();
 			}
 		}
+		*/
 		break;
 	case -5://///////////////////////////////////INTERFAZ_-5/////////////////////////
 		ManejadorSketchs->SetDraw(false,ManejadorSketchs);
@@ -1825,16 +1835,26 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		box->SetName("BoxInterfazConnections",box);
 		box->SetCRD(new CRD(10,40,0),box);
 		glutDestroyMenu(MenuCD);
-		f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::SOCKET_CLIENT?toSaveIp:Connecttype==ConnectionType::SOCKET_SERVER?"INADDR_ANY":Connecttype==ConnectionType::WEBSOCKET_CLIENT?toSaveHost:toSaveCOM,15);
+		
+		//f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::SOCKET_CLIENT?toSaveIp:Connecttype==ConnectionType::SOCKET_SERVER?"INADDR_ANY":Connecttype==ConnectionType::WEBSOCKET_CLIENT?toSaveHost:toSaveCOM,15);
+		f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,toSaveCOM,15);
+		
 		box->AddForm(f,box);
-		f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,(Connecttype==ConnectionType::SOCKET_CLIENT||Connecttype==ConnectionType::SOCKET_SERVER)?(char*)to_string(toSavePort).c_str():Connecttype==ConnectionType::WEBSOCKET_CLIENT?(char*)to_string(toSavePortWeb).c_str():(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
+		
+		//f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,(Connecttype==ConnectionType::SOCKET_CLIENT||Connecttype==ConnectionType::SOCKET_SERVER)?(char*)to_string(toSavePort).c_str():Connecttype==ConnectionType::WEBSOCKET_CLIENT?(char*)to_string(toSavePortWeb).c_str():(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
+		f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
+		
+		
 		box->AddForm(f,box);
 		f=new RadioButtonGroup("RadioButtonGroupConnectionType",*new CRD(0,0,0),wigth,height);
 		f->RBGAddRB("RadioButtomSerialPort",Frases(26),Connecttype==ConnectionType::SERIAL_PORT?1:0);
-		f->RBGAddRB("RadioButtomEternet",Frases(25),Connecttype==ConnectionType::SOCKET_CLIENT?1:0);
-		f->RBGAddRB("RadioButtomSerialPort",Frases(128),Connecttype==ConnectionType::SOCKET_SERVER?1:0);
-		f->RBGAddRB("RadioButtomWebSocket",Frases(111),Connecttype==ConnectionType::WEBSOCKET_CLIENT?1:0);
-		
+
+
+		//////////////////////////////////////////////Unico que se queda afuera////////////////////////////////////////
+		f->RBGAddRB("RadioButtomEternet",Frases(25),Connecttype==ConnectionType::SOCKET_CLIENT?1:0,false);	
+		f->RBGAddRB("RadioButtomSerialPort",Frases(128),Connecttype==ConnectionType::SOCKET_SERVER?1:0,false);
+		f->RBGAddRB("RadioButtomWebSocket",Frases(111),Connecttype==ConnectionType::WEBSOCKET_CLIENT?1:0,false);
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		box->AddForm(f,box);
 		break;
 	case 4://///////////////////////////INTERFAZ_4////////////////////////
@@ -2120,11 +2140,13 @@ void ESE_GRS::reshape(int x,int y){
 	ManejadorForms->GetForm("labelCoordX",ManejadorForms)->NewCRD(new CRD(wigth-120,115,0));
 	ManejadorForms->GetForm("labelCoordY",ManejadorForms)->NewCRD(new CRD(wigth-120,130,0));
 	ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->NewCRD(new CRD(wigth-120,145,0));
+	/*
 	if(recibir_serie&&p->GetType()==ConnectionType::SOCKET_SERVER)
 	{
 		ManejadorForms->GetForm("labelServer",ManejadorForms)->NewCRD(new CRD(wigth-190,0,0));
 		ManejadorForms->GetForm("labelContClientes",ManejadorForms)->NewCRD(new CRD(wigth-165,20,0));
 	}
+	*/
 
 	glViewport(0,0,x,y);//creo una zona de la ventana con el contenido  
 	glMatrixMode(GL_MODELVIEW);
@@ -2199,6 +2221,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						  Connecttype=ConnectionType::SERIAL_PORT;
 							  break;
 
+					   /*
 					   case 1:
 						   Connecttype=ConnectionType::SOCKET_CLIENT;
 							  break;
@@ -2209,6 +2232,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 
 					    case 3:
 							 Connecttype=ConnectionType::WEBSOCKET_CLIENT;
+						*/
 							break;
 					  }
 					  p->SetType(Connecttype,p);
@@ -2335,6 +2359,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						if(RadioButtomPintar==0)///POINTS
 						{
 							Plano::ActualizaItem(ItemsType::POINTSS,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							/*
 							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
@@ -2343,10 +2368,12 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								toSend[2]=0;
 								p->Trasmitir(toSend);
 							}
+							*/
 						}
 						else if(RadioButtomPintar==1)//LINES
 						{
 							Plano::ActualizaItem(ItemsType::LINES,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							/*
 							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
@@ -2355,10 +2382,12 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								toSend[2]=0;
 								p->Trasmitir(toSend);
 							}
+							*/
 						}
 						else if(RadioButtomPintar==2)//STRIP_LINE
 						{
 							Plano::ActualizaItem(ItemsType::LINE_STRIP,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							/*
 							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
@@ -2367,10 +2396,12 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								toSend[2]=0;
 								p->Trasmitir(toSend);
 							}
+							*/
 						}
 						else if(RadioButtomPintar==3)//SPLINE
 						{
 							Plano::ActualizaItem(ItemsType::SPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							/*
 							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
@@ -2379,10 +2410,12 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								toSend[2]=0;
 								p->Trasmitir(toSend);
 							}
+							*/
 						}
 						else if(RadioButtomPintar==4)//BSPLINE
 						{
 							Plano::ActualizaItem(ItemsType::BSPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
+							/*
 							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
@@ -2391,11 +2424,13 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								toSend[2]=0;
 								p->Trasmitir(toSend);
 							}
+							*/
 						}
 						break;
 					case 2:///////CANCEL Point
 						if(	ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetActiveDesact("RadioButtomCancelLast"))
 						{
+						/*
 						if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
@@ -2404,6 +2439,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								toSend[2]=0;
 								p->Trasmitir(toSend);
 							}
+							*/
 						Plano::CancelLastPoint(ManejadorSketchs->BocetoActual(ManejadorSketchs));
 						if(ModoSonido)sonidos(6);
 						if(!ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont)
@@ -2416,6 +2452,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						if(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetRBChecket("RadioButtomMostrarPlano"))
 						{
 							ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=true;
+							/*
 							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
@@ -2424,10 +2461,12 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								toSend[2]=0;
 								p->Trasmitir(toSend);
 							}
+							*/
 						}
 						else
 						{
 							ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=false;
+							/*
 							if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 							{
 								char toSend[3];
@@ -2436,6 +2475,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 								toSend[2]=0;
 								p->Trasmitir(toSend);
 							}
+							*/
 						}
 						break;
 					}
@@ -2994,18 +3034,20 @@ void ESE_GRS::default_menu(int opcion){
 		case CONNECTION:
 			p=new Connection();
 			break;
+		case SERIAL_PORT:
+			 p=new PuertoSerie();
+			break;
+		/*
 		case SOCKET_SERVER:
 			p=new Socket_Server();
 			break;
 		case SOCKET_CLIENT:
 			p=new Socket_Client();
 			break;
-		case SERIAL_PORT:
-			 p=new PuertoSerie();
-			break;
 		case WEBSOCKET_CLIENT:
 			p=new WebSocket_Client();
 			break;
+		*/
 		}
 		if(Connecttype==ConnectionType::CONNECTION)
 			break;
@@ -3037,6 +3079,7 @@ void ESE_GRS::default_menu(int opcion){
 			    ManejadorForms->SetColor("labelESE_GRS",0,1,0,ManejadorForms);
 			    ManejadorForms->Add(new Label("labelRedireccionar",Frases(115),*(new CRD(0,19,0)),1,0,1,0,wigth,height),ManejadorForms);
 				ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->SetColor(1,1,0);
+				/*
 				if((p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER||p->GetType()==ConnectionType::WEBSOCKET_CLIENT))
 			    {
 				   if(p->GetType()==ConnectionType::SOCKET_SERVER)
@@ -3047,6 +3090,7 @@ void ESE_GRS::default_menu(int opcion){
 				   ManejadorForms->Add(new Label("labelAcceso",Frases(104),*(new CRD(0,39,0)),1,0,1,0,wigth,height),ManejadorForms);
 				   ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(1,1,0);
 			   }
+			   */
 			   StackAnimation*sa=new StackAnimation("StackAnimationsConnection");
 			   sa->STANSetAnimation("AnimacionRoja",*new CRD(wigth-100,height-50,0),75,wigth,height,-25,1,0,0,1.5);
 			   sa->STANSetAnimation("AnimacionVerde",*new CRD(wigth-100,height-50,0),75,wigth,height,0,0,1,0,1.5);
@@ -3072,7 +3116,8 @@ void ESE_GRS::default_menu(int opcion){
 					   toSaveCOM[i]=p->getChar()[i];
 				   toSaveSpeed=p->getunsigned();
 		       }
-		       else if(p->GetType()==ConnectionType::SOCKET_CLIENT)
+		       /*
+			   else if(p->GetType()==ConnectionType::SOCKET_CLIENT)
 			   {
 				   delete[]toSaveIp;
 				   toSaveIp=new char[strlen(p->getChar())+1];
@@ -3094,6 +3139,7 @@ void ESE_GRS::default_menu(int opcion){
 				{
 					 toSavePort=p->getunsigned();
 				}
+				*/
 			   ESE_GRS::InitMenu();
 			   if(Boxf1)
 					ManejadorForms->Add(Interfaz(7),ManejadorForms);
@@ -3400,7 +3446,8 @@ void ESE_GRS::recivirDatosCOM(){
 			////////////////////////////////////////////////////ERROR:RECONECTAR/////////////////////////////////////////////////////////////
 		  if(ErrorConnect)
 		  {
-			  if(p->GetType()==ConnectionType::SERIAL_PORT?p->inicializa(toSaveCOM,toSaveSpeed):p->GetType()==ConnectionType::WEBSOCKET_CLIENT?p->inicializa(toSaveHost,toSavePortWeb):p->inicializa(toSaveIp,toSavePort))
+			  //if(p->GetType()==ConnectionType::SERIAL_PORT?p->inicializa(toSaveCOM,toSaveSpeed):p->GetType()==ConnectionType::WEBSOCKET_CLIENT?p->inicializa(toSaveHost,toSavePortWeb):p->inicializa(toSaveIp,toSavePort))
+			 if(p->inicializa(toSaveCOM,toSaveSpeed))
 			 {
 				ErrorConnect=false;
 				MutexManejadorForms.lock();
@@ -3468,8 +3515,9 @@ void ESE_GRS::recivirDatosCOM(){
 			  unsigned strleN=strlen(c);
 			  ///////////////////////////////////////////////////////VERIFICACION DE DATOS////////////////////////////////////////////////////////////
 			  c=VerificacionDatos(c,strleN); //Add y/o guado el error los errores arrasrtandos
-		      for(unsigned i=0;i<strleN;i+=2)	//Un for por si llegan mas de 2 bytes
+		      for(unsigned i=0;i<strleN;i+=2)	//Un 'for' por si llegan mas de 2 bytes
 			  {
+				/*
 				////////////////////////////////////////////////////////CODIGO DE SERVIDOR//////////////////////////////////////////////////////////////
 				if(DataProcessor::CodigoServer(c[i],c[i+1]))
 				{
@@ -3479,13 +3527,14 @@ void ESE_GRS::recivirDatosCOM(){
 					}
 					continue;
 				}
+				*/
 				contt++;
 				if(ModoLogger)cout<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
 				if(strleN/2>1)
 					if(ModoLogger)cout<<"{"<<i/2+1<<"/"<<strleN/2<<"}"<<"("<<strleN<<")-";
+				/////////////////////////////////////////////////////VERIFICACION DE SEGURIDAD////////////////////////////////////////////////////////
 				if(c[i]!=7)
 				{
-				/////////////////////////////////////////////////////VERIFICACION DE SEGURIDAD////////////////////////////////////////////////////////
 					if(VerificacionSeguridad(c,i))
 						continue;
 				}
@@ -3554,6 +3603,8 @@ void ESE_GRS::recivirDatosCOM(){
 void ESE_GRS::salvarInitDatos(){
 	fstream f;
 	f.open("ESE_GRS.onrn",ios::out|ios::binary);
+	f.write((char*)&ModoSonido,sizeof(bool));
+	f.write((char*)&ModoLogger,sizeof(bool));
 	f.write((char*)&movRatXinit,sizeof(int));
 	f.write((char*)&movRatYinit,sizeof(int));
 	f.write((char*)&movRatX,sizeof(int));
@@ -3607,6 +3658,8 @@ void ESE_GRS::cargarInitDatos(){
 	f.open("ESE_GRS.onrn",ios::in|ios::binary);
 	if(f.is_open())
 	{
+	   f.read((char*)&ModoSonido,sizeof(bool));
+	   f.read((char*)&ModoLogger,sizeof(bool));
 	   f.read((char*)&movRatXinit,sizeof(int));
 	   f.read((char*)&movRatYinit,sizeof(int));
 	   f.read((char*)&movRatX,sizeof(int));
@@ -3793,6 +3846,7 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 			ManejadorSketchs->ActualizaNewPlanoToCreate(cooRd,ManejadorSketchs,deFult);
 		MutexManejadorSketchs.unlock();
 		contt=0;
+		/*
 		if(interfaz==2&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
 		{
 			//PlanoATransmitir();
@@ -3804,6 +3858,7 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 			p->Trasmitir(toSend);
 			delete[]toSend;
 		}
+		*/
 		if(PlanoAcceso)
 		{
 			PlanoAcceso=false;
@@ -3867,6 +3922,7 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 }
 bool ESE_GRS::CodigoServer(char*c,unsigned&i)
 {
+	/*
 	if(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER)
 	{
 		if(!Acces)
@@ -3944,6 +4000,7 @@ bool ESE_GRS::CodigoServer(char*c,unsigned&i)
 			}
 		}
 	}
+	*/
 	return false;
 }
 void ESE_GRS::Acceso(bool acceso)
