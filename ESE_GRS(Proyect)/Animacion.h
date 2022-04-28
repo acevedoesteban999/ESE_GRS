@@ -78,6 +78,5 @@ public:
 	{
 		return (float)(sqrt((this->Wigth/2)*(this->Wigth/2)-x*x));
 	}
-
 };
 

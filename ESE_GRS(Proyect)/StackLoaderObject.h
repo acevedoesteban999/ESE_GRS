@@ -35,19 +35,19 @@ public:
 	////////////////PUSH/////////////////////////
 	static void push(char*c,StackLoaderObject*slo,double R,double G,double B){
 	//agrego un nuevo LoaderObject(.obj con direccion *c) en el Stack 
-		if(R>1)//evito errores en el color ya q tiene q ser 0<(GLfloat)Color<1
-			R=1;
-		if(R<0)
-			R=0;
-		if(G>1)
-			G=1;
-		if(G<0)
-			G=0;
-		if(B>1)
-			B=1;
-		if(B<0)
-			B=0;
-		LoaderObject*newLoaderObject=new LoaderObject(c,R,G,B);
+	if(R>1)//evito errores en el color ya q tiene q ser 0<(GLfloat)Color<1
+		R=1;
+	if(R<0)
+		R=0;
+	if(G>1)
+		G=1;
+	if(G<0)
+		G=0;
+	if(B>1)
+		B=1;
+	if(B<0)
+		B=0;
+	LoaderObject*newLoaderObject=new LoaderObject(c,R,G,B);
 	if(newLoaderObject->empty==false)
 	{
 	   if(slo->contLoaderObject>=slo->cantLoaderObject)//aumento el tamaño del arreglo en caso de ser necesario
@@ -65,9 +65,6 @@ public:
 	{
 		slo->errorCarga=true;
 	}
-	  
-
-     
 };
 	static void pushByTxt(char*name,StackLoaderObject*slo){
    //agrego todos los .obj del txt "Entrada_de_Modelos" 
@@ -93,14 +90,13 @@ public:
 				   slo->push((char*)name_obj.c_str(),slo,(double)atof(r.c_str()),(double)atof(g.c_str()),(double)atof(b.c_str()));
 				}
 			}
-  
 		}
 		else
 		{
 			 cout<<"Error:----X---->'"<<name<<endl;//si no existe el archivo en esa direccion
 			slo->errorCarga=true;
 		}
-		f.close();
+		f.close();		   
 };
 	///////////////DRAWS//////////////////////////
 	static void smallEjeCoordSLO(GLfloat size){
@@ -134,19 +130,14 @@ public:
 	//posiciono,pinto y trasaldo(para q el proximo se pueda posicionar)ademas pinto los ejes de coordenadas de guia
 	glPushMatrix();
 	if(i==-1)
-    {
+	{
 		for(int ii=0;ii<slo->contLoaderObject;ii++)
-		{   
-		   slo->RotateAndMoveArtic(ii,slo);
-   		   slo->Stack[ii]->pintarse(slo->Stack[ii]);
-		}
-		slo->RotateAndMoveArtic(slo->contLoaderObject,slo);			
-	}
-		
+		   slo->RotateAndMoveArticAndDraw(ii,slo);	
+	}	
 	else if(i<=slo->contLoaderObject&&i>=0) 
 	{
 		slo->Stack[i]->pintarse(slo->Stack[i]);
-		StackLoaderObject::smallEjeCoordSLO(20);
+		StackLoaderObject::smallEjeCoordSLO(25);
     }
 	else if(i==-2)
 	{
@@ -162,7 +153,7 @@ public:
 	////por lo tanto se sacan las coordenadas ahora;
 	//for(int ii=0;ii<=slo->contLoaderObject;ii++)
 	//		   {   
-	//			    slo->RotateAndMoveArtic(ii,slo);
+	//			    slo->RotateAndMoveArticAndDraw(ii,slo);
 	//           }
 	//GLdouble mModel[16];
 	//glGetDoublev(GL_MODELVIEW_MATRIX,mModel);
@@ -172,13 +163,76 @@ public:
 	//glPopMatrix();
 	//37.481040954589844 361.38070678710937 472.38644409179687
 };
-	static void RotateAndMoveArtic(int caso,StackLoaderObject*slo){
+	static void RotateAndMoveArticAndDraw(int caso,StackLoaderObject*slo){
 	//procedimientos(rotaciones segun angArtc's) q se hacen con aterioridad para q quede pintado en la posicion q se desee
 	
 	//cada caso corresponde con la posicion del LoaderObject en el Stack
-	switch (caso)
+	switch (caso+1)
 	{
-	case 0:
+	case 1:
+	case 4:
+	case 6:
+	case 8:
+	case 11:
+	case 13:
+	case 15:	
+		break;
+
+	case 2:
+		glTranslatef(0.0,0.0,(GLfloat)51.000);		
+		break;
+
+	case 3:
+		//////////////////////////////////////
+		glRotatef(slo->angules[0],0.0,0.0,1.0);	
+		break;
+	case 5:
+		glTranslatef(0.0,0.0,(GLfloat)37.300);
+		glRotatef(-90,1,0,0);
+		//////////////////////////////////////
+		glRotatef(slo->angules[1],0.0,0.0,1.0);	
+		break;			
+
+	case 7:
+		glTranslatef((GLfloat)150.00,0.0,0.0);
+		//////////////////////////////////////
+		glRotatef(slo->angules[2],0.0,0.0,1.0);	
+		break;
+
+	case 9:
+		glTranslatef((GLfloat)228.959,0.0,(GLfloat)-25.802);	
+		break;
+
+	case 10:
+		//////////////////////////////////////
+		glRotatef(slo->angules[3],0.0,0.0,1.0);
+		break;
+
+	case 12:
+		glRotatef(90,1,0,0);
+		//////////////////////////////////////
+		glRotatef(slo->angules[4],0.0,0.0,1.0);
+		break;
+
+	case 14:
+		glRotatef(-90,0,0,1);
+		glRotatef(-90,1,0,0);
+		//////////////////////////////////////
+		glRotatef(slo->angules[5],0.0,0.0,1.0);
+		
+		
+		break;
+
+	case 16:
+		glTranslatef(0.0,0.0,(GLfloat)61.15);
+		glRotatef(90,1,0,0);
+		glRotatef(90,0,0,1);
+		glTranslatef(0.0,0.0,(GLfloat)-177.00);
+		break;
+	default:
+		// glTranslatef(0.0,(GLfloat)100,0);
+		break;
+	/*case 0:
 		break;
 
 	case 1:
@@ -237,9 +291,10 @@ public:
 
 		case 13:
 			glTranslatef((GLfloat)34,0,0);
-			break;
+			break;*/
 
 	}
+	LoaderObject::pintarse(slo->Stack[caso]);
 
 	           //    GLdouble mModel[16];
 	            //    glGetDoublev(GL_MODELVIEW_MATRIX,mModel);
@@ -261,6 +316,5 @@ public:
 	slo->angules[4]=angules[4];
 	slo->angules[5]=angules[5];
 };
-	
 };
 

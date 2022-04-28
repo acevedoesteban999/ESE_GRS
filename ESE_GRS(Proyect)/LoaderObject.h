@@ -58,9 +58,6 @@ public:
 	this->vertvCargY=new GLfloat[1];
 	this->vertvCargZ=new GLfloat[1];
 	this->veRts=new VERTs[1];
-	//contHastak=0;
-	//contvf=0;
-	//contvn=0;
 	contv=0;
 	contf=0;
 	cargarObject(name,this);//Cargo el objeto en la direccion q contiene *name
@@ -326,7 +323,7 @@ public:
 
 
 };
-	
+
 	
 };
 

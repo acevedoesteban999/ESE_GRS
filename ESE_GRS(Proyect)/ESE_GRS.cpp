@@ -1,6 +1,6 @@
 #include "ESE_GRS.h"
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="2.2.0";
+														char*ESE_GRS_Version="3.0.0";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -43,7 +43,7 @@ float movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 float velGiro=3;
 float &movESE_GRSX=movRatX,&movESE_GRSY=movRatY,movESE_GRSZ=25;
 float height,wigth;
-double trasladarX=0,trasladarY=0,trasladarZ=0;
+double trasladarX=0,trasladarY=0,trasladarZ=0,RotarPantCarga=0;
 GLfloat angles[6]={0,0,55,0,0,0};
 GLfloat heightOrtho,wigthOrtho;
 GLdouble movWheel=1;
@@ -943,6 +943,7 @@ void Exit()
 {
 	exit(0);
 }
+
 //void Codificar(string&s,CharFloat chf)
 //{
 //	bool cero[4]={false,false,false,false};
@@ -1083,66 +1084,67 @@ void Exit()
 //			chf.ch[i]=s[i];
 //
 //}
-string PlanoATransmitir()
-{
-	if(ModoLogger)cout<<Frases(113)<<endl;
-	string ss;
-	DataUnion du;
-	ss+=(char)59;
-	//ss+=(char)1;
-	/*du.SetUnsigned(strlen(ManejadorSketchs->BocetoActual(ManejadorSketchs)->name));
-	ss+=du.GetStrCodif();
-	ss+=ManejadorSketchs->BocetoActual(ManejadorSketchs)->name;*/
-	for(unsigned i=0;i<3;i++)
-	{
-		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[i].x);
-		ss+=du.GetStrCodif();
-		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[i].y);
-		ss+=du.GetStrCodif();
-		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[i].z);
-		ss+=du.GetStrCodif();
-	}
-	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PlanoType+1;
-	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano+1;
-	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->t+1;
-	du.SetUnsigned(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont);
-	ss+=du.GetStrCodif();
-	for(unsigned i=0;i<ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont;i++)
-	{
-		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].x);
-		ss+=du.GetStrCodif();
-		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].y);
-		ss+=du.GetStrCodif();
-		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].z);
-		ss+=du.GetStrCodif();
-	}
-	/*Codificar(ss,CharFloat((float)strlen(ManejadorSketchs->BocetoActual(ManejadorSketchs)->name));
-	ss+=ManejadorSketchs->BocetoActual(ManejadorSketchs)->name;
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].x));
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].y));
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].z));
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].x));
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].y));
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].z));
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].x));
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].y));
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].z));
-	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PlanoType+1;
-	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano+1;
-	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->t+1;
-	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont));
-	for(unsigned i=0;i<ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont;i++)
-	{
-		Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].x));
-		Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].y));
-		Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].z));
-	}*/
-	du.SetUnsigned(ss.length());
-	ss.insert(1,du.GetStrCodif());
-	//ss[1]=(char)((ss.length()/1024)+1);
-	return ss;
+//string PlanoATransmitir()
+//{
+//	if(ModoLogger)cout<<Frases(113)<<endl;
+//	string ss;
+//	DataUnion du;
+//	ss+=(char)59;
+//	//ss+=(char)1;
+//	/*du.SetUnsigned(strlen(ManejadorSketchs->BocetoActual(ManejadorSketchs)->name));
+//	ss+=du.GetStrCodif();
+//	ss+=ManejadorSketchs->BocetoActual(ManejadorSketchs)->name;*/
+//	for(unsigned i=0;i<3;i++)
+//	{
+//		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[i].x);
+//		ss+=du.GetStrCodif();
+//		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[i].y);
+//		ss+=du.GetStrCodif();
+//		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[i].z);
+//		ss+=du.GetStrCodif();
+//	}
+//	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PlanoType+1;
+//	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano+1;
+//	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->t+1;
+//	du.SetUnsigned(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont);
+//	ss+=du.GetStrCodif();
+//	for(unsigned i=0;i<ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont;i++)
+//	{
+//		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].x);
+//		ss+=du.GetStrCodif();
+//		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].y);
+//		ss+=du.GetStrCodif();
+//		du.SetDouble(ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].z);
+//		ss+=du.GetStrCodif();
+//	}
+//	/*Codificar(ss,CharFloat((float)strlen(ManejadorSketchs->BocetoActual(ManejadorSketchs)->name));
+//	ss+=ManejadorSketchs->BocetoActual(ManejadorSketchs)->name;
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].x));
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].y));
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[0].z));
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].x));
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].y));
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[1].z));
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].x));
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].y));
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PuntosAlCrearPlano[2].z));
+//	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->PlanoType+1;
+//	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano+1;
+//	ss+=(char)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->t+1;
+//	Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont));
+//	for(unsigned i=0;i<ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->cont;i++)
+//	{
+//		Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].x));
+//		Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].y));
+//		Codificar(ss,CharFloat((float)ManejadorSketchs->BocetoActual(ManejadorSketchs)->items->PoIntS[i].z));
+//	}*/
+//	du.SetUnsigned(ss.length());
+//	ss.insert(1,du.GetStrCodif());
+//	//ss[1]=(char)((ss.length()/1024)+1);
+//	return ss;
+//
+//}
 
-}
 ////////////////CONTRUCTOR Y DESTRUCTOR//////////////////////////////////////////////
 ESE_GRS::ESE_GRS(){
 	atexit(Exit);
@@ -1194,11 +1196,11 @@ ESE_GRS::ESE_GRS(){
     ManejadorForms->Add(Interfaz(0),ManejadorForms);
 
 	StackAnimation*sa=new StackAnimation("StackAnimation1");
-	sa->STANSetAnimation("InitAnimation1",CRD(0,100,0),150,0,0,-50,0,0,0,1);
-	sa->STANSetAnimation("InitAnimation2",CRD(0,100,0),150,0,0,-25,1,0,0,1);
-	sa->STANSetAnimation("InitAnimation3",CRD(0,100,0),150,0,0,0,0,1,0,1);
-	sa->STANSetAnimation("InitAnimation4",CRD(0,100,0),150,0,0,25,0,0,1,1);
-	sa->STANSetAnimation("InitAnimation5",CRD(0,100,0),150,0,0,50,1,1,1,1);
+	sa->STANSetAnimation("InitAnimation1",CRD(0,100,0),150,0,0,-50,0,0,0,(float)0.5);
+	sa->STANSetAnimation("InitAnimation2",CRD(0,100,0),150,0,0,-25,1,0,0,(float)0.5);
+	sa->STANSetAnimation("InitAnimation3",CRD(0,100,0),150,0,0,0,0,1,0,(float)0.5);
+	sa->STANSetAnimation("InitAnimation4",CRD(0,100,0),150,0,0,25,0,0,1,(float)0.5);
+	sa->STANSetAnimation("InitAnimation5",CRD(0,100,0),150,0,0,50,1,1,1,(float)0.5);
 	ManejadorForms->Add(sa,ManejadorForms);
 }
 ESE_GRS::~ESE_GRS(){
@@ -1226,7 +1228,7 @@ bool ESE_GRS::IniciarCargObjetos()
 	{
 		if(!CargObjct)
 		{
-			string g=string(Frases(92))+to_string(ManejadorObject->contLoaderObject)+string("/13 (")+to_string(ManejadorObject->contLoaderObject*100/13)+string("%)");
+			string g=string(Frases(92))+to_string(ManejadorObject->contLoaderObject)+string("/16 (")+to_string(ManejadorObject->contLoaderObject*100/16)+string("%)");
 			string s="v"+string(ESE_GRS_Version);
 			ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->NewTotalProp(0,0);
 			ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->Draw();
@@ -1235,6 +1237,120 @@ bool ESE_GRS::IniciarCargObjetos()
 			text((char*)g.c_str(),-55,100,0,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,true);
 			glutPostRedisplay();
 			glutSetCursor( GLUT_CURSOR_WAIT);
+			/*for(unsigned i=0;i<(unsigned)ManejadorObject->contLoaderObject;i++)
+				switch (i)
+				{
+				case 0:
+					glLoadIdentity();
+					glTranslated(200,0,0);
+					glRotatef((GLfloat)(GLfloat)RotarPantCarga,1,1,0);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 1:
+					glLoadIdentity();
+					glTranslated(-250,100,0);
+					glRotatef((GLfloat)RotarPantCarga,0,1,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 2:
+					glLoadIdentity();
+					glTranslated(-200,-100,0);
+					glRotatef((GLfloat)RotarPantCarga,1,0,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 3:
+					glLoadIdentity();
+					glTranslated(100,-100,0);
+					glRotatef((GLfloat)RotarPantCarga,1,1,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 4:
+					glLoadIdentity();
+					glTranslated(200,-100,0);
+					glRotatef((GLfloat)RotarPantCarga,1,1,0);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 5:
+					glLoadIdentity();
+					glTranslated(-250,-100,0);
+					glRotatef((GLfloat)RotarPantCarga,1,0,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+
+				case 6:
+					glLoadIdentity();
+					glTranslated(100,-50,0);
+					glRotatef((GLfloat)RotarPantCarga,1,1,0);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 7:
+					glLoadIdentity();
+					glTranslated(250,300,0);
+					glRotatef((GLfloat)RotarPantCarga,0,1,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 8:
+					glLoadIdentity();
+					glTranslated(200,50,0);
+					glRotatef((GLfloat)RotarPantCarga,1,0,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 9:
+					glLoadIdentity();
+					glTranslated(-100,250,0);
+					glRotatef((GLfloat)RotarPantCarga,1,1,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 10:
+					glLoadIdentity();
+					glTranslated(200,-220,0);
+					glRotatef((GLfloat)RotarPantCarga,1,1,0);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 11:
+					glLoadIdentity();
+					glTranslated(-150,-280,0);
+					glRotatef((GLfloat)RotarPantCarga,1,0,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+
+				case 12:
+					glLoadIdentity();
+					glTranslated(-250,-300,0);
+					glRotatef((GLfloat)RotarPantCarga,1,0,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+
+				case 13:
+					glLoadIdentity();
+					glTranslated(200,-250,0);
+					glRotatef((GLfloat)RotarPantCarga,1,1,0);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 14:
+					glLoadIdentity();
+					glTranslated(250,300,0);
+					glRotatef((GLfloat)RotarPantCarga,0,1,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 15:
+					glLoadIdentity();
+					glTranslated(100,-50,0);
+					glRotatef((GLfloat)RotarPantCarga,1,0,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				case 16:
+					glLoadIdentity();
+					glTranslated(-50,150,0);
+					glRotatef((GLfloat)RotarPantCarga,1,1,1);
+					StackLoaderObject::draw(ManejadorObject,i);
+				break;
+				
+				default:
+					break;
+				}*/
+			RotarPantCarga+=0.1;
+			glLoadIdentity();
 			return false;
 		}   
 		else
@@ -4295,25 +4411,30 @@ bool ESE_GRS::ChekEntada(char*c,unsigned&i)
 };
 void ESE_GRS::CalcularCoordenadas()
   {
-	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6;
-      cosFi1=cos((angles[0]+180)*PI/180);
-      senFi1=sin((angles[0]+180)*PI/180);
+	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6,cosAlfa7,senAlfa7,senFi7,cosFi7;
+      cosFi1=cos((angles[0])*PI/180);
+      senFi1=sin((angles[0])*PI/180);
       cosFi2=cos(angles[1]*PI/180);
       senFi2=sin(angles[1]*PI/180);
-      cosFi3=cos((angles[2]-90)*PI/180);
-      senFi3=sin((angles[2]-90)*PI/180);
+      cosFi3=cos((angles[2])*PI/180);
+      senFi3=sin((angles[2])*PI/180);
       cosFi4=cos(angles[3]*PI/180);
       senFi4=sin(angles[3]*PI/180);
-      cosFi5=cos((angles[4]+90)*PI/180);
-      senFi5=sin((angles[4]+90)*PI/180);
-      cosFi6=cos(angles[5]*PI/180);
-      senFi6=sin(angles[5]*PI/180);
-	 
-      cooRd->x=(463*senFi1)/200 + 150*cosFi1*cosFi2 - (1783*cosFi4*senFi1)/200 + 177*cosFi6*(senFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2) - cosFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3))) - 53*senFi1*senFi4 + 53*cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - (10329*cosFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))/200 - (1783*senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3))/200 + (senFi5*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))/500 - (cosFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)))/500 - (10329*senFi5*(senFi1*senFi4 - cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)))/200 + 177*senFi6*(cosFi4*senFi1 + senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)) + (451*cosFi1*cosFi2*cosFi3)/2 - (151*cosFi1*cosFi2*senFi3)/500 - (151*cosFi1*cosFi3*senFi2)/500 - (451*cosFi1*senFi2*senFi3)/2;
-	  cooRd->y=(1783*cosFi1*cosFi4)/200 - (463*cosFi1)/200 + 150*cosFi2*senFi1 + 53*cosFi1*senFi4 + 53*cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - (10329*cosFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2))/200 + 177*cosFi6*(senFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2) + cosFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3))) - (1783*senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3))/200 + (senFi5*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2))/500 + (cosFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)))/500 + (10329*senFi5*(cosFi1*senFi4 + cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)))/200 - 177*senFi6*(cosFi1*cosFi4 - senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)) + (451*cosFi2*cosFi3*senFi1)/2 - (151*cosFi2*senFi1*senFi3)/500 - (151*cosFi3*senFi1*senFi2)/500 - (451*senFi1*senFi2*senFi3)/2;
-	  cooRd->z=(151*senFi2*senFi3)/500 - (151*cosFi2*cosFi3)/500 - (451*cosFi2*senFi3)/2 - (451*cosFi3*senFi2)/2 - 150*senFi2 - 53*cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) - (10329*cosFi5*(cosFi2*cosFi3 - senFi2*senFi3))/200 + (1783*senFi4*(cosFi2*senFi3 + cosFi3*senFi2))/200 + (senFi5*(cosFi2*cosFi3 - senFi2*senFi3))/500 + 177*cosFi6*(senFi5*(cosFi2*cosFi3 - senFi2*senFi3) - cosFi4*cosFi5*(cosFi2*senFi3 + cosFi3*senFi2)) - (10329*cosFi4*senFi5*(cosFi2*senFi3 + cosFi3*senFi2))/200 - 177*senFi4*senFi6*(cosFi2*senFi3 + cosFi3*senFi2) - (cosFi4*cosFi5*(cosFi2*senFi3 + cosFi3*senFi2))/500 + 437/10;
-	  cooRd->z+=0.7;
-  }
+      cosFi5=cos((angles[4]-90)*PI/180);
+      senFi5=sin((angles[4]-90)*PI/180);
+	  cosFi6=cos((angles[5])*PI/180);
+      senFi6=sin((angles[5])*PI/180);
+	  cosAlfa7=cos( 0 *PI/180);
+	  senAlfa7=sin( 0 *PI/180);
+	  senFi7=sin( 90 *PI/180);
+	  cosFi7=cos(90 *PI/180);
+	
+	 cooRd->x=  (12901*senFi1)/500 + 150*cosFi1*cosFi2 - (1223*cosFi5*senFi1)/20 + 177*senFi6*(senFi1*senFi5 - cosFi5*(cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - senFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))) - 177*cosFi6*(cosFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2) + senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)) - (1223*senFi5*(cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - senFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2)))/20 + (4027889324543443*cosFi1*cosFi2*cosFi3)/17592186044416 - (4027889324543443*cosFi1*senFi2*senFi3)/17592186044416;
+	 cooRd->y=(1223*cosFi1*cosFi5)/20 - 177*cosFi6*(cosFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2) + senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)) - (12901*cosFi1)/500 - (1223*senFi5*(cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - senFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2)))/20 + 150*cosFi2*senFi1 - 177*senFi6*(cosFi5*(cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - senFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2)) + cosFi1*senFi5) + (4027889324543443*cosFi2*cosFi3*senFi1)/17592186044416 - (4027889324543443*senFi1*senFi2*senFi3)/17592186044416;
+     cooRd->z=(1223*senFi5*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)))/20 - (4027889324543443*cosFi2*senFi3)/17592186044416 - (4027889324543443*cosFi3*senFi2)/17592186044416 - 177*cosFi6*(cosFi4*(cosFi2*cosFi3 - senFi2*senFi3) - senFi4*(cosFi2*senFi3 + cosFi3*senFi2)) - 150*senFi2 + 177*cosFi5*senFi6*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)) + 883/10;
+        
+
+}
 /////////////////////////THREADS//////////////////////////////////////////////////
 void ESE_GRS::ThreadCOM()
 {
