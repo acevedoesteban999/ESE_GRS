@@ -1,4 +1,6 @@
-Formato: &  + nombre_archivo.obj  +  Red  +  Green  +  Blue
+//Formatos:
+// &  + nombre_archivo.obj  +  Red  +  Green  +  Blue
+// % + anguloRedirecc  
 //en caso de no exixtir los vaores de RGB se toma por defecto 0.0 0.0 0.0(Negro)
 //la direccion no debe de tener mas de 100 carcteres
 &data\obj\1.obj 0.8 0.8 0.8
@@ -17,3 +19,9 @@ Formato: &  + nombre_archivo.obj  +  Red  +  Green  +  Blue
 &data\obj\14.obj 0.19 0.19 0.19
 &data\obj\15.obj 0.8 0.764 0.611
 &data\obj\16.obj 0.0 0.072 0.955
+%15
+%125
+%21
+%25
+%305
+%55

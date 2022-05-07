@@ -1,6 +1,6 @@
 #include "ESE_GRS.h"
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="3.0.0";
+														char*ESE_GRS_Version="3.0.1";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -32,7 +32,7 @@ unsigned toSaveSpeed=9600,toSavePort=55555,toSavePortWeb=8080;
 unsigned STRLEN,BoxInterfazPricipal=0,RadioButtonRestriccion=0;
 unsigned bocetoARemover=0,RadioButtomPintar=0,PlanoChecket=0,bocetoACrear=0,BoxInterfaz0=0;
 unsigned CambiarPointSpecificPlano=3;
-unsigned contClientesServer=0;
+unsigned contClientesServer=0,contAngleRedirecc=0;
 int interfaz=0;
 int contMenuToDraw=-1;
 int contt=0;
@@ -44,7 +44,8 @@ float velGiro=3;
 float &movESE_GRSX=movRatX,&movESE_GRSY=movRatY,movESE_GRSZ=25;
 float height,wigth;
 double trasladarX=0,trasladarY=0,trasladarZ=0,RotarPantCarga=0;
-GLfloat angles[6]={0,0,55,0,0,0};
+double anglesRedirecc[6]={0,0,0,0,0,0};
+GLfloat angles[6]={0,0,0,0,0,0};
 GLfloat heightOrtho,wigthOrtho;
 GLdouble movWheel=1;
 Language idioma=ENGLISH;
@@ -107,6 +108,12 @@ char*Frases(unsigned frase)
 	char*toReturn;
 	switch (frase)
 	{
+	case 300:
+		return "Ang_REdirecc";
+	case 301:
+		return "AngulosRedirecc Actualizados";
+	case 302:
+		return "Error al Actualizar AngulosRedirecc";
 	case 100:
 		return ESE_GRS_Version;
 	case 84:
@@ -1391,7 +1398,8 @@ void ESE_GRS::InitMenu()
 	if(!recibir_serie)
 	{
 		glutAddMenuEntry(Frases(38),0);//iniicar conexion
-		glutAddMenuEntry(Frases(41),4);//set angues
+		glutAddMenuEntry(Frases(41),4);//set angules
+		glutAddMenuEntry(Frases(300),-15);//set angulesRedirecc
 		glutAddSubMenu(Frases(39),SubMenuVista);//Vista
 		glutAddSubMenu(Frases(40),subMenuToDraw);//To draw
 		if(ModoSonido)
@@ -1420,11 +1428,11 @@ void ESE_GRS::InitMenu()
 		else
 			glutAddMenuEntry(Frases(93),-12);//activ modo mute
 		if(ModoLogger)
-		   glutAddMenuEntry(Frases(69),-8);//modo registro
+		   glutAddMenuEntry(Frases(69),-8);//descat modo registro
 		else
-			glutAddMenuEntry(Frases(68),-9);//modo registro
+			glutAddMenuEntry(Frases(68),-9);//avtiv modo registro
 		glutAddSubMenu(Frases(42),subMenuIdioma);//Idioma
-		glutAddMenuEntry(Frases(43),1);//Detener
+		glutAddMenuEntry(Frases(43),1);//Detener Conexion
 	}
 	glutAttachMenu(GLUT_RIGHT_BUTTON);//espaecifico con q tecla se activa el evento
 }
@@ -2949,12 +2957,19 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 	switch (tecla)
 	{
 	case -1:
-		angles[0]=0;
+		/*angles[0]=0;
 		angles[1]=(GLfloat)-13.8;
         angles[2]=(GLfloat)-44.5;
         angles[3]=(GLfloat)2.04;
 		angles[4]=(GLfloat)90;
 		angles[5]=(GLfloat)-2.04;
+		*/
+		angles[0]=(GLfloat)anglesRedirecc[0];
+		angles[1]=(GLfloat)anglesRedirecc[1];
+		angles[2]=(GLfloat)anglesRedirecc[2];
+		angles[3]=(GLfloat)anglesRedirecc[3];
+		angles[4]=(GLfloat)anglesRedirecc[4];
+		angles[5]=(GLfloat)anglesRedirecc[5];
 		CalcularCoordenadas();
 		ShowAngules();
 	break;
@@ -3004,12 +3019,18 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 			trasladarX=0;
 			trasladarY=0;
 			trasladarZ=0;
-			angles[0]=0;
+			/*angles[0]=0;
 			angles[1]=(GLfloat)-13.8;
 			angles[2]=(GLfloat)-44.5;
 			angles[3]=(GLfloat)2.04;
 			angles[4]=(GLfloat)90;
-			angles[5]=(GLfloat)-2.04;
+			angles[5]=(GLfloat)-2.04;*/
+			angles[0]=(GLfloat)anglesRedirecc[0];
+			angles[1]=(GLfloat)anglesRedirecc[1];
+			angles[2]=(GLfloat)anglesRedirecc[2];
+			angles[3]=(GLfloat)anglesRedirecc[3];
+			angles[4]=(GLfloat)anglesRedirecc[4];
+			angles[5]=(GLfloat)anglesRedirecc[5];
 			MenuVista(-1);
 			CalcularCoordenadas();
 			ShowAngules();
@@ -3384,6 +3405,23 @@ void ESE_GRS::default_menu(int opcion){
 		case -14:
 			ManejadorForms->Add(Interfaz(10),ManejadorForms);
 		break;
+		case -15:
+			if(SetAnglesREdirecc())
+			{
+				MutexMessag.lock();
+				delete messeng;
+				messeng=new MeSSenger(Frases(301),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
+				SpecialKeys(GLUT_KEY_F4,0,0);
+				MutexMessag.unlock();
+			}
+			else
+			{
+				MutexMessag.lock();
+				delete messeng;
+				messeng=new MeSSenger(Frases(302),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
+				MutexMessag.unlock();
+			}
+			break;
 	}
 	
 	
@@ -3834,6 +3872,7 @@ void ESE_GRS::cargarInitDatos(){
 		f.read((char*)&idioma,sizeof(Language));
 		f.read((char*)&Connecttype,sizeof(ConnectionType));
 	    f.close();
+		SetAnglesREdirecc();
 	}
 	else
 	{
@@ -4434,6 +4473,31 @@ void ESE_GRS::CalcularCoordenadas()
      cooRd->z=(1223*senFi5*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)))/20 - (4027889324543443*cosFi2*senFi3)/17592186044416 - (4027889324543443*cosFi3*senFi2)/17592186044416 - 177*cosFi6*(cosFi4*(cosFi2*cosFi3 - senFi2*senFi3) - senFi4*(cosFi2*senFi3 + cosFi3*senFi2)) - 150*senFi2 + 177*cosFi5*senFi6*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)) + 883/10;
         
 
+}
+bool ESE_GRS::SetAnglesREdirecc()
+{
+	fstream f;
+    f.open("ESE_GRS.oninit",ios::in);
+	contAngleRedirecc=0;
+    char c[100];
+    if(f.is_open())
+    {
+		while(!f.eof())
+		{
+	        f.getline(c,100);
+			if(c[0]=='%')
+			{
+				string angle(c);
+				angle=angle.substr(1,angle.find_first_of(" "));
+				anglesRedirecc[contAngleRedirecc++]=(double)atof((char*)angle.c_str());
+				if(contAngleRedirecc==6)
+					return true;
+			}
+		}
+	 }
+	return false;
+	
+	 
 }
 /////////////////////////THREADS//////////////////////////////////////////////////
 void ESE_GRS::ThreadCOM()

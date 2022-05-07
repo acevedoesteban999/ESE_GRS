@@ -73,6 +73,7 @@ public:
 	static bool VerificacionSeguridad(char*c,unsigned i);
 	static bool CodigoCliente(char*c,unsigned i);
 	static bool CodigoServer(char*c,unsigned&i);
+	static bool SetAnglesREdirecc();
 	//HILOS
 	static void ThreadCOM();
 	static void ThreadCargObject();
