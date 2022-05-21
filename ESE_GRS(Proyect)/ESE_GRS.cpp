@@ -1,6 +1,6 @@
 #include "ESE_GRS.h"
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="3.0.1";
+														char*ESE_GRS_Version="3.1.0";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -26,6 +26,7 @@ bool Acces=false;
 bool PlanoAcceso=false;
 bool VariablesDestruidas=false;
 bool AceptCancelButtonDesdeThread=false;
+bool IsRedireccDraw=false;
 char byt;
 char*toSaveCOM="COM2",*toSaveIp="127.0.0.1",*toSaveHost="localhost";
 unsigned toSaveSpeed=9600,toSavePort=55555,toSavePortWeb=8080;
@@ -1200,7 +1201,8 @@ ESE_GRS::ESE_GRS(){
 	ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd->x)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd->y)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd->z)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-    ManejadorForms->Add(Interfaz(0),ManejadorForms);
+    ShowAngules();
+	ManejadorForms->Add(Interfaz(0),ManejadorForms);
 
 	StackAnimation*sa=new StackAnimation("StackAnimation1");
 	sa->STANSetAnimation("InitAnimation1",CRD(0,100,0),150,0,0,-50,0,0,0,(float)0.5);
@@ -1572,18 +1574,77 @@ void ESE_GRS::smallEjeCoord(GLfloat size){
 	
 
 }
-void ESE_GRS::ShowAngules(){
+void ESE_GRS::ShowAngules(bool IsAtCreate,bool IsAtReciv){
 	                  if(MostrarAngules)
 						{
-						 ManejadorForms->GetForm("labelAngule0",ManejadorForms)->AddNewText((char*)to_string(angles[0]).c_str());
-						 ManejadorForms->GetForm("labelAngule1",ManejadorForms)->AddNewText((char*)to_string(angles[1]).c_str());
-						 ManejadorForms->GetForm("labelAngule2",ManejadorForms)->AddNewText((char*)to_string(angles[2]).c_str());
-						 ManejadorForms->GetForm("labelAngule3",ManejadorForms)->AddNewText((char*)to_string(angles[3]).c_str());
-						 ManejadorForms->GetForm("labelAngule4",ManejadorForms)->AddNewText((char*)to_string(angles[4]).c_str());
-						 ManejadorForms->GetForm("labelAngule5",ManejadorForms)->AddNewText((char*)to_string(angles[5]).c_str());
-						 ManejadorForms->GetForm("labelCoordX",ManejadorForms)->AddNewText((char*)(string("x:")+to_string(cooRd->x)).c_str());	
-						 ManejadorForms->GetForm("labelCoordY",ManejadorForms)->AddNewText((char*)(string("y:")+to_string(cooRd->y)).c_str());
-						 ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->AddNewText((char*)(string("z:")+to_string(cooRd->z)).c_str());
+							//Verificar si el angulo coincide con  el de redireccionar
+							try
+								{
+								for(unsigned i=0;i<6;i++)
+								{
+									if((float)angles[i]!=anglesRedirecc[i])
+									{
+										if(IsRedireccDraw)
+										{
+											MutexManejadorForms.lock();
+											ManejadorForms->SetlabelColor("radioButtonMostrarAngules",(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,ManejadorForms);										
+											IsRedireccDraw=false;											
+											if(MostrarAngules)
+											{
+												ManejadorForms->GetForm("labelAngule0",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+												ManejadorForms->GetForm("labelAngule1",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+												ManejadorForms->GetForm("labelAngule2",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+												ManejadorForms->GetForm("labelAngule3",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+												ManejadorForms->GetForm("labelAngule4",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+												ManejadorForms->GetForm("labelAngule5",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+												ManejadorForms->GetForm("labelCoordX",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+												ManejadorForms->GetForm("labelCoordY",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+												ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
+											}
+											MutexManejadorForms.unlock();
+										}
+										
+										throw(true);
+									}
+								}
+
+								if(!IsRedireccDraw||IsAtCreate)
+								{
+									if(IsAtReciv)
+										if(ModoSonido)sonidos(3);
+									MutexManejadorForms.lock();
+									ManejadorForms->SetlabelColor("radioButtonMostrarAngules",0,(GLfloat)1,0,ManejadorForms);
+									IsRedireccDraw=true;
+									if(MostrarAngules)
+									{
+									ManejadorForms->GetForm("labelAngule0",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									ManejadorForms->GetForm("labelAngule1",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									ManejadorForms->GetForm("labelAngule2",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									ManejadorForms->GetForm("labelAngule3",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									ManejadorForms->GetForm("labelAngule4",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									ManejadorForms->GetForm("labelAngule5",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									ManejadorForms->GetForm("labelCoordX",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									ManejadorForms->GetForm("labelCoordY",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->SetColor(0,(GLfloat)1,0);
+									}
+									MutexManejadorForms.unlock();
+								}
+								
+							}catch(bool)
+							{
+							};
+
+							 MutexManejadorForms.lock();
+							 ManejadorForms->GetForm("labelAngule0",ManejadorForms)->AddNewText((char*)to_string(angles[0]).c_str());
+							 ManejadorForms->GetForm("labelAngule1",ManejadorForms)->AddNewText((char*)to_string(angles[1]).c_str());
+							 ManejadorForms->GetForm("labelAngule2",ManejadorForms)->AddNewText((char*)to_string(angles[2]).c_str());
+							 ManejadorForms->GetForm("labelAngule3",ManejadorForms)->AddNewText((char*)to_string(angles[3]).c_str());
+							 ManejadorForms->GetForm("labelAngule4",ManejadorForms)->AddNewText((char*)to_string(angles[4]).c_str());
+							 ManejadorForms->GetForm("labelAngule5",ManejadorForms)->AddNewText((char*)to_string(angles[5]).c_str());
+							 ManejadorForms->GetForm("labelCoordX",ManejadorForms)->AddNewText((char*)(string("x:")+to_string(cooRd->x)).c_str());	
+							 ManejadorForms->GetForm("labelCoordY",ManejadorForms)->AddNewText((char*)(string("y:")+to_string(cooRd->y)).c_str());
+							 ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->AddNewText((char*)(string("z:")+to_string(cooRd->z)).c_str());
+							 MutexManejadorForms.unlock();
 						}
 }
 Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
@@ -2663,22 +2724,24 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 		     case Type::RADIOBUTTON:
 				   if(ModoSonido)sonidos(9);
 			       if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)))
-				       {
+				   {
 					   if(!MostrarAngules)
 					   {   
-						MostrarAngules=true;
-						ManejadorForms->Add(new Label("labelAngule0",(char*)to_string(angles[0]).c_str(),*new CRD(wigth-120,25,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule1",(char*)to_string(angles[1]).c_str(),*new CRD(wigth-120,40,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule2",(char*)to_string(angles[2]).c_str(),*new CRD(wigth-120,55,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angles[3]).c_str(),*new CRD(wigth-120,70,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angles[4]).c_str(),*new CRD(wigth-120,85,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angles[5]).c_str(),*new CRD(wigth-120,100,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd->x)).c_str(),*new CRD(wigth-120,115,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd->y)).c_str(),*new CRD(wigth-120,130,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	                    ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd->z)).c_str(),*new CRD(wigth-120,145,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-					   }
-					else
-					{
+							MostrarAngules=true;
+							 ManejadorForms->Add(new Label("labelAngule1",(char*)to_string(angles[1]).c_str(),*new CRD(wigth-120,40,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelAngule2",(char*)to_string(angles[2]).c_str(),*new CRD(wigth-120,55,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angles[3]).c_str(),*new CRD(wigth-120,70,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angles[4]).c_str(),*new CRD(wigth-120,85,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angles[5]).c_str(),*new CRD(wigth-120,100,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd->x)).c_str(),*new CRD(wigth-120,115,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd->y)).c_str(),*new CRD(wigth-120,130,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd->z)).c_str(),*new CRD(wigth-120,145,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							MutexManejadorForms.unlock();
+							ShowAngules(true);
+							MutexManejadorForms.lock();
+					  }
+				else
+				   {
 						ManejadorForms->Sub("labelAngule0",ManejadorForms);
 						ManejadorForms->Sub("labelAngule1",ManejadorForms);
 						ManejadorForms->Sub("labelAngule2",ManejadorForms);
@@ -2689,8 +2752,8 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 						ManejadorForms->Sub("labelCoordY",ManejadorForms);
 						ManejadorForms->Sub("labelCoordZ",ManejadorForms);
 						MostrarAngules=false;
-					}
-				}		
+					   }
+				   }		
 		   break;
 		                                //////////////////////////////BUTTONS////////////////////
 		    case Type::BUTTONACEPTRB:
@@ -2801,9 +2864,11 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 				
 				   }
 				   
+				   //CalcularCoordenadas();
 				   CalcularCoordenadas();
-				   CalcularCoordenadas();
+				   MutexManejadorForms.unlock();	
 				   ShowAngules();
+				   MutexManejadorForms.lock();	
 				   if(ModoSonido)sonidos(8);
 				}
 			 break;     
@@ -3711,7 +3776,7 @@ void ESE_GRS::recivirDatosCOM(){
 			     {
 				    bool pintar=DataProcessor::PorcesarDatos(c[i],c[i+1],angles);//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
 		  	        CalcularCoordenadas();
-			        ShowAngules();
+			        ShowAngules(false,true);
 					MutexManejadorSketchs.lock();
 					if(interfaz==2)///////Actualizo la ultima coordenada en el StackBoceto///////
 				       ManejadorSketchs->ActualizaLastCood(cooRd,ManejadorSketchs);

@@ -39,7 +39,7 @@ public:
 	static void Entorno();
 	static void text(char*c,GLfloat x,GLfloat y,GLfloat z,GLfloat R=1.0,GLfloat G=1.0,GLfloat B=1.0,bool big=false,bool moreBig=false);
 	static void smallEjeCoord(GLfloat size=10);
-	static void ShowAngules();
+	static void ShowAngules(bool IsAtCreate=false,bool IsAtReciv=false);
 	static Box* Interfaz(unsigned interfz=0,INTERFZType Buttom=INTERFZType::SPECIFIC);
 	///////////DEFAULTGLUTS
 	static void movRaton(GLsizei x,GLsizei y);
