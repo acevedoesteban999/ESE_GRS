@@ -44,4 +44,4 @@ para usar otros servicios.
 > 2. Configuration Properites->General->Common Language Runtime Support=No Common Language Runtime Support
 > 3. C/C++->General->Additional Include Directories=.../libxl/include_cpp && .../freeglut/include
 > 4. Linker->General->Additional Library Directories=.../freegut/lib/ && .../xlms/lib/)
-> 5. Linker->Input->Additinal Dependencies=freeglut.dll && libxl.dll
+> 5. Linker->Input->Additinal Dependencies=freeglut.lib && libxl.lib
