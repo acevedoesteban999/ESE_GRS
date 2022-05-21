@@ -1,21 +1,21 @@
-# Proyecto ESE_GRS v3.1.0
+# ESE_GRS v3.1.0 
 
 Este proyecto tiene como objetivo el desarrollo de una aplicación
 para simular el movimiento del brazo ESE_GRS de 6 articulaciones y 
 generar superficies complejas utilizando planos y superficies a partir 
 de puntos, líneas y curvas con un acabado final en el editor 3D Autodesk 
 Inventor. Puede vincularse con el [ESE_GRSConnectionSimulator](https://github.com/Esteban1914/ESE_GRS_ConnectionSimulator)
- para usar otros servicios.
+para usar otros servicios.
 
 
-## [Descargar ESE_GRS](https://github.com/Esteban1914/ESE_GRS-Class/raw/master/media/ESE_GRS/ESE_GRS.rar)
+## [Descargar ESE_GRS](https://github.com/Esteban1914/ESE_GRS/raw/master/media/ESE_GRS/ESE_GRS.rar)
 
-![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS.png)
-![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS-Class/blob/master/media/ESE_GRS1.png)
+![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS/blob/master/media/ESE_GRS.png)
+![Foto de ESE_GRS](https://github.com/Esteban191900/ESE_GRS/blob/master/media/ESE_GRS1.png)
 
 
 ## Plataforma
->Windows
+>WindowsX64
 
 ## Lenguaje
 >C++ 
