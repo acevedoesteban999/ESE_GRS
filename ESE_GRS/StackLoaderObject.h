@@ -73,10 +73,15 @@ public:
     char c[100];
      if(f.is_open())
         {
+			bool noCargarObj=false;
 			while(!f.eof()&&!slo->Salir)
 		    {
 	           f.getline(c,100);
-			   if(c[0]=='&')
+			   if(c[0]=='#')
+			   {
+				   noCargarObj=true;
+			   }
+			   else if(c[0]=='&'&&!noCargarObj)
 			   {
 				   string name_obj(c);
 				   name_obj=name_obj.substr(1,name_obj.find_first_of(" "));

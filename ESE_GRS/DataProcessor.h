@@ -207,7 +207,7 @@ public:
 
     };
 	static bool PorcesarDatos(char ByteLow,char ByteHigh,GLfloat*angles)
-{
+   {
 
 	for(int i=2;i<8;i++)
 	{
@@ -225,7 +225,16 @@ public:
 						 angles[i-2]+=(GLfloat)0.9;
 					 else
 						 angles[i-2]-=(GLfloat)0.9;
-					 RectificarAngules(angles);
+
+					 if(angles[i-2]>=360)
+						angles[i-2]-=360;
+					else if(angles[i-2]<=-360)
+						angles[i-2]+=360;
+					else if (angles[i-2]==-0)
+						angles[i-2]=0;
+
+					angles[i-2]=(GLfloat)std::floor(100*(double)angles[i-2]+0.5)/100;
+					 
 			       }	
 		         break;      	
 	   }//end switch
@@ -240,31 +249,17 @@ public:
 	static void RectificarAngules(GLfloat*angles){
 	
 	//comprobar angulos
-	if(angles[0]>=360  )
-		angles[0]-=360;
-	else if(angles[0]<=-360)
-		angles[0]+=360;
-	if(angles[1]>=360  )
-		angles[1]-=360;
-	else if(angles[1]<=-360)
-		angles[1]+=360;
-	if(angles[2]>=360  )
-		angles[2]-=360;
-	else if(angles[2]<=-360)
-		angles[2]+=360;
-	if(angles[3]>=360  )
-		angles[3]-=360;
-	else if(angles[3]<=-360)
-		angles[3]+=360;
-	if(angles[4]>=360  )
-		angles[4]-=360;
-	else if(angles[4]<=-360)
-		angles[4]+=360;
-	if(angles[5]>=360  )
-		angles[5]-=360;
-	else if(angles[5]<=-360)
-		angles[5]+=360;
-
+		for(unsigned i=0;i<6;i++)
+		{
+			if(angles[i]>=360  )
+				angles[i]-=360;
+			else if(angles[i]<=-360)
+				angles[i]+=360;
+			else if (angles[i]==-0)
+				angles[i]=0;
+		}
+	
+	
 
 };
 	static char* printfBits(char c)

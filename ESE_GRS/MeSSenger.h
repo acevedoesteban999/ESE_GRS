@@ -14,6 +14,7 @@ private:
 	unsigned BigLV;
 	GLfloat R,G,B,x,y,z;
 	TimeDuration*t;
+	mutex m;
 public:
 	bool Drawing;
 	MeSSenger()
@@ -22,7 +23,7 @@ public:
 		t=new TimeDuration();
 		Drawing=false;
 	};
-	MeSSenger(char*meSSenger,position Position,GLfloat wigth,GLfloat height,float Time=3,GLfloat R=1,GLfloat G=1,GLfloat B=1,unsigned BigLV=0,GLfloat x=0,GLfloat y=0,GLfloat z=0)
+	/*MeSSenger(char*meSSenger,position Position,GLfloat wigth,GLfloat height,float Time=3,GLfloat R=1,GLfloat G=1,GLfloat B=1,unsigned BigLV=0,GLfloat x=0,GLfloat y=0,GLfloat z=0)
 {
 	this->meSSenger=new char[strlen(meSSenger)+1];
 	this->meSSenger[strlen(meSSenger)]=0;
@@ -54,6 +55,7 @@ public:
 		this->BigLV=BigLV;
 		Drawing=true;
 };
+	*/
 	~MeSSenger(void)
 	{
 		delete[]meSSenger;
@@ -76,24 +78,58 @@ public:
 	}
 }
 	static void Drawing_and_Decremt(MeSSenger*m)
-{
-	if(m->Drawing)
-	   {
-	   if(!m->t->Decrementa(m->t))
-	      {
-			  MeSSenger::textMSS(m->meSSenger,m->x,m->y,m->z,m->R,m->G,m->B,m->BigLV==1?1:0,m->BigLV>1?1:0);
-	      }
-	   else
-		   m->Drawing=false;
-	   
-	   }
+	{
+		if(m->m.try_lock())
+		{
+			if(m->Drawing)
+			{
+				if(!m->t->Decrementa(m->t))
+				{
+				   MeSSenger::textMSS(m->meSSenger,m->x,m->y,m->z,m->R,m->G,m->B,m->BigLV==1?1:0,m->BigLV>1?1:0);
+				}
+			   else
+				   m->Drawing=false;
+	        }
+			m->m.unlock();
+		}
+		
 };
-	static void NewMessenger(char*newMessenger,MeSSenger*m){
-		m->meSSenger=new char[strlen(newMessenger)+1];
-		m->meSSenger[strlen(newMessenger)]=0;
-		for(unsigned i=0;i<strlen(newMessenger);i++)
-			m->meSSenger[i]=newMessenger[i];
+	static void NewMeSSenger(MeSSenger*m,char*meSSenger,position Position,GLfloat wigth,GLfloat height,float Time=3,GLfloat R=1,GLfloat G=1,GLfloat B=1,unsigned BigLV=0,GLfloat x=0,GLfloat y=0,GLfloat z=0)
+	{
+		m->m.lock();
+		delete[] m->meSSenger;
+		delete m->t;
+		m->meSSenger=new char[strlen(meSSenger)+1];
+		m->meSSenger[strlen(meSSenger)]=0;
+		for(unsigned i=0;i<strlen(meSSenger);i++)
+			m->meSSenger[i]=meSSenger[i];
+		if(Position==position::CENTER_TOP)
+		{
+			m->x=(GLfloat)-int(strlen(meSSenger)*4.5);
+			m->y=(GLfloat)height/2-20;
+			m->z=(GLfloat)2*wigth-1;
+		}
 	
+		else if(Position==position::CENTER_BUTTOM)
+			{
+				m->x=(GLfloat)-int(strlen(meSSenger)*4.5);
+				m->y=-(GLfloat)height/2-20;
+				m->z=(GLfloat)2*wigth-1;
+			}
+		else
+			{
+			m->x=x;
+			m->y=y;
+			m->z=z;
+			}
+		m->t=new TimeDuration(Time);
+		m->R=R;
+		m->G=G;
+		m->B=B;
+		m->BigLV=BigLV;
+		m->Drawing=true;
+		m->m.unlock();
 	};
+	
 };
 

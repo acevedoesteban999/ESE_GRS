@@ -23,6 +23,7 @@
 #include "Connection.h"
 #include "XLSClass.h"
 #include <mmsystem.h>
+
 using namespace std;
 enum Language
 {

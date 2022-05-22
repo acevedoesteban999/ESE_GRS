@@ -1,6 +1,6 @@
 #include "ESE_GRS.h"
 ////////////////////////////////////////////////////////////////VERSION//////////////////////////////////////////////////////////
-														char*ESE_GRS_Version="3.1.0";
+														char*ESE_GRS_Version="3.2.0";
 ///////////////////////////////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////////////
 bool recibir_serie=false;
 bool CargObjct=false,cargMenu=false;
@@ -27,6 +27,13 @@ bool PlanoAcceso=false;
 bool VariablesDestruidas=false;
 bool AceptCancelButtonDesdeThread=false;
 bool IsRedireccDraw=false;
+
+unsigned connstGrab=10000;
+bool GrabarBool=false;
+char Grabar[10000];
+unsigned GrabarCont=0;
+float GrabarAngle[6];
+
 char byt;
 char*toSaveCOM="COM2",*toSaveIp="127.0.0.1",*toSaveHost="localhost";
 unsigned toSaveSpeed=9600,toSavePort=55555,toSavePortWeb=8080;
@@ -44,7 +51,7 @@ float movRatXinit=25,movRatYinit=0,movRatX=10,movRatY=0;
 float velGiro=3;
 float &movESE_GRSX=movRatX,&movESE_GRSY=movRatY,movESE_GRSZ=25;
 float height,wigth;
-double trasladarX=0,trasladarY=0,trasladarZ=0,RotarPantCarga=0;
+double trasladarX=0,trasladarY=0,trasladarZ=0;
 double anglesRedirecc[6]={0,0,0,0,0,0};
 GLfloat angles[6]={0,0,0,0,0,0};
 GLfloat heightOrtho,wigthOrtho;
@@ -58,7 +65,7 @@ Connection*p=new Connection();
 TimeDuration tCOM(true);
 StackBoceto*ManejadorSketchs=new StackBoceto();
 thread*t1=new thread();
-mutex MutexManejadorForms,MutexManejadorSketchs,MutexMessag;
+mutex MutexManejadorForms,MutexManejadorSketchs;
 MeSSenger*messeng=new MeSSenger();
 StackForms*ManejadorForms=new StackForms();
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
@@ -917,17 +924,20 @@ void DestruirVariablesGlobales()
 		VariablesDestruidas=true;
 		MutexManejadorForms.lock();
 		MutexManejadorSketchs.lock();
-		MutexMessag.lock();
 		if(recibir_serie||!ManejadorObject->Salir)
 		{
 			recibir_serie=false;
 			ManejadorObject->Salir=true;
+
 			if(p->GetType()==ConnectionType::SERIAL_PORT)
 			{
 				t1->join();
 				p->CloseConnection();
 			}
-			else
+			else if(p->GetType()==ConnectionType::CONNECTION)
+			{
+			}
+			else 
 			{
 				 p->CloseConnection();
 				 t1->join();
@@ -942,7 +952,6 @@ void DestruirVariablesGlobales()
 		delete cooRd;
 		delete[]toSaveCOM;
 		delete[]toSaveIp;
-		MutexMessag.unlock();
 		MutexManejadorForms.unlock();
 		MutexManejadorSketchs.unlock();
 	}
@@ -1152,11 +1161,10 @@ void Exit()
 //	return ss;
 //
 //}
-
 ////////////////CONTRUCTOR Y DESTRUCTOR//////////////////////////////////////////////
 ESE_GRS::ESE_GRS(){
 	atexit(Exit);
-	//Constructor	
+	//Constructor
 	//funciones d inicialiacion del GLUT(OPENGL)
 	glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH);//inicio con cloes del rgb,doble buffer y buffer de profundidad
 	Initheight=GetSystemMetrics (SM_CYSCREEN);//obtener tama�o y de pantalla
@@ -1204,13 +1212,15 @@ ESE_GRS::ESE_GRS(){
     ShowAngules();
 	ManejadorForms->Add(Interfaz(0),ManejadorForms);
 
-	StackAnimation*sa=new StackAnimation("StackAnimation1");
-	sa->STANSetAnimation("InitAnimation1",CRD(0,100,0),150,0,0,-50,0,0,0,(float)0.5);
-	sa->STANSetAnimation("InitAnimation2",CRD(0,100,0),150,0,0,-25,1,0,0,(float)0.5);
-	sa->STANSetAnimation("InitAnimation3",CRD(0,100,0),150,0,0,0,0,1,0,(float)0.5);
-	sa->STANSetAnimation("InitAnimation4",CRD(0,100,0),150,0,0,25,0,0,1,(float)0.5);
-	sa->STANSetAnimation("InitAnimation5",CRD(0,100,0),150,0,0,50,1,1,1,(float)0.5);
-	ManejadorForms->Add(sa,ManejadorForms);
+	/*StackAnimation*sa=new StackAnimation("StackAnimation1");
+	sa->STANSetAnimation("InitAnimation1",CRD(0,100,0),50,0,0,-50,0,0,0,(float)0.5);
+	sa->STANSetAnimation("InitAnimation2",CRD(0,100,0),50,0,0,-25,1,0,0,(float)0.5);
+	sa->STANSetAnimation("InitAnimation3",CRD(0,100,0),50,0,0,0,0,1,0,(float)0.5);
+	sa->STANSetAnimation("InitAnimation4",CRD(0,100,0),50,0,0,25,0,0,1,(float)0.5);
+	sa->STANSetAnimation("InitAnimation5",CRD(0,100,0),50,0,0,50,1,1,1,(float)0.5);
+	ManejadorForms->Add(sa,ManejadorForms);*/
+	InitMenu();
+	glutPostRedisplay();
 }
 ESE_GRS::~ESE_GRS(){
 	//no hace falta explicar VERDAD?
@@ -1237,15 +1247,18 @@ bool ESE_GRS::IniciarCargObjetos()
 	{
 		if(!CargObjct)
 		{
-			string g=string(Frases(92))+to_string(ManejadorObject->contLoaderObject)+string("/16 (")+to_string(ManejadorObject->contLoaderObject*100/16)+string("%)");
-			string s="v"+string(ESE_GRS_Version);
+			glPushMatrix();
+			glLoadIdentity();
+			string h=string(Frases(92));
+			string g=string(to_string(ManejadorObject->contLoaderObject)+string("/16 (")+to_string(ManejadorObject->contLoaderObject*100/16)+string("%)"));
 			ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->NewTotalProp(0,0);
 			ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->Draw();
-			text("ESE_GRS",-20,150,0,(GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9,true,true);
-			text((char*)s.c_str(),-8,125,0,(GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9,true);
-			text((char*)g.c_str(),-55,100,0,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,true);
+			text("ESE_GRS"       ,-40,height/2-75,2*wigth-1,(GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9,true,true);
+			text((char*)h.c_str(),-60,height/2-100,2*wigth-1,(GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9,true);
+			text((char*)g.c_str(),-35,height/2-125,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,true);
+			glPopMatrix();
 			glutPostRedisplay();
-			glutSetCursor( GLUT_CURSOR_WAIT);
+			//glutSetCursor( GLUT_CURSOR_WAIT);
 			/*for(unsigned i=0;i<(unsigned)ManejadorObject->contLoaderObject;i++)
 				switch (i)
 				{
@@ -1358,17 +1371,16 @@ bool ESE_GRS::IniciarCargObjetos()
 				default:
 					break;
 				}*/
-			RotarPantCarga+=0.1;
 			glLoadIdentity();
 			return false;
 		}   
 		else
 			{
-				glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+			   //glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 			   InitMenu();
-			   glutPostRedisplay();
-			   cargMenu=true;
-			   ManejadorForms->Sub("StackAnimation1",ManejadorForms);
+				glutPostRedisplay();
+				cargMenu=true;
+			   //ManejadorForms->Sub("StackAnimation1",ManejadorForms);
 			   return true;
 			}
 }
@@ -1403,7 +1415,8 @@ void ESE_GRS::InitMenu()
 		glutAddMenuEntry(Frases(41),4);//set angules
 		glutAddMenuEntry(Frases(300),-15);//set angulesRedirecc
 		glutAddSubMenu(Frases(39),SubMenuVista);//Vista
-		glutAddSubMenu(Frases(40),subMenuToDraw);//To draw
+		if(cargMenu)
+			glutAddSubMenu(Frases(40),subMenuToDraw);//To draw
 		if(ModoSonido)
 		   glutAddMenuEntry(Frases(94),-11);//desact modo mute
 		else
@@ -1454,11 +1467,11 @@ void ESE_GRS::display(){
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);//borro todo 
 	if(!CargObjct||!cargMenu)
 		IniciarCargObjetos();
-	else
-	{
+	//else
+	//{
         Inicializar();//iniciaizo proyeccion y pongo los angulos del brazo 
 		Entorno();//Cargo los objetos, forms y demas elementos
-	}//end of carga de objetos
+	//}//end of carga de objetos
 	
     glFlush();//siempre lleva esto 
 	glutSwapBuffers();
@@ -1473,9 +1486,8 @@ void ESE_GRS::Entorno(){
 	     trasladarY=-cooRd->y;
 	     trasladarZ=-cooRd->z;
 	  }
-	  MutexMessag.lock();
+	
 	  messeng->Drawing_and_Decremt(messeng);//Textos de los mensajes superiores centrados
-	  MutexMessag.unlock();
 	  if(!BoxAbout&&!Boxf1&&!BoxReconnect&&!BoxExit)
 		text("o",-2.0,-1.5,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8);
 	  MutexManejadorForms.lock();
@@ -1684,10 +1696,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			{
 				if(!strcmp(ManejadorSketchs->bocetos[i]->name,ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")))
 				{
-					MutexMessag.lock();
-					delete messeng;
-					messeng=new MeSSenger(Frases(44),CENTER_TOP,wigth,height,3,1,0,0,2);
-					MutexMessag.unlock();
+					
+					messeng->NewMeSSenger(messeng,Frases(44),CENTER_TOP,wigth,height,3,1,0,0,2);
 					ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetFocusColorTimer("textBoxNewBoceto");
 					box->Cancelar(box);
 					Err=true;
@@ -1740,10 +1750,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		    ManejadorForms->Sub("BoxInterfazDetenerConnectionButtonCancel",ManejadorForms);
 		    ManejadorForms->Add(Interfaz(0),ManejadorForms);
 			default_menu(-5);
-			MutexMessag.lock();
-			delete messeng;
-			messeng=new MeSSenger(Frases(45),position::CENTER_TOP,wigth,height,3,1,1,0,2);
-			MutexMessag.unlock();
+			messeng->NewMeSSenger(messeng,Frases(45),position::CENTER_TOP,wigth,height,3,1,1,0,2);
 		    return box;
 		break;
 		case 6:
@@ -1766,17 +1773,11 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 				All=false;
 			if(XLSClass::Salvar(ManejadorSketchs->bocetos,u,u1,All,All?ManejadorSketchs->contB:0))
 			{
-				MutexMessag.lock();
-				delete messeng;
-				messeng=new MeSSenger( Frases(46),position::CENTER_TOP,wigth,height,3,0,1,0,2);
-				MutexMessag.unlock();
+				messeng->NewMeSSenger(messeng, Frases(46),position::CENTER_TOP,wigth,height,3,0,1,0,2);
 			}
 			else
 			{
-				MutexMessag.lock();
-				delete messeng;
-				messeng=new MeSSenger( Frases(112),position::CENTER_TOP,wigth,height,5,1,1,0,2);
-				MutexMessag.unlock();
+				messeng->NewMeSSenger(messeng, Frases(112),position::CENTER_TOP,wigth,height,5,1,1,0,2);
 				if(ModoSonido)sonidos(2);
 			}
 			delete[]u;
@@ -2377,7 +2378,7 @@ void ESE_GRS::movPasiveRaton(GLsizei x,GLsizei y)
 	} 
 };
 void ESE_GRS::Idle(){
-   if(recibir_serie||ManejadorForms->GetEstoyEscribindo())
+   if(recibir_serie||ManejadorForms->GetEstoyEscribindo()||!CargObjct)
 	  glutPostRedisplay();
 }
 void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
@@ -2460,10 +2461,7 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					CloseClipboard();
 					if(ModoSonido)sonidos(7);
 					if(ModoLogger)cout<<Frases(88)<<"->"<<Frases(86)<<endl;
-					MutexMessag.lock();
-					delete messeng;
-					messeng=new MeSSenger(Frases(88),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
-					MutexMessag.unlock();
+					messeng->NewMeSSenger(messeng,Frases(88),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 			   }  
 		   }
 		   else if(Forms::IsPulsdo((float)x,(float)y,ManejadorForms->GetForm("BoxExit",ManejadorForms)))
@@ -2842,18 +2840,12 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   }
 			   if(eRror)
 			   {
-				   MutexMessag.lock();
-				  delete messeng;
-				  messeng=new MeSSenger(Frases(48),position::CENTER_TOP,wigth,height,3,1,0,0,2);
-				  MutexMessag.unlock();
+				   messeng->NewMeSSenger(messeng,Frases(48),position::CENTER_TOP,wigth,height,3,1,0,0,2);
 				  if(ModoSonido)sonidos(6);
 			   }
 			   else
 			   {
-				   MutexMessag.lock();
-				   delete messeng;
-				   messeng=new MeSSenger(Frases(49),position::CENTER_TOP,wigth,height,3,0,1,0,2);
-				   MutexMessag.unlock();
+				   messeng->NewMeSSenger(messeng,Frases(49),position::CENTER_TOP,wigth,height,3,0,1,0,2);
 				   for(unsigned i=0;i<6;i++)
 				   {
 				   s=("textBoxsSetAngules");
@@ -2885,7 +2877,29 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
    }
 	glutPostRedisplay();
 }
-void ESE_GRS::keyboard(unsigned char tecla,int x,int y ){
+void ESE_GRS::keyboard(unsigned char tecla,int x,int y )
+{
+	if(tecla=='g'||tecla=='G')
+  {
+	  if(GrabarBool)
+	  {
+		GrabarBool=false;
+
+
+		XLSClass asd;
+		asd.SalvarGrabar(GrabarAngle,Grabar,GrabarCont);
+
+		messeng->NewMeSSenger(messeng,"Grabacion Terminada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
+	  }
+	  else
+	  {
+		for(unsigned i=0;i<6;i++)
+		   GrabarAngle[i]=(float)angles[i];
+		GrabarCont=0;
+		GrabarBool=true;
+		messeng->NewMeSSenger(messeng,"Grabando",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,100,1,1,1,2);
+	  }
+  }
   if(ManejadorForms->GetEstoyEscribindo())
   {
 	if(tecla==8)
@@ -3266,10 +3280,7 @@ void ESE_GRS::default_menu(int opcion){
 			   msg[f.length()]=0;
 			   for(unsigned i=0;i<f.length();i++)
 				   msg[i]=f[i]; 
-			   MutexMessag.lock();
-			   delete messeng;
-			   messeng=new MeSSenger((char*)f.c_str(),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,5,1,0,0,2);
-			   MutexMessag.unlock();
+			   messeng->NewMeSSenger(messeng,(char*)f.c_str(),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,5,1,0,0,2);
 		   }
 		else 
 		   {
@@ -3305,10 +3316,7 @@ void ESE_GRS::default_menu(int opcion){
 
 			   t1=new thread(ThreadCOM);
 			   contMenuToDraw=-1;
-			   MutexMessag.lock();
-			   delete messeng;
-			   messeng=new MeSSenger(msg,position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
-			   MutexMessag.unlock();
+			   messeng->NewMeSSenger(messeng,msg,position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 			   if(p->GetType()==ConnectionType::SERIAL_PORT)
 		       {
 				   delete[]toSaveCOM;
@@ -3421,20 +3429,14 @@ void ESE_GRS::default_menu(int opcion){
 	case -8: //desact modo logger
 			ModoLogger=false;
 			if(ModoSonido)sonidos(7);
-			MutexMessag.lock();
-			delete messeng;
-			messeng=new MeSSenger(Frases(80),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
-			MutexMessag.unlock();
+			messeng->NewMeSSenger(messeng,Frases(80),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
 			cout<<Frases(80)<<endl;
 			InitMenu();
 		break;
 	case -9:  //activ modo logger
 			if(ModoSonido)sonidos(7);
 			ModoLogger=true;
-			MutexMessag.lock();
-			delete messeng;
-			messeng=new MeSSenger(Frases(81),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
-			MutexMessag.unlock();
+			messeng->NewMeSSenger(messeng,Frases(81),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
 			cout<<Frases(81)<<endl;
 			InitMenu();
 		break;
@@ -3444,20 +3446,14 @@ void ESE_GRS::default_menu(int opcion){
 		break;
 	case -11: //descat modo mute
 		ModoSonido=false;
-		MutexMessag.lock();
-		delete messeng;
-		messeng=new MeSSenger(Frases(96),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
-		MutexMessag.unlock();
+		messeng->NewMeSSenger(messeng,Frases(96),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
 		if(ModoLogger)cout<<Frases(96)<<endl;
 		InitMenu();
 		break;
 	case -12: //activ modo mut
 		ModoSonido=true;
 		if(ModoSonido)sonidos(7);
-		MutexMessag.lock();
-		delete messeng;
-		messeng=new MeSSenger(Frases(95),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
-		MutexMessag.unlock();
+		messeng->NewMeSSenger(messeng,Frases(95),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,1,0,2);
 		if(ModoLogger)cout<<Frases(95)<<endl;
 		InitMenu();
 		break;
@@ -3473,18 +3469,12 @@ void ESE_GRS::default_menu(int opcion){
 		case -15:
 			if(SetAnglesREdirecc())
 			{
-				MutexMessag.lock();
-				delete messeng;
-				messeng=new MeSSenger(Frases(301),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
+				messeng->NewMeSSenger(messeng,Frases(301),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 				SpecialKeys(GLUT_KEY_F4,0,0);
-				MutexMessag.unlock();
 			}
 			else
 			{
-				MutexMessag.lock();
-				delete messeng;
-				messeng=new MeSSenger(Frases(302),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
-				MutexMessag.unlock();
+				messeng->NewMeSSenger(messeng,Frases(302),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
 			}
 			break;
 	}
@@ -3548,10 +3538,7 @@ void ESE_GRS::MenuToDraw(int caso){
      }
   else
   {
-	  MutexMessag.lock();
-	  delete messeng;
-	  messeng=new MeSSenger(Frases(50),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
-	  MutexMessag.unlock();
+	  messeng->NewMeSSenger(messeng,Frases(50),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
   }
 glutPostRedisplay();//refresco y ejecuto el displayFunc()
 }
@@ -3573,10 +3560,7 @@ void ESE_GRS::MenuIdioma(int opcion)
 		idioma=Language::ENGLISH;
 		break;
 	}
-	MutexMessag.lock();
-	delete messeng;
-	messeng=new MeSSenger(Frases(62),position::CENTER_TOP,wigth,height,3,1,1,0,2);
-	MutexMessag.unlock();
+	messeng->NewMeSSenger(messeng,Frases(62),position::CENTER_TOP,wigth,height,3,1,1,0,2);
 	if(ModoSonido)sonidos(7);
 	if(ModoLogger)cout<<Frases(66)<<endl;
 	glutPostRedisplay();
@@ -3597,10 +3581,7 @@ void ESE_GRS::MenuAcceso(int opcion)
 			}
 			else
 			{
-				MutexMessag.lock();
-				delete messeng;
-				messeng=new MeSSenger(Frases(109),position::CENTER_TOP,wigth,height,3,1,1,0,1);
-				MutexMessag.unlock();
+				messeng->NewMeSSenger(messeng,Frases(109),position::CENTER_TOP,wigth,height,3,1,1,0,1);
 			}
 			break;
 		case 2://Quitar Acceso
@@ -3613,8 +3594,7 @@ void ESE_GRS::MenuAcceso(int opcion)
 			}
 			else
 			{
-				delete messeng;
-				messeng=new MeSSenger(Frases(110),position::CENTER_TOP,wigth,height,3,1,1,0,1);
+				messeng->NewMeSSenger(messeng,Frases(110),position::CENTER_TOP,wigth,height,3,1,1,0,1);
 			}
 			break;
 	}	
@@ -3673,10 +3653,7 @@ void ESE_GRS::recivirDatosCOM(){
 				ManejadorForms->Add(Interfaz(9),ManejadorForms);
 				MutexManejadorForms.unlock();
 				if(ModoSonido)sonidos(5);
-				MutexMessag.lock();
-				delete messeng;
-				messeng=new MeSSenger(Frases(91),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
-				MutexMessag.unlock();
+				messeng->NewMeSSenger(messeng,Frases(91),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 				if(ModoLogger)cout<<Frases(91)<<endl;
 			}  
 		  	return;
@@ -3691,17 +3668,11 @@ void ESE_GRS::recivirDatosCOM(){
 				if(ModoLogger)cout<<p->ErrorStr()<<endl<<Frases(89);
 				if(p->ErrorStr()[0]=='C')
 				{
-					MutexMessag.lock();
-					delete messeng;
-					messeng=new MeSSenger(Frases(102),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
-					MutexMessag.unlock();
+					messeng->NewMeSSenger(messeng,Frases(102),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
 				}
 				else
 				{
-					MutexMessag.lock();
-					delete messeng;
-					messeng=new MeSSenger(Frases(101),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
-					MutexMessag.unlock();
+					messeng->NewMeSSenger(messeng,Frases(101),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
 				}
 				ErrorConnect=true;
 				EsperandoReedireccionar=true;
@@ -3749,6 +3720,14 @@ void ESE_GRS::recivirDatosCOM(){
 				*/
 				contt++;
 				if(ModoLogger)cout<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
+				if(GrabarBool)
+				{
+					if(GrabarCont==connstGrab)
+						connstGrab=0;
+					Grabar[GrabarCont++]=c[i];
+					Grabar[GrabarCont++]=c[i+1];
+				}
+				
 				if(strleN/2>1)
 					if(ModoLogger)cout<<"{"<<i/2+1<<"/"<<strleN/2<<"}"<<"("<<strleN<<")-";
 				/////////////////////////////////////////////////////VERIFICACION DE SEGURIDAD////////////////////////////////////////////////////////
@@ -3764,10 +3743,7 @@ void ESE_GRS::recivirDatosCOM(){
 			     }
 				 else if(EsperandoReedireccionar)///////PARA Q NO SE EJECUTE NADA HASTA Q NO SE REDIRECCIONE///////
 				 {
-					 MutexMessag.lock();
-					 delete messeng;
-					 messeng=new MeSSenger(Frases(65),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,1,1,0,2);
-					 MutexMessag.unlock();
+					 messeng->NewMeSSenger(messeng,Frases(65),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,1,1,0,2);
 					 if(ModoLogger)cout<<Frases(64);
 					 if(ModoSonido)sonidos(6);
 				 }
@@ -3775,8 +3751,8 @@ void ESE_GRS::recivirDatosCOM(){
 				 else if(DataProcessor::CodigoESE(c[0],c[1]))
 			     {
 				    bool pintar=DataProcessor::PorcesarDatos(c[i],c[i+1],angles);//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
-		  	        CalcularCoordenadas();
-			        ShowAngules(false,true);
+					CalcularCoordenadas();
+					ShowAngules(false,true);
 					MutexManejadorSketchs.lock();
 					if(interfaz==2)///////Actualizo la ultima coordenada en el StackBoceto///////
 				       ManejadorSketchs->ActualizaLastCood(cooRd,ManejadorSketchs);
@@ -4009,10 +3985,7 @@ bool ESE_GRS::VerificacionSeguridad(char*c,unsigned i)
 		return true;
 		}
 		if(ModoLogger)cout<<Frases(55)<<endl;
-		MutexMessag.lock();
-		delete messeng;
-		messeng=new MeSSenger(Frases(55),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
-		MutexMessag.unlock();
+		messeng->NewMeSSenger(messeng,Frases(55),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
 		MutexManejadorForms.lock();
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->AddNewText(Frases(115));
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->SetColor(1,1,0);
@@ -4024,10 +3997,7 @@ bool ESE_GRS::VerificacionSeguridad(char*c,unsigned i)
 	if(!EsperandoReedireccionar&&(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0))	///////////VERIFICACION//////////
 	{
 		if(ModoLogger)cout<<Frases(54)<<endl;
-		MutexMessag.lock();
-		delete messeng;
-		messeng=new MeSSenger(Frases(54),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
-		MutexMessag.unlock();
+		messeng->NewMeSSenger(messeng,Frases(54),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
 		MutexManejadorForms.lock();
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->AddNewText(Frases(115));
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->SetColor(1,1,0);
@@ -4047,10 +4017,7 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 	{
 	case 7: ////////////////////REDIRECCIONAR//////////////////
 		SpecialKeys(-1,0,0);
-		MutexMessag.lock();
-		delete messeng;
-		messeng=new MeSSenger(Frases(51),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
-		MutexMessag.unlock();
+		messeng->NewMeSSenger(messeng,Frases(51),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
 		EsperandoReedireccionar=false;
 		MutexManejadorForms.lock();
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->AddNewText(Frases(114));
@@ -4578,10 +4545,7 @@ void ESE_GRS::ThreadCargObject()
 	if(ManejadorObject->errorCarga)
 	{
 		if(ModoSonido)sonidos(10);
-		MutexMessag.lock();
-		delete messeng;
-		messeng=new MeSSenger(Frases(82),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,10,1,0,0,2);
-		MutexMessag.unlock();
+		messeng->NewMeSSenger(messeng,Frases(82),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,10,1,0,0,2);
 	}
 	else
 	{
