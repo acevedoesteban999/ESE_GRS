@@ -1,5 +1,6 @@
 #pragma once
 #include "ESE_GRS.h"
+#define PI 3.14159265
 class DataUnion
 {
 	union Union
@@ -257,23 +258,26 @@ public:
 				angles[i]+=360;
 			else if (angles[i]==-0)
 				angles[i]=0;
+			
+			angles[i-2]=(GLfloat)std::floor(100*(double)angles[i-2]+0.5)/100;
+					 
 		}
 	
 	
 
 };
-	static char* printfBits(char c)
-{
+	static char* GetByteStr(char c)
+	{
 	char*f=new char[9];
 	f[8]=0;
 	for(int i=0;i<8;i++)
-	  {
-		  if(BitData(c,i)==0)
-			  f[7-i]='0';
-		  else
-			  f[7-i]='1';
-	  }
-		return f;
+	{
+		 if(BitData(c,i)==0)
+			 f[7-i]='0';
+		 else
+			 f[7-i]='1';
+	 }
+	return f;
 };
 	static bool CodigoCliente(char lowByte,char hightByte)
 	{
@@ -334,18 +338,14 @@ public:
 	return 1;
 
     };
-	static char* printByte(char c)
+	static void printByte(char c,bool endL=true)
 	{
-		char*f=new char[9];
-		f[8]=0;
-		for(int i=0;i<8;i++)
-		{
-			if(GetBit(c,i)==0)
-				f[7-i]='0';
-			else
-				f[7-i]='1';
-		}
-		return f;
+		char*f=GetByteStr(c);
+		if(endL)
+			cout<<f<<endl;
+		else
+			printf(f);
+		delete[]f;
 	};
 	static void SetBit(char&Byte,unsigned posittion,bool bit)
 	{
@@ -398,5 +398,84 @@ public:
 		}
 	return ToReturn;
 	}
+	static double Sin(double ang)
+	{
+		return sin(ang*PI/180);
+	}
+	static double Cos(double ang)
+	{
+		return cos(ang*PI/180);
+	}
+	static void CalcularCoordenadas(CRD&cooRd,GLfloat angles[6])
+    {
+	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6,cosAlfa7,senAlfa7,senFi7,cosFi7;  
+	  /*double q1=angles[0];
+	  double q2=angles[1];
+	  double q3=angles[2];
+	  double q4=angles[3];
+	  double q5=angles[4];
+	  double q6=angles[5];*/
+  	  cosFi1=cos((angles[0])*PI/180);
+      senFi1=sin((angles[0])*PI/180);
+      cosFi2=cos(angles[1]*PI/180);
+      senFi2=sin(angles[1]*PI/180);
+      cosFi3=cos((angles[2])*PI/180);
+      senFi3=sin((angles[2])*PI/180);
+      cosFi4=cos(angles[3]*PI/180);
+      senFi4=sin(angles[3]*PI/180);
+      cosFi5=cos((angles[4]-90)*PI/180);
+      senFi5=sin((angles[4]-90)*PI/180);
+	  cosFi6=cos((angles[5])*PI/180);
+      senFi6=sin((angles[5])*PI/180);
+	
+	 cooRd.x=  (12901*senFi1)/500 + 150*cosFi1*cosFi2 - (1223*cosFi5*senFi1)/20 + 177*senFi6*(senFi1*senFi5 - cosFi5*(cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - senFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))) - 177*cosFi6*(cosFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2) + senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)) - (1223*senFi5*(cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - senFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2)))/20 + (4027889324543443*cosFi1*cosFi2*cosFi3)/17592186044416 - (4027889324543443*cosFi1*senFi2*senFi3)/17592186044416;
+	 cooRd.y=(1223*cosFi1*cosFi5)/20 - 177*cosFi6*(cosFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2) + senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)) - (12901*cosFi1)/500 - (1223*senFi5*(cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - senFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2)))/20 + 150*cosFi2*senFi1 - 177*senFi6*(cosFi5*(cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - senFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2)) + cosFi1*senFi5) + (4027889324543443*cosFi2*cosFi3*senFi1)/17592186044416 - (4027889324543443*senFi1*senFi2*senFi3)/17592186044416;
+     cooRd.z=(1223*senFi5*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)))/20 - (4027889324543443*cosFi2*senFi3)/17592186044416 - (4027889324543443*cosFi3*senFi2)/17592186044416 - 177*cosFi6*(cosFi4*(cosFi2*cosFi3 - senFi2*senFi3) - senFi4*(cosFi2*senFi3 + cosFi3*senFi2)) - 150*senFi2 + 177*cosFi5*senFi6*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)) + 883/10;
+      
+	 
+	  //cooRd.x=(233*Sin(q1))/10 - (12181*Sin(q1)*Sin(q5))/200 + (6*Cos(q1)*(191*Cos((q2 + q3)) + 125*Cos(q2)))/5 + 177*Cos(q6)*(Cos(q5)*Sin(q1) + Cos((q2 + q3 + q4))*Cos(q1)*Sin(q5)) + (12181*Cos((q2 + q3 + q4))*Cos(q1)*Cos(q5))/200 + 177*Sin((q2 + q3 + q4))*Cos(q1)*Sin(q6);
+	  //cooRd.y=(12181*Cos(q1)*Sin(q5))/200 - (233*Cos(q1))/10 - 177*Cos(q6)*(Cos(q1)*Cos(q5) - Cos((q2 + q3 + q4))*Sin(q1)*Sin(q5)) + (6*Sin(q1)*(191*Cos((q2 + q3)) + 125*Cos(q2)))/5 + (12181*Cos((q2 + q3 + q4))*Cos(q5)*Sin(q1))/200 + 177*Sin((q2 + q3 + q4))*Sin(q1)*Sin(q6);
+	  //cooRd.z= (1146*Sin((q2 + q3)))/5 + 150*Sin(q2) + (12181*Sin((q2 + q3 + q4))*Cos(q5))/200 - 177*Cos((q2 + q3 + q4))*Sin(q6) + 177*Sin((q2 + q3 + q4))*Cos(q6)*Sin(q5) + (double)469/5;
+
+} 
+//    static void CalcularCoordenadas()
+//  {
+//	  CalcularCoordenadasEnviandoleDinamicamente(cooRd,angles);
+//	 // double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6,cosAlfa7,senAlfa7,senFi7,cosFi7;
+//	 // double q1=angles[0];
+//	 // double q2=angles[1];
+//	 // double q3=angles[2];
+//	 // double q4=angles[3];
+//	 // double q5=angles[4];
+//	 // double q6=angles[5];	  
+//	 // cosFi1=cos((angles[0])*PI/180);
+//  //    senFi1=sin((angles[0])*PI/180);
+//  //    cosFi2=cos(angles[1]*PI/180);
+//  //    senFi2=sin(angles[1]*PI/180);
+//  //    cosFi3=cos((angles[2])*PI/180);
+//  //    senFi3=sin((angles[2])*PI/180);
+//  //    cosFi4=cos(angles[3]*PI/180);
+//  //    senFi4=sin(angles[3]*PI/180);
+//  //    cosFi5=cos((angles[4]-90)*PI/180);
+//  //    senFi5=sin((angles[4]-90)*PI/180);
+//	 // cosFi6=cos((angles[5])*PI/180);
+//  //    senFi6=sin((angles[5])*PI/180);
+//	 // cosAlfa7=cos( 0 *PI/180);
+//	 // senAlfa7=sin( 0 *PI/180);
+//	 // senFi7=sin( 90 *PI/180);
+//	 // cosFi7=cos(90 *PI/180);
+//	
+//	 ////cooRd.x=  (12901*senFi1)/500 + 150*cosFi1*cosFi2 - (1223*cosFi5*senFi1)/20 + 177*senFi6*(senFi1*senFi5 - cosFi5*(cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - senFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))) - 177*cosFi6*(cosFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2) + senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)) - (1223*senFi5*(cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - senFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2)))/20 + (4027889324543443*cosFi1*cosFi2*cosFi3)/17592186044416 - (4027889324543443*cosFi1*senFi2*senFi3)/17592186044416;
+//	 ////cooRd.y=(1223*cosFi1*cosFi5)/20 - 177*cosFi6*(cosFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2) + senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)) - (12901*cosFi1)/500 - (1223*senFi5*(cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - senFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2)))/20 + 150*cosFi2*senFi1 - 177*senFi6*(cosFi5*(cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - senFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2)) + cosFi1*senFi5) + (4027889324543443*cosFi2*cosFi3*senFi1)/17592186044416 - (4027889324543443*senFi1*senFi2*senFi3)/17592186044416;
+//  //   //cooRd.z=(1223*senFi5*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)))/20 - (4027889324543443*cosFi2*senFi3)/17592186044416 - (4027889324543443*cosFi3*senFi2)/17592186044416 - 177*cosFi6*(cosFi4*(cosFi2*cosFi3 - senFi2*senFi3) - senFi4*(cosFi2*senFi3 + cosFi3*senFi2)) - 150*senFi2 + 177*cosFi5*senFi6*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)) + 883/10;
+//  //    
+//	 // cooRd.x=(233*sin(q1*PI/180))/10 - (12181*sin(q1*PI/180)*sin(q5*PI/180))/200 + (6*cos(q1*PI/180)*(191*cos((q2 + q3)*PI/180) + 125*cos(q2*PI/180)))/5 + 177*cos(q6*PI/180)*(cos(q5*PI/180)*sin(q1) + cos((q2 + q3 + q4)*PI/180)*cos(q1*PI/180)*sin(q5*PI/180)) + (12181*cos((q2 + q3 + q4)*PI/180)*cos(q1*PI/180)*cos(q5*PI/180))/200 + 177*sin((q2 + q3 + q4)*PI/180)*cos(q1*PI/180)*sin(q6*PI/180);
+//		//cooRd.y=(12181*cos(q1*PI/180)*sin(q5*PI/180))/200 - (233*cos(q1*PI/180))/10 - 177*cos(q6*PI/180)*(cos(q1*PI/180)*cos(q5*PI/180) - cos((q2 + q3 + q4)*PI/180)*sin(q1*PI/180)*sin(q5*PI/180)) + (6*sin(q1*PI/180)*(191*cos((q2 + q3)*PI/180) + 125*cos(q2*PI/180)))/5 + (12181*cos((q2 + q3 + q4)*PI/180)*cos(q5*PI/180)*sin(q1*PI/180))/200 + 177*sin((q2 + q3 + q4)*PI/180)*sin(q1*PI/180)*sin(q6*PI/180);
+//		//cooRd.z= (1146*sin((q2 + q3)*PI/180))/5 + 150*sin(q2*PI/180) + (12181*sin((q2 + q3 + q4)*PI/180)*cos(q5*PI/180))/200 - 177*cos((q2 + q3 + q4)*PI/180)*sin(q6*PI/180) + 177*sin((q2 + q3 + q4)*PI/180)*cos(q6*PI/180)*sin(q5*PI/180) + 469/5;
+//		////cooRd.x=(233*sin(q1))/10 - (12181*sin(q1)*sin(q5))/200 + (6*cos(q1)*(191*cos((q2 + q3)) + 125*cos(q2)))/5 + 177*cos(q6)*(cos(q5)*sin(q1) + cos((q2 + q3 + q4))*cos(q1)*sin(q5)) + (12181*cos((q2 + q3 + q4))*cos(q1)*cos(q5))/200 + 177*sin((q2 + q3 + q4))*cos(q1)*sin(q6);
+//		////cooRd.y=(12181*cos(q1)*sin(q5))/200 - (233*cos(q1))/10 - 177*cos(q6)*(cos(q1)*cos(q5) - cos((q2 + q3 + q4))*sin(q1)*sin(q5)) + (6*sin(q1)*(191*cos((q2 + q3)) + 125*cos(q2)))/5 + (12181*cos((q2 + q3 + q4))*cos(q5)*sin(q1))/200 + 177*sin((q2 + q3 + q4))*sin(q1)*sin(q6);
+//		////cooRd.z= (1146*sin((q2 + q3)))/5 + 150*sin(q2) + (12181*sin((q2 + q3 + q4))*cos(q5))/200 - 177*cos((q2 + q3 + q4))*sin(q6) + 177*sin((q2 + q3 + q4))*cos(q6)*sin(q5) + 469/5;
+//
+//}
 };
 

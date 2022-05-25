@@ -20,12 +20,14 @@ public:
 	};
 	void Draw()
 	{
+		
 		if(active&&!NoDraw)
 			for(unsigned i=0;i<cont;i++)
 				animations[i]->Draw();
 	}
 	void Sub(char*AnimationName)
 	{
+		
 		for(unsigned i=0;i<cont;i++)
 		{
 			if(!strcmp(AnimationName,animations[i]->name))
@@ -37,10 +39,12 @@ public:
 				break;
 			}
 		}
+		
 
 	}
 	unsigned Click(){return 0;};
 	void STANSetAnimation(char*name,CRD coord,float wigth,float TotalWigth,float TotalHeight,float x,float R,float G,float B,float speed){
+		
 		if(cont>=cant)
 		 {
 			 Animacion**NewAnimations=new Animacion*[cant+10];
@@ -56,6 +60,7 @@ public:
 			this->Height=this->Wigth;
 		}
 		animations[cont++]=new Animacion(name,coord,wigth,TotalWigth,TotalHeight,x,R,G,B,speed);
+		
 	};
 	void NewTotalProp(float wigth,float height)
 	{
@@ -66,13 +71,13 @@ public:
 		for(unsigned i=0;i<cont;i++)
 			animations[i]->reshapeBool=reshape;
 	}
-	void SetCoord(CRD*coord)
+	void SetCoord(CRD coord)
 	{
 		Forms::SetCoord(coord);
 		for(unsigned i=0;i<cont;i++)
 			animations[i]->SetCoord(coord);
 	}
-	void NewCRD(CRD*crd)
+	void NewCRD(CRD crd)
 	{
 		Forms::NewCRD(crd);
 		for(unsigned i=0;i<cont;i++)

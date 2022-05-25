@@ -52,9 +52,10 @@ public:
 	}
 	static void AddForm(Forms*f,Box*b,float x=0,float y=0,float z=0)
 	{
+		
 		b->ChecketCont(b);
 
-		f->SetCoord((float)(b->coord->x+x),(float)(b->coord->y+b->Height+y),(float)(b->coord->z+z));
+		f->SetCoord((float)(b->coord.x+x),(float)(b->coord.y+b->Height+y),(float)(b->coord.z+z));
 		b->Height+=f->Height+y+5;
 		if(f->LetterWigth()+x>b->Wigth-25)
 			b->Wigth=f->LetterWigth()+x+25;
@@ -79,7 +80,8 @@ public:
 		}
 	   return false;
 	}
-	bool PulsadoPasivo(int x,int y){
+	bool PulsadoPasivo(int x,int y)
+	{
 		  if(Forms::Pulsado((float)x,(float)y))
 		   {
 		   for(unsigned i=0;i<cont;i++)
@@ -96,74 +98,74 @@ public:
 	}
 	Type GetPasivePulsado(){return forms[PasivePulsado]->GetPasivePulsado();};
 	void Draw(){
-		if(!this->NoDraw)
-		{
-			glPushMatrix();
-	        glLoadIdentity();
-	        glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
-	        glColor3f(1,1,1);
-	        glBegin(GL_POLYGON);
-	        glVertex3f(-5,5,(GLfloat)-1.2);
-	        glVertex3f(Wigth,5,(GLfloat)-1.2);
-	        glVertex3f(Wigth,-Height-5,(GLfloat)-1.2);
-	        glVertex3f(-5,-Height-5,(GLfloat)-1.2);
-	        glEnd();
-
-			glLineWidth(3);
-			glColor3f(0,0,0);
-			glBegin(GL_LINE_LOOP);
-			glVertex3f(-5,5,(GLfloat)-1.1);
-			glVertex3f(Wigth,5,(GLfloat)-1.1);
-			glVertex3f(Wigth,-Height-5,(GLfloat)-1.1);
-			glVertex3f(-5,-Height-5,(GLfloat)-1.1);
-			glEnd();
-			glLineWidth(1);	
-			
-			if(DrawLineForElement)
+		
+			if(!this->NoDraw)
 			{
-				float ContHeigth=0;
-				for(unsigned i=0;i<cont;i++)
-				{
-					if(this->Focus==(int)i)
-					{
-						glLineWidth(3);
-						glColor3f(0,0,1);
-					}
-					else if(TimeDurationBool&&FocusTimeDurat==i)
-					{
-						if(td.Incrementa(&td)>3)
-						{
-							TimeDurationBool=false;
-							td.ResettIncrementa(&td);
-						}
-						else
-						{
-						glLineWidth(3);
-						glColor3f(1,0,0);
-						}
-					}
+				glPushMatrix();
+				glLoadIdentity();
+				glTranslatef((GLfloat)(-TotalWigth/2+coord.x),(GLfloat)(TotalHeight/2-coord.y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
+				glColor3f(1,1,1);
+				glBegin(GL_POLYGON);
+				glVertex3f(-5,5,(GLfloat)-1.2);
+				glVertex3f(Wigth,5,(GLfloat)-1.2);
+				glVertex3f(Wigth,-Height-5,(GLfloat)-1.2);
+				glVertex3f(-5,-Height-5,(GLfloat)-1.2);
+				glEnd();
 
-					else
-					   glColor3f(0,0,0);
-					glBegin(GL_LINE_LOOP);
-					glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
-					glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
-					ContHeigth+=forms[i]->Height+5;
-					glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
-					glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
-					glEnd();
-					if(this->Focus==i||(this->FocusTimeDurat==i&&TimeDurationBool))
-						glLineWidth(1);
+				glLineWidth(3);
+				glColor3f(0,0,0);
+				glBegin(GL_LINE_LOOP);
+				glVertex3f(-5,5,(GLfloat)-1.1);
+				glVertex3f(Wigth,5,(GLfloat)-1.1);
+				glVertex3f(Wigth,-Height-5,(GLfloat)-1.1);
+				glVertex3f(-5,-Height-5,(GLfloat)-1.1);
+				glEnd();
+				glLineWidth(1);	
+			
+				if(DrawLineForElement)
+				{
+					float ContHeigth=0;
+					for(unsigned i=0;i<cont;i++)
+					{
+						if(this->Focus==(int)i)
+						{
+							glLineWidth(3);
+							glColor3f(0,0,1);
+						}
+						else if(TimeDurationBool&&FocusTimeDurat==i)
+						{
+							if(td.Incrementa(&td)>3)
+							{
+								TimeDurationBool=false;
+								td.ResettIncrementa(&td);
+							}
+							else
+							{
+							glLineWidth(3);
+							glColor3f(1,0,0);
+							}
+						}
+
+						else
+						   glColor3f(0,0,0);
+						glBegin(GL_LINE_LOOP);
+						glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
+						glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
+						ContHeigth+=forms[i]->Height+5;
+						glVertex3f(Wigth-5,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
+						glVertex3f(-2,(GLfloat)(-ContHeigth+2.5),(GLfloat)-1.1);
+						glEnd();
+						if(this->Focus==i||(this->FocusTimeDurat==i&&TimeDurationBool))
+							glLineWidth(1);
+					}
 				}
-			}
-			glPopMatrix();
-			for(unsigned i=0;i<cont;i++)
-				forms[i]->Draw();
+				glPopMatrix();
+				for(unsigned i=0;i<cont;i++)
+					forms[i]->Draw();
 			
 		
-		}
+			}
 		
-	
 	}
 	unsigned Click(){
 		for(unsigned i=0;i<cont;i++)
@@ -172,18 +174,17 @@ public:
 		forms[PulsadO]->Click();
 		return (unsigned)t;
 	}
-	void NoClick(){
-	
-	};
-	void NewCRD(CRD*newcoord)
+	void NoClick(){};
+	void NewCRD(CRD newcoord)
 	{
 		for(unsigned i=0;i<cont;i++)
 		{
-			forms[i]->NewCRD(&((*forms[i]->coord-*this->coord)+*newcoord));
+			forms[i]->NewCRD(forms[i]->coord-this->coord+newcoord);
 		}
-		Forms::SetCRD(newcoord,this);
+		this->coord=CRD(newcoord);
+
 	}
-	void NewCRD(char*Formsname,CRD*crd)
+	void NewCRD(char*Formsname,CRD crd)
 	{
 		for(unsigned i=0;i<cont;i++)
 		{
@@ -195,7 +196,7 @@ public:
 		}
 		return;
 	};
-	CRD* BoxGetElementCoord(char*ElementName)
+	CRD BoxGetElementCoord(char*ElementName)
 	{
 		for(unsigned i=0;i<cont;i++)
 		{
@@ -204,11 +205,10 @@ public:
 				return forms[i]->coord;
 			}
 		}
-		return new CRD(0,0,0);
+		return CRD(0,0,0);
 	}
 	unsigned GetCont(){return cont;};
-	unsigned GetChecket(){
-		return PulsadO;};
+	unsigned GetChecket(){return PulsadO;};
 	unsigned BoxGetRBG_RBChecket(char*RBGname,char*RBname){
 		for(unsigned i=0;i<cont;i++)
 			if(!strcmp(forms[i]->name,RBGname))
@@ -253,7 +253,9 @@ public:
 
 }
 	void ActivateDesactivate(bool ActDesact){
+		
 		this->active=ActDesact;
+		
 		for(unsigned i=0;i<cont;i++)
 			forms[i]->ActivateDesactivate(ActDesact);
 	}
@@ -300,10 +302,12 @@ public:
 		
 	};
 	void BoxNextFocus(){
+		
 		if(this->Focus>=(int)(cont-1))
 		   this->Focus=-1;
 		else
-		   this->Focus++;	
+		   this->Focus++;
+		
 	};
 	double* BoxFocusClick() {
 		double*toReturn=new double[2];
@@ -313,8 +317,8 @@ public:
 		{
 			if(this->forms[Focus]->t==Type::RADIOBUTTON)
 			{
-				toReturn[0]=this->forms[Focus]->coord->x;
-				toReturn[1]=this->forms[Focus]->coord->y;
+				toReturn[0]=this->forms[Focus]->coord.x;
+				toReturn[1]=this->forms[Focus]->coord.y;
 			}
 			if(this->forms[Focus]->t==Type::RADIOBUTTONGROUP)
 			{
@@ -329,10 +333,13 @@ public:
 	int BoxGetFocus(){return Focus;};
 	void BoxSetFocus(int focus)
 	{
+		
 		this->Focus=focus;
+		
 	}
 	void BoxSetFocusColorTimer(char*ElemntName)
 	{
+		
 		for(unsigned i=0;i<cont;i++)
 		{
 			if(!strcmp(ElemntName,this->forms[i]->name))
@@ -348,14 +355,19 @@ public:
 		td.Incrementa(&td);
 		
 	};
-	void BoxSetDrawLineForElement(bool DrAw){this->DrawLineForElement=DrAw;};
+	void BoxSetDrawLineForElement(bool DrAw)
+	{
+		
+		this->DrawLineForElement=DrAw;
+		
+	};
 	void SetWigthElementProp(char*ElementName,float WiGth)
 	{
 		for(unsigned i=0;i<cont;i++)
 		{
 			if(!strcmp(ElementName,this->forms[i]->name))
 			{
-				forms[i]->Wigth=WiGth;
+				forms[i]->SetNewProp(WiGth);
 				return;
 			}
 		}
@@ -367,13 +379,13 @@ public:
 		{
 			if(!strcmp(ElementName,this->forms[i]->name))
 			{
-				forms[i]->Height=HeiGht;
+				forms[i]->SetNewProp(0,HeiGht);
 				return;
 			}
 		}
 		return;
 	}
-	void SetCoordElementProp(char*ElementName,CRD*coord)
+	void SetCoordElementProp(char*ElementName,CRD coord)
 	{
 		for(unsigned i=0;i<cont;i++)
 		{

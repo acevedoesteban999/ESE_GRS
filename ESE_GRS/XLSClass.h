@@ -110,7 +110,7 @@ public:
 			return false;
 		return true;
 	};
-	static void SalvarGrabar(float GrabarAngles[6],char*bytes,unsigned GrabarCont)
+	static void SalvarGrabar(float GrabarAngles[6],char*bytes,unsigned GrabarCont,double AnglulesRediredireccionarGrabar[6])
 	{
 		Book*book=xlCreateBook();
 		if(book)
@@ -121,35 +121,60 @@ public:
 					mkdir("ESE_GRS-XLS");
 					sheet->writeStr(1,0,"Higt Byte");
 					sheet->writeStr(1,1,"Low Byte");
-					sheet->writeStr(1,2,"Q1");
-					sheet->writeStr(1,3,"Q2");
-					sheet->writeStr(1,4,"Q3");
-					sheet->writeStr(1,5,"Q4");
-					sheet->writeStr(1,6,"Q5");
-					sheet->writeStr(1,7,"Q6");
+					sheet->writeStr(1,2,"X");
+					sheet->writeStr(1,3,"Y");
+					sheet->writeStr(1,4,"Z");
+					
+					sheet->writeStr(1,5,"Q1");
+					sheet->writeStr(1,6,"Q2");
+					sheet->writeStr(1,7,"Q3");
+					sheet->writeStr(1,8,"Q4");
+					sheet->writeStr(1,9,"Q5");
+					sheet->writeStr(1,10,"Q6");
 
 
 					sheet->writeStr(2,0," ");
 					sheet->writeStr(2,1," ");
-					sheet->writeNum(2,2,GrabarAngles[0]);
-					sheet->writeNum(2,3,GrabarAngles[1]);
-					sheet->writeNum(2,4,GrabarAngles[2]);
-					sheet->writeNum(2,5,GrabarAngles[3]);
-					sheet->writeNum(2,6,GrabarAngles[4]);
-					sheet->writeNum(2,7,GrabarAngles[5]);
+					sheet->writeNum(2,5,GrabarAngles[0]);
+					sheet->writeNum(2,6,GrabarAngles[1]);
+					sheet->writeNum(2,7,GrabarAngles[2]);
+					sheet->writeNum(2,8,GrabarAngles[3]);
+					sheet->writeNum(2,9,GrabarAngles[4]);
+					sheet->writeNum(2,10,GrabarAngles[5]);
 					unsigned row=3;
-					for(unsigned j=0;j<GrabarCont;j++)
+					CRD crd;
+					for(unsigned j=0;j<GrabarCont;j+=2)
 					{	
-						DataProcessor::PorcesarDatos(bytes[j],bytes[j+1],GrabarAngles);
+						if(!DataProcessor::CodigoCliente(bytes[j],bytes[j+1])&&!DataProcessor::CodigoSeguridad(bytes[j],bytes[j+1]))
+						{
+							DataProcessor::PorcesarDatos(bytes[j],bytes[j+1],GrabarAngles);
+						}
+						else if(bytes[j]==7)
+						{
+							GrabarAngles[0]=(float)AnglulesRediredireccionarGrabar[0];
+							GrabarAngles[1]=(float)AnglulesRediredireccionarGrabar[1];
+							GrabarAngles[2]=(float)AnglulesRediredireccionarGrabar[2];
+							GrabarAngles[3]=(float)AnglulesRediredireccionarGrabar[3];
+							GrabarAngles[4]=(float)AnglulesRediredireccionarGrabar[4];
+							GrabarAngles[5]=(float)AnglulesRediredireccionarGrabar[5];
+						}
+						DataProcessor::CalcularCoordenadas(crd,GrabarAngles);
+						char*f=DataProcessor::GetByteStr(bytes[j+1]);
+						sheet->writeStr(row,0,f);
+						delete[]f;
+						f=DataProcessor::GetByteStr(bytes[j]);
+						sheet->writeStr(row,1,f);
+						delete[]f;
 						
-						sheet->writeStr(row,0,DataProcessor::printfBits(bytes[j+1]));
-						sheet->writeStr(row,1,DataProcessor::printfBits(bytes[j]));
-						sheet->writeNum(row,2,GrabarAngles[0]);
-						sheet->writeNum(row,3,GrabarAngles[1]);
-						sheet->writeNum(row,4,GrabarAngles[2]);
-						sheet->writeNum(row,5,GrabarAngles[3]);
-						sheet->writeNum(row,6,GrabarAngles[4]);
-						sheet->writeNum(row++,7,GrabarAngles[5]);
+						sheet->writeNum(row,2,crd.x);
+						sheet->writeNum(row,3,crd.y);
+						sheet->writeNum(row,4,crd.z);
+						sheet->writeNum(row,5,GrabarAngles[0]);
+						sheet->writeNum(row,6,GrabarAngles[1]);
+						sheet->writeNum(row,7,GrabarAngles[2]);
+						sheet->writeNum(row,8,GrabarAngles[3]);
+						sheet->writeNum(row,9,GrabarAngles[4]);
+						sheet->writeNum(row++,10,GrabarAngles[5]);
 					}
 					unsigned contttttt=0;
 					string s="ESE_GRS-XLS/";

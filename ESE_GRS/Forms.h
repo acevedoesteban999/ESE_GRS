@@ -14,7 +14,7 @@ public:
 	
 	Type t;
 	char*name;
-	CRD*coord;
+	CRD coord;
 	float Wigth,Height,TotalProfundidad,TotalWigth,TotalHeight;
 	bool active,NoDraw;
 	bool destruir;
@@ -24,7 +24,6 @@ public:
 public:
 	Forms(){
 		t=Type::FORMS;
-		coord=new CRD();
 		name=new char[1];
 		active=NoDraw=destruir=Cancel=reshapeBool=false;
 	};
@@ -38,14 +37,13 @@ public:
 		this->TotalProfundidad=0;
 		this->Wigth=wigth;
 		this->Height=height;
-		this->coord=new CRD(coord);
+		this->coord=CRD(coord);
 		this->active=true;
 		this->NoDraw=false;
 		destruir=Cancel=reshapeBool=false;
 	};
 	virtual ~Forms()
 	{
-		delete coord;
 		delete []name;
 	};
 	static void Cancelar(Forms*f){f->Cancel=true;};
@@ -58,32 +56,33 @@ public:
 		for(unsigned i=0;i<strlen(name);i++)
 			f->name[i]=name[i];
 	}
-	static void SetCRD(CRD*coord,Forms*f){
-		delete f->coord;
-		f->coord=new CRD(*coord);
+	static void SetCRD(CRD coord,Forms*f){
+		f->NewCRD(coord);
 	}
-	static CRD*GetCoord(Forms*f){return f->coord;};
+	static CRD GetCoord(Forms*f){return f->coord;};
 	virtual void ActivateDesactivate(bool ActDesact){
 		this->active=ActDesact;
 	};
 	bool GetActiveDesavt(){return active;};
 	static void teXt(char*c,GLfloat x,GLfloat y,GLfloat R,GLfloat G,GLfloat B,unsigned LetterSize,Forms*f){
 	//dibujo el char c en la posicion x,y,z con color RGB
-	
-	glColor3f(R,G,B);
-	glRasterPos3f((GLfloat)-f->TotalWigth/2+x,(GLfloat)((f->TotalHeight/2)-y-f->Height*4/5),(GLfloat)2*f->TotalWigth-1+f->TotalProfundidad);
-	for(unsigned int i=0;i<strlen(c);i++){
-		if(LetterSize==2)
-			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c[i]);
-		else if(LetterSize==1)
-			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c[i]);
-		else if(LetterSize==0)
-	 	    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c[i]);
 		
-	}
+		glColor3f(R,G,B);
+		glRasterPos3f((GLfloat)-f->TotalWigth/2+x,(GLfloat)((f->TotalHeight/2)-y-f->Height*4/5),(GLfloat)2*f->TotalWigth-1+f->TotalProfundidad);
+		for(unsigned int i=0;i<strlen(c);i++)
+		{
+			if(LetterSize==2)
+				glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c[i]);
+			else if(LetterSize==1)
+				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c[i]);
+			else if(LetterSize==0)
+	 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c[i]);
+		
+		}
+			
 }
 	static bool IsPulsdo(float x,float y,Forms*f){
-		if(x>=f->coord->x&&x<=f->coord->x+f->Wigth&&y>=f->coord->y&&y<=f->coord->y+f->Height)			
+		if(x>=f->coord.x&&x<=f->coord.x+f->Wigth&&y>=f->coord.y&&y<=f->coord.y+f->Height)			
 			return true;
 		return false;
 	}
@@ -91,17 +90,19 @@ public:
 		f->NoDraw=noDraw;
 	}
 	virtual void NewTotalProp(float wigth,float height){
+		
 		if(reshapeBool)
-			{
-				this->coord->x=(this->coord->x*wigth)/this->TotalWigth;
-		        this->coord->y=(this->coord->y*height)/this->TotalHeight;
-		    }
+		{
+			this->coord.x=(this->coord.x*wigth)/this->TotalWigth;
+		    this->coord.y=(this->coord.y*height)/this->TotalHeight;
+		}
 		this->TotalWigth=wigth;
 		this->TotalHeight=height;
+		
 	}
 	virtual float LetterWigth(){return Wigth;}
 	virtual bool Pulsado(float x,float y){
-		if(x>=this->coord->x&&x<=this->coord->x+this->Wigth&&y>=this->coord->y&&y<=this->coord->y+this->Height)
+		if(x>=this->coord.x&&x<=this->coord.x+this->Wigth&&y>=this->coord.y&&y<=this->coord.y+this->Height)
 			return true;
 		return false;
 	
@@ -115,36 +116,39 @@ public:
 	virtual char*GetEscritura(){
 		return "NULL";};
 	virtual bool GetEstoyEscribindo(){return false;}
-	virtual void NewCRD(CRD*crd)
+	virtual void NewCRD(CRD crd)
 	{
-		delete this->coord;
-		this->coord=new CRD(*crd);
+		this->coord=CRD(crd);
 	};
-	virtual void NewCRD(char*Formsname,CRD*crd){NewCRD(crd);};
+	virtual void NewCRD(char*Formsname,CRD crd){NewCRD(crd);};
 	virtual void AddText(char letra){};
 	virtual void AddNewText(char*newTexts){};
 	virtual void SubText(){};
 	virtual void NoClick(){};
 	virtual void SetCoord(float x,float y,float z){
-		this->coord->x=x;
-		this->coord->y=y;
-		this->coord->z=z;
+		SetCoord(CRD(x,y,z));
 	}
-	virtual void SetCoord(CRD*coord){
-		delete this->coord;
-		this->coord=new CRD(*coord);
+	virtual void SetCoord(CRD coord)
+	{
+		
+		this->coord=CRD(coord);
+		
 	}
 	virtual void SetColor(GLfloat R,GLfloat G,GLfloat B){};
 	virtual void SetLabelColor(GLfloat R,GLfloat G,GLfloat B){};
 	virtual void SetProfundidad(float profundidad)
 	{
-	this->TotalProfundidad=profundidad;
+		
+		this->TotalProfundidad=profundidad;
+		
 	}
 	virtual void SetNewProp(float Wigth=0,float Height=0){
+		
 		if(Wigth)
 			this->Wigth=Wigth;
 		if(Height)
 			this->Height=Height;
+		
 	} 
 	virtual void CambiarChecket(){}
 	virtual void MoveOnReshape(bool reshape){
@@ -159,8 +163,8 @@ public:
 	virtual void RBGActivDesactRB(char*name,bool activate){};
 	virtual double* RBGGetChecketPositton(){
 		double*a=new double[2];
-		a[0]=this->coord->x;
-		a[1]=this->coord->y;
+		a[0]=this->coord.x;
+		a[1]=this->coord.y;
 		return a;};
 	virtual void RBGNextChecket(){};
 	virtual unsigned RBGGetMaxChecket(){return 0;};

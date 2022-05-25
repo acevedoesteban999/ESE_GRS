@@ -14,7 +14,6 @@
 #include "TimeDuration.h"
 #include "MeSSenger.h"
 #include "StackForms.h"
-#define PI 3.14159265
 #include "Plano.h"
 #include "StackBoceto.h"
 #include "Box.h"
@@ -67,7 +66,6 @@ public:
    	static void cargarInitDatos();
 	static void salvarInitDatos();
 	static void recivirDatosCOM();
-    static void CalcularCoordenadas();
 	static char* VerificacionDatos(char*cc,unsigned&strleN);
 	static void Acceso(bool acceso);
 	static bool ChekEntada(char*c,unsigned&i);

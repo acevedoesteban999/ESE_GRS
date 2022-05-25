@@ -31,27 +31,23 @@ public:
 			RB[i]->NewTotalProp(wigth,height);
 	}	
 	void Draw(){
-		if(!this->NoDraw)
-		{
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
-	glColor3f(1,1,1);
-	glBegin(GL_POLYGON);
-	glVertex3f(-5,5,(GLfloat)-1.1);
-	glVertex3f(Wigth,5,(GLfloat)-1.1);
-	glVertex3f(Wigth,-Height-5,(GLfloat)-1.1);
-	glVertex3f(-5,-Height-5,(GLfloat)-1.1);
-	glEnd();
-
+			if(!this->NoDraw)
+			{
+				glPushMatrix();
+				glLoadIdentity();
+				glTranslatef((GLfloat)(-TotalWigth/2+coord.x),(GLfloat)(TotalHeight/2-coord.y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
+				glColor3f(1,1,1);
+				glBegin(GL_POLYGON);
+				glVertex3f(-5,5,(GLfloat)-1.1);
+				glVertex3f(Wigth,5,(GLfloat)-1.1);
+				glVertex3f(Wigth,-Height-5,(GLfloat)-1.1);
+				glVertex3f(-5,-Height-5,(GLfloat)-1.1);
+				glEnd();
+				glPopMatrix();
+				for(unsigned i=0;i<contRB;i++)
+				   this->RB[i]->Draw();
 	
-	
-	
-	glPopMatrix();
-    for(unsigned i=0;i<contRB;i++)
-	   this->RB[i]->Draw();
-	
-		}
+			}
 		
 	}
     unsigned Click(){
@@ -60,11 +56,10 @@ public:
 	this->RB[Checket]->Click();
 	return(unsigned)t;
 	}
-	void NewCRD(CRD*newcoord){
-		*this->coord=*newcoord;
-		CRD a;
+	void NewCRD(CRD newcoord){
+		this->coord=newcoord;
 		for(unsigned i=0;i<contRB;i++)
-			RB[i]->NewCRD(&(*newcoord+*(new CRD(0,i*15,0))));
+			RB[i]->NewCRD(newcoord+CRD(0,i*15,0));
 	}
 	bool Pulsado(float x,float y)
 	{
@@ -73,7 +68,7 @@ public:
 		   {
 		   for(unsigned i=0;i<contRB;i++)
 		      {
-				  if(y>=RB[i]->coord->y&&y<=RB[i]->coord->y+15&&x>=RB[i]->coord->x&&x<=RB[i]->coord->x+15)
+				  if(y>=RB[i]->coord.y&&y<=RB[i]->coord.y+15&&x>=RB[i]->coord.x&&x<=RB[i]->coord.x+15)
 				   {
 					   if(RB[i]->active)
 					   {
@@ -94,7 +89,7 @@ public:
 		   {
 		   for(unsigned i=0;i<contRB;i++)
 		      {
-				   if(y>=RB[i]->coord->y&&y<=RB[i]->coord->y+15&&x>=RB[i]->coord->x&&x<=RB[i]->coord->x+15)
+				   if(y>=RB[i]->coord.y&&y<=RB[i]->coord.y+15&&x>=RB[i]->coord.x&&x<=RB[i]->coord.x+15)
 				   {
 					   if(RB[i]->active)
 					      return true;
@@ -111,14 +106,14 @@ public:
 	void RBGAddRB(char*RadioButtonName,char*escritura,bool Cheket=false,bool active=true){
 		
 		if(Cheket)
-		    {
-				Checket=contRB;
+		{
+			Checket=contRB;
 			for(unsigned i=0;i<this->contRB;i++)
 				RB[i]->NotChecket();
-		     }
+		    }
 		if(this->Wigth<(float)(strlen(escritura)*10+20))
 			this->Wigth=(float)(strlen(escritura)*10+20);
-		RadioButton*rb=new RadioButton(RadioButtonName,*new CRD(this->coord->x,(double)(this->coord->y+this->Height),this->coord->z),escritura,this->TotalWigth,this->TotalHeight,Cheket);
+		RadioButton*rb=new RadioButton(RadioButtonName,CRD(this->coord.x,(double)(this->coord.y+this->Height),this->coord.z),escritura,this->TotalWigth,this->TotalHeight,Cheket);
 		rb->active=active;
 		if(this->contRB>=this->cantRB)
 		{
@@ -132,22 +127,25 @@ public:
 
 		this->RB[this->contRB++]=rb;
 		this->Height+=rb->Height;
-	}
-    void RBGSubRB(char*nameRB){
 		
-			for(unsigned i=0;i<this->contRB;i++)
+	}
+    void RBGSubRB(char*nameRB)
+	{
+		
+		for(unsigned i=0;i<this->contRB;i++)
+		{
+			if(!strcmp(this->RB[i]->name,nameRB))
 			{
-				if(!strcmp(this->RB[i]->name,nameRB))
-				{
-	                delete RB[i];
-					for(unsigned ii=i;ii<this->contRB-1;i++)
-						this->RB[i]=this->RB[i+1];
-					break;
-				}
+	            delete RB[i];
+				for(unsigned ii=i;ii<this->contRB-1;i++)
+					this->RB[i]=this->RB[i+1];
+				break;
 			}
-			this->contRB--;
-			this->Height-=18;
-}
+		}
+		this->contRB--;
+		this->Height-=18;
+		
+	}
 	void Activate(){
 		this->active=true;
 		for(unsigned i=0;i<contRB;i++)
@@ -166,29 +164,30 @@ public:
 	
 	}
 	void SetCoord(float x,float y,float z){
-		this->coord->x=x;
-		this->coord->y=y;
-		this->coord->z=z;
+		this->coord.x=x;
+		this->coord.y=y;
+		this->coord.z=z;
 		for(unsigned i=0;i<contRB;i++)
 		{
 			RB[i]->SetCoord(x,y,z);
 			y+=RB[0]->Height;
 		}
 	}
-	void SetCoord(CRD*coord){
-		this->coord=new CRD(*coord);
+	void SetCoord(CRD coord){
+		this->coord=CRD(coord);
 		for(unsigned i=0;i<contRB;i++)
 		{
 			RB[i]->SetCoord(coord);
-			coord->y+=RB[0]->Height;
+			coord.y+=RB[0]->Height;
 		}
 	}
 	void SetNewProp(float wigth,float height){
+		
 		if(wigth)
 			this->Wigth=wigth+25;
 		if(height)
 			this->Height=height;
-	
+		
 	}
 	void SetProfundidad(float profundidad)
 	{
@@ -202,12 +201,11 @@ public:
 		RB[Checket]->NoClick();
 		Checket==contRB-1?Checket=0:Checket++;
 		RB[Checket]->Click();
-
 	}
 	double* RBGGetChecketPositton(){
 	   double*a=new double[2];
-	   a[0]=RB[Checket]->coord->x;
-	   a[1]=RB[Checket]->coord->y;
+	   a[0]=RB[Checket]->coord.x;
+	   a[1]=RB[Checket]->coord.y;
 	   return a;
 	}
 	unsigned RBGGetMaxChecket(){return this->contRB;};

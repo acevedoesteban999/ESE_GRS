@@ -3,7 +3,7 @@
 // % + anguloRedirecc  
 //en caso de no exixtir los vaores de RGB se toma por defecto 0.0 0.0 0.0(Negro)
 //la direccion no debe de tener mas de 100 carcteres
-/#
+/# Si esto se encuentra sin comentar, no se cargan los objetos
 &data\obj\1.obj 0.8 0.8 0.8
 &data\obj\2.obj 0.832 0.829 0.835
 &data\obj\3.obj 0.555 0.555 0.555

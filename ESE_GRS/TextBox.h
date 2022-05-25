@@ -48,7 +48,8 @@ public:
 	{
 		delete[]escritura;
 	};
-	bool Escribiendo(){
+	bool Escribiendo()
+	{
 		if(active)
 		   return escribiendo;
 	    return false;     
@@ -57,6 +58,7 @@ public:
 		return escritura;
 	};
 	void AddNewText(char*newText){
+		
 		delete[]escritura;
 		escritura=new char[max+1];
 		if(strlen(newText)>max)
@@ -75,8 +77,10 @@ public:
 	 	   cont=strlen(newText);
 		
 		}	
+		
 	};
 	void AddText(char letra){
+		
 		if(cont<max)
 		{
 			switch(this->tbt)
@@ -113,15 +117,18 @@ public:
 			escritura[cont++]=letra;
 			escritura[cont]=0;
 		}
+		
 	}
 	void SubText()
 	{
+		
 		if(cont>0)
 		{	
 			if(this->tbt==TextBoxType::FLOATCONTENT&&this->escritura[cont-1]=='.')
 				this->punt=false;
                escritura[--cont]=0;
 		}
+		
 		
 	}
 	void CambiarEscritura(char*Newescritura){AddNewText(Newescritura);};
@@ -146,43 +153,45 @@ public:
    }
 
 	//PURAS///
-	void Draw(){
-		if(!this->NoDraw)
-		{
-	         glPushMatrix();
-				  glLoadIdentity();
-				  glTranslatef((GLfloat)(-TotalWigth/2+coord->x),(GLfloat)(TotalHeight/2-coord->y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
-				  glColor3f(1,1,1);
-				  glBegin(GL_POLYGON);
-				  glVertex3f(0,0,-1);
-				  glVertex3f((GLfloat)Wigth,0,-1);
-				  glVertex3f((GLfloat)Wigth,(GLfloat)-Height,-1);
-				  glVertex3f(0,(GLfloat)-Height,-1);
-				  glEnd();
-				  if(!active)
-				  {
-					  glColor3f((GLfloat)0.3,(GLfloat)0.3,(GLfloat)0.3);
-					  glBegin(GL_LINES);
-				     glVertex3f(0,0,(GLfloat)-0.9);
-					 glVertex3f((GLfloat)Wigth/4,-Height,(GLfloat)-0.9);
+	void Draw()
+	{
+			if(!this->NoDraw)
+			{
+				 glPushMatrix();
+					  glLoadIdentity();
+					  glTranslatef((GLfloat)(-TotalWigth/2+coord.x),(GLfloat)(TotalHeight/2-coord.y),(GLfloat)2*this->TotalWigth-1+TotalProfundidad); 
+					  glColor3f(1,1,1);
+					  glBegin(GL_POLYGON);
+					  glVertex3f(0,0,-1);
+					  glVertex3f((GLfloat)Wigth,0,-1);
+					  glVertex3f((GLfloat)Wigth,(GLfloat)-Height,-1);
+					  glVertex3f(0,(GLfloat)-Height,-1);
+					  glEnd();
+					  if(!active)
+					  {
+						  glColor3f((GLfloat)0.3,(GLfloat)0.3,(GLfloat)0.3);
+						  glBegin(GL_LINES);
+						 glVertex3f(0,0,(GLfloat)-0.9);
+						 glVertex3f((GLfloat)Wigth/4,-Height,(GLfloat)-0.9);
 
-				     glVertex3f((GLfloat)Wigth/4,(GLfloat)0,(GLfloat)-0.9);
-				     glVertex3f((GLfloat)2*Wigth/4,(GLfloat)-Height,(GLfloat)-0.9);
+						 glVertex3f((GLfloat)Wigth/4,(GLfloat)0,(GLfloat)-0.9);
+						 glVertex3f((GLfloat)2*Wigth/4,(GLfloat)-Height,(GLfloat)-0.9);
 
-					 glVertex3f((GLfloat)Wigth/2,(GLfloat)0,(GLfloat)-0.9);
-				     glVertex3f((GLfloat)3*Wigth/4,(GLfloat)-Height,(GLfloat)-0.9);
+						 glVertex3f((GLfloat)Wigth/2,(GLfloat)0,(GLfloat)-0.9);
+						 glVertex3f((GLfloat)3*Wigth/4,(GLfloat)-Height,(GLfloat)-0.9);
 
-					  glVertex3f((GLfloat)3*Wigth/4,(GLfloat)0,(GLfloat)-0.9);
-				     glVertex3f((GLfloat)Wigth,(GLfloat)-Height,(GLfloat)-0.9);
-				     glEnd();
+						  glVertex3f((GLfloat)3*Wigth/4,(GLfloat)0,(GLfloat)-0.9);
+						 glVertex3f((GLfloat)Wigth,(GLfloat)-Height,(GLfloat)-0.9);
+						 glEnd();
 				  
-				  }
-				  glLoadIdentity();
-				  TextAlignCenter(escritura,(GLfloat)coord->x,(GLfloat)coord->y,active?(GLfloat)0:(GLfloat)0.2,active?(GLfloat)0:(GLfloat)0.2,active?(GLfloat)0:(GLfloat)0.2,1,this);
+					  }
+					  glLoadIdentity();
+					  TextAlignCenter(escritura,(GLfloat)coord.x,(GLfloat)coord.y,active?(GLfloat)0:(GLfloat)0.2,active?(GLfloat)0:(GLfloat)0.2,active?(GLfloat)0:(GLfloat)0.2,1,this);
 		     
 		
-	      }
-			 glPopMatrix();
+			  }
+				 glPopMatrix();	
+
 	};
 	unsigned Click(){
 		if(!escribiendo)

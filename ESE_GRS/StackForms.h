@@ -40,10 +40,11 @@ public:
 		delete[]sf->forms;
 		sf->forms=NewForms;
 	}
-	sf->forms[sf->cont++]=form;		
+	sf->forms[sf->cont++]=form;
 }
 	static void Sub(char*name,StackForms*sf)
 	{
+		
 		for(int i=(int)sf->cont-1;i>=0;i--)
 		{
 			if(sf->ExistForm(name,sf->forms[i]))
@@ -55,6 +56,7 @@ public:
 				break;
 			}
 		}
+		
 	}
 	static void DrawForms(StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)
@@ -117,7 +119,7 @@ public:
 			}
 		}
 	}
-	static void AddNewCRD(char*name,CRD*crd,StackForms*sf){
+	static void AddNewCRD(char*name,CRD crd,StackForms*sf){
 	for(unsigned i=0;i<sf->cont;i++)
 	   {
 		if(sf->ExistForm(name,sf->forms[i]))
@@ -171,7 +173,8 @@ public:
 			sf->forms[i]->NewTotalProp(wigth,height);
 	
 	}
-	static Forms* GetForm(char*name,StackForms*sf){
+	static Forms* GetForm(char*name,StackForms*sf)
+	{
 		for(int i=(int)sf->cont-1;i>=0;i--)
 		{
 			if(sf->ExistForm(name,sf->forms[i]))

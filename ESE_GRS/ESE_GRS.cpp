@@ -59,13 +59,13 @@ GLdouble movWheel=1;
 Language idioma=ENGLISH;
 ConnectionType Connecttype=ConnectionType::SERIAL_PORT;
 ///////////////////OBJECTS//////////////////////////////////////
-CRD*cooRd=new CRD(0,0,0);
+CRD cooRd(0,0,0);
 StackLoaderObject*ManejadorObject=new StackLoaderObject();
 Connection*p=new Connection();
 TimeDuration tCOM(true);
 StackBoceto*ManejadorSketchs=new StackBoceto();
 thread*t1=new thread();
-mutex MutexManejadorForms,MutexManejadorSketchs;
+//mutex MutexManejadorForms,MutexManejadorSketchs;
 MeSSenger*messeng=new MeSSenger();
 StackForms*ManejadorForms=new StackForms();
 ///////////////////////////////////////////////////////////METODOS//////////////////////////////////////////////////////////////
@@ -118,6 +118,8 @@ char*Frases(unsigned frase)
 	{
 	case 300:
 		return "Ang_REdirecc";
+	case 400:
+		return "Objetos Cargados Correctamente";
 	case 301:
 		return "AngulosRedirecc Actualizados";
 	case 302:
@@ -922,8 +924,8 @@ void DestruirVariablesGlobales()
 	if(!VariablesDestruidas)
 	{
 		VariablesDestruidas=true;
-		MutexManejadorForms.lock();
-		MutexManejadorSketchs.lock();
+		
+		
 		if(recibir_serie||!ManejadorObject->Salir)
 		{
 			recibir_serie=false;
@@ -949,11 +951,10 @@ void DestruirVariablesGlobales()
 		delete messeng;
 		delete ManejadorSketchs;
 		delete ManejadorObject;
-		delete cooRd;
 		delete[]toSaveCOM;
 		delete[]toSaveIp;
-		MutexManejadorForms.unlock();
-		MutexManejadorSketchs.unlock();
+		
+		
 	}
 }	
 void Exit()
@@ -1206,9 +1207,9 @@ ESE_GRS::ESE_GRS(){
 	ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angles[3]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angles[4]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 	ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angles[5]).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd->x)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd->y)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-	ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd->z)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd.x)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd.y)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+	ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd.z)).c_str(),*new CRD(0,0,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
     ShowAngules();
 	ManejadorForms->Add(Interfaz(0),ManejadorForms);
 
@@ -1251,8 +1252,8 @@ bool ESE_GRS::IniciarCargObjetos()
 			glLoadIdentity();
 			string h=string(Frases(92));
 			string g=string(to_string(ManejadorObject->contLoaderObject)+string("/16 (")+to_string(ManejadorObject->contLoaderObject*100/16)+string("%)"));
-			ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->NewTotalProp(0,0);
-			ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->Draw();
+			//ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->NewTotalProp(0,0);
+			//ManejadorForms->GetForm("StackAnimation1",ManejadorForms)->Draw();
 			text("ESE_GRS"       ,-40,height/2-75,2*wigth-1,(GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9,true,true);
 			text((char*)h.c_str(),-60,height/2-100,2*wigth-1,(GLfloat)0.9,(GLfloat)0.9,(GLfloat)0.9,true);
 			text((char*)g.c_str(),-35,height/2-125,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,true);
@@ -1378,8 +1379,8 @@ bool ESE_GRS::IniciarCargObjetos()
 			{
 			   //glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 			   InitMenu();
-				glutPostRedisplay();
-				cargMenu=true;
+			   glutPostRedisplay();
+			   cargMenu=true;
 			   //ManejadorForms->Sub("StackAnimation1",ManejadorForms);
 			   return true;
 			}
@@ -1482,15 +1483,15 @@ void ESE_GRS::Entorno(){
 	  glLoadIdentity();
 	  if(SeguirPuntoFinal)//F7 Seguir punto final
 	  {
-	     trasladarX=-cooRd->x;
-	     trasladarY=-cooRd->y;
-	     trasladarZ=-cooRd->z;
+	     trasladarX=-cooRd.x;
+	     trasladarY=-cooRd.y;
+	     trasladarZ=-cooRd.z;
 	  }
 	
 	  messeng->Drawing_and_Decremt(messeng);//Textos de los mensajes superiores centrados
 	  if(!BoxAbout&&!Boxf1&&!BoxReconnect&&!BoxExit)
 		text("o",-2.0,-1.5,2*wigth-1,(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8);
-	  MutexManejadorForms.lock();
+	  
 	  ManejadorForms->DrawForms(ManejadorForms);//Dibujo los Forms
 	  /*
 	  if(p->GetType()==ConnectionType::SOCKET_SERVER&&p->GetCientesStatus())
@@ -1498,7 +1499,7 @@ void ESE_GRS::Entorno(){
 		  ManejadorForms->GetForm("labelContClientes",ManejadorForms)->AddNewText((char*)to_string(p->getContClientesServer()).c_str());
 	  }
 	  */
-	  MutexManejadorForms.unlock();
+	  
 	  glPopMatrix();
 	  //pinto el eje de coordenadas del systema
 	  glPushMatrix();//Dibujo el eje de coordenadas del sistema
@@ -1511,9 +1512,9 @@ void ESE_GRS::Entorno(){
 	  smallEjeCoord((GLfloat)(50/movWheel));
 	  glPopMatrix();
 	  glTranslatef((GLfloat)trasladarX,(GLfloat)trasladarY,(GLfloat)trasladarZ);//desplazamiento de la vista
-	  MutexManejadorSketchs.lock();
+	  
 	  ManejadorSketchs->Draw(ManejadorSketchs,(interfaz==2)?true:false);//Dibujo los Bocetos con sus planos e Items
-	  MutexManejadorSketchs.unlock();
+	  
 	  ManejadorObject->draw(ManejadorObject,contMenuToDraw);//Dibujo los Objetos .obj
 	  if(contMenuToDraw<0)//Si estoy en modo ensamblaje con o sin visulaizacion de las piezas(-1)(-2) dibujo el punto final con un Punto Negro
 	  {
@@ -1523,7 +1524,7 @@ void ESE_GRS::Entorno(){
 		  glPointSize((GLfloat)(contMenuToDraw==-1?(GLfloat)2:5));
 		  glColor3f(0,0,0);
 		  glBegin(GL_POINTS);
-		  glVertex3f((GLfloat)cooRd->x,(GLfloat)cooRd->y,(GLfloat)cooRd->z);
+		  glVertex3f((GLfloat)cooRd.x,(GLfloat)cooRd.y,(GLfloat)cooRd.z);
 		  glEnd();
 		  glPopMatrix();
 		
@@ -1598,7 +1599,7 @@ void ESE_GRS::ShowAngules(bool IsAtCreate,bool IsAtReciv){
 									{
 										if(IsRedireccDraw)
 										{
-											MutexManejadorForms.lock();
+											
 											ManejadorForms->SetlabelColor("radioButtonMostrarAngules",(GLfloat)0.8,(GLfloat)0.8,(GLfloat)0.8,ManejadorForms);										
 											IsRedireccDraw=false;											
 											if(MostrarAngules)
@@ -1613,7 +1614,7 @@ void ESE_GRS::ShowAngules(bool IsAtCreate,bool IsAtReciv){
 												ManejadorForms->GetForm("labelCoordY",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
 												ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->SetColor((GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4);
 											}
-											MutexManejadorForms.unlock();
+											
 										}
 										
 										throw(true);
@@ -1624,7 +1625,7 @@ void ESE_GRS::ShowAngules(bool IsAtCreate,bool IsAtReciv){
 								{
 									if(IsAtReciv)
 										if(ModoSonido)sonidos(3);
-									MutexManejadorForms.lock();
+									
 									ManejadorForms->SetlabelColor("radioButtonMostrarAngules",0,(GLfloat)1,0,ManejadorForms);
 									IsRedireccDraw=true;
 									if(MostrarAngules)
@@ -1639,24 +1640,24 @@ void ESE_GRS::ShowAngules(bool IsAtCreate,bool IsAtReciv){
 									ManejadorForms->GetForm("labelCoordY",ManejadorForms)->SetColor(0,(GLfloat)1,0);
 									ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->SetColor(0,(GLfloat)1,0);
 									}
-									MutexManejadorForms.unlock();
+									
 								}
 								
 							}catch(bool)
 							{
 							};
 
-							 MutexManejadorForms.lock();
+							 
 							 ManejadorForms->GetForm("labelAngule0",ManejadorForms)->AddNewText((char*)to_string(angles[0]).c_str());
 							 ManejadorForms->GetForm("labelAngule1",ManejadorForms)->AddNewText((char*)to_string(angles[1]).c_str());
 							 ManejadorForms->GetForm("labelAngule2",ManejadorForms)->AddNewText((char*)to_string(angles[2]).c_str());
 							 ManejadorForms->GetForm("labelAngule3",ManejadorForms)->AddNewText((char*)to_string(angles[3]).c_str());
 							 ManejadorForms->GetForm("labelAngule4",ManejadorForms)->AddNewText((char*)to_string(angles[4]).c_str());
 							 ManejadorForms->GetForm("labelAngule5",ManejadorForms)->AddNewText((char*)to_string(angles[5]).c_str());
-							 ManejadorForms->GetForm("labelCoordX",ManejadorForms)->AddNewText((char*)(string("x:")+to_string(cooRd->x)).c_str());	
-							 ManejadorForms->GetForm("labelCoordY",ManejadorForms)->AddNewText((char*)(string("y:")+to_string(cooRd->y)).c_str());
-							 ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->AddNewText((char*)(string("z:")+to_string(cooRd->z)).c_str());
-							 MutexManejadorForms.unlock();
+							 ManejadorForms->GetForm("labelCoordX",ManejadorForms)->AddNewText((char*)(string("x:")+to_string(cooRd.x)).c_str());	
+							 ManejadorForms->GetForm("labelCoordY",ManejadorForms)->AddNewText((char*)(string("y:")+to_string(cooRd.y)).c_str());
+							 ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->AddNewText((char*)(string("z:")+to_string(cooRd.z)).c_str());
+							 
 						}
 }
 Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
@@ -1708,11 +1709,11 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 				break;
 
 			if(bocetoACrear==0)
-				ManejadorSketchs->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&ManejadorSketchs->coorNewPlano[0],&ManejadorSketchs->coorNewPlano[1],&ManejadorSketchs->coorNewPlano[2],TypePlano::SPECIFICPLANE),ManejadorSketchs);
+				ManejadorSketchs->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),ManejadorSketchs->coorNewPlano[0],ManejadorSketchs->coorNewPlano[1],ManejadorSketchs->coorNewPlano[2],TypePlano::SPECIFICPLANE),ManejadorSketchs);
 			else if(bocetoACrear==1)
 				ManejadorSketchs->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto")),ManejadorSketchs);
 			else
-				ManejadorSketchs->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),&ManejadorSketchs->coorNewPlano[0],&ManejadorSketchs->coorNewPlano[1],&ManejadorSketchs->coorNewPlano[2],ManejadorSketchs->NewPlanoType),ManejadorSketchs);
+				ManejadorSketchs->Add(new Plano(ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxGetEscritura("textBoxNewBoceto"),ManejadorSketchs->coorNewPlano[0],ManejadorSketchs->coorNewPlano[1],ManejadorSketchs->coorNewPlano[2],ManejadorSketchs->NewPlanoType),ManejadorSketchs);
 			if(ModoSonido)sonidos(8);
 			interfaz=1;
 			ManejadorForms->ActivateRB("BoxInterfazPricipal","radioButonRemoveBoceto",ManejadorForms);
@@ -2019,16 +2020,16 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		break;
 	case 3://///////////////////////////INTERFAZ_3////////////////////////
 		box->SetName("BoxInterfazConnections",box);
-		box->SetCRD(new CRD(10,40,0),box);
+		box->SetCRD(CRD(10,40,0),box);
 		glutDestroyMenu(MenuCD);
 		
 		//f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,Connecttype==ConnectionType::SOCKET_CLIENT?toSaveIp:Connecttype==ConnectionType::SOCKET_SERVER?"INADDR_ANY":Connecttype==ConnectionType::WEBSOCKET_CLIENT?toSaveHost:toSaveCOM,15);
-		f=new TextBox("textBoxChar",*new CRD(0,0,0),100,wigth,height,toSaveCOM,15);
+		f=new TextBox("textBoxChar",CRD(0,0,0),100,wigth,height,toSaveCOM,15);
 		
 		box->AddForm(f,box);
 		
 		//f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,(Connecttype==ConnectionType::SOCKET_CLIENT||Connecttype==ConnectionType::SOCKET_SERVER)?(char*)to_string(toSavePort).c_str():Connecttype==ConnectionType::WEBSOCKET_CLIENT?(char*)to_string(toSavePortWeb).c_str():(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
-		f=new TextBox("textBoxUnsigned",*new CRD(0,0,0),100,wigth,height,(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
+		f=new TextBox("textBoxUnsigned",CRD(0,0,0),100,wigth,height,(char*)to_string(toSaveSpeed).c_str(),10,TextBoxType::UNSIGNEDCONTENT);
 		
 		
 		box->AddForm(f,box);
@@ -2045,7 +2046,7 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		break;
 	case 4://///////////////////////////INTERFAZ_4////////////////////////
 		box->SetName("BoxInterfazDetenerConnection",box);
-		box->SetCRD(new CRD(10,100,0),box);
+		box->SetCRD(CRD(10,100,0),box);
 		f=new Label("LabelInterfaz4",Frases(27),*new CRD(0,0,0),1,0,0,0,wigth,height);
 		box->AddForm(f,box);
 		
@@ -2104,16 +2105,16 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			box->AddForm(f,box);
 			f=new Button("ButonCancelHelp",Type::BUTTON,CRD(0,0,0),1,0,0,box->Wigth,25,wigth,height);
 			box->AddForm(f,box);
-			box->SetCoordElementProp("Labelf1",&(*box->BoxGetElementCoord("Labelf1")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(71))*4.5,0,0))));
-			box->SetCoordElementProp("Labelf2",&(*box->BoxGetElementCoord("Labelf2")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(72))*4.5,0,0))));
-			box->SetCoordElementProp("Labelf3",&(*box->BoxGetElementCoord("Labelf3")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(73))*4.5,0,0))));
-			box->SetCoordElementProp("Labelf4",&(*box->BoxGetElementCoord("Labelf4")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(74))*4.5,0,0))));
-			box->SetCoordElementProp("Labelf5",&(*box->BoxGetElementCoord("Labelf5")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(75))*4.5,0,0))));
-			box->SetCoordElementProp("Labelf6",&(*box->BoxGetElementCoord("Labelf6")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(76))*4.5,0,0))));
-			box->SetCoordElementProp("Labelf7",&(*box->BoxGetElementCoord("Labelf7")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(77))*4.5,0,0))));
-			box->SetCoordElementProp("Labelf8",&(*box->BoxGetElementCoord("Labelf8")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(78))*4.5,0,0))));
+			box->SetCoordElementProp("Labelf1",box->BoxGetElementCoord("Labelf1")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(71))*4.5,0,0));
+			box->SetCoordElementProp("Labelf2",box->BoxGetElementCoord("Labelf2")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(72))*4.5,0,0));
+			box->SetCoordElementProp("Labelf3",box->BoxGetElementCoord("Labelf3")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(73))*4.5,0,0));
+			box->SetCoordElementProp("Labelf4",box->BoxGetElementCoord("Labelf4")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(74))*4.5,0,0));
+			box->SetCoordElementProp("Labelf5",box->BoxGetElementCoord("Labelf5")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(75))*4.5,0,0));
+			box->SetCoordElementProp("Labelf6",box->BoxGetElementCoord("Labelf6")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(76))*4.5,0,0));
+			box->SetCoordElementProp("Labelf7",box->BoxGetElementCoord("Labelf7")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(77))*4.5,0,0));
+			box->SetCoordElementProp("Labelf8",box->BoxGetElementCoord("Labelf8")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(78))*4.5,0,0));
 			box->SetWigthElementProp("ButonCancelHelp",box->Wigth-5);
-			box->NewCRD(new CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
+			box->NewCRD(CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
 			box->SetProfundidad(1);
 			box->BoxSetDrawLineForElement(false);
 			return box;
@@ -2163,13 +2164,13 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 		
 			f=new Button("ButonCancelAbout",Type::BUTTON,CRD(0,0,0),1,0,0,box->Wigth,25,wigth,height);
 			box->AddForm(f,box);
-			box->SetCoordElementProp("Label1",&(*box->BoxGetElementCoord("Label1")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(84))*4.5,0,0))));
-			box->SetCoordElementProp("Label2",&(*box->BoxGetElementCoord("Label2")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(85))*4.5,0,0))));
-			box->SetCoordElementProp("Label3",&(*box->BoxGetElementCoord("Label3")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(86))*4.5,0,0))));
-			box->SetCoordElementProp("Label4",&(*box->BoxGetElementCoord("Label4")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(87))*4.5,0,0))));
-			box->SetCoordElementProp("ButonCopiarEnlace",&(*box->BoxGetElementCoord("ButonCopiarEnlace")+*(new CRD(box->Wigth/2,0,0))-CRD(25,0,0)));
+			box->SetCoordElementProp("Label1",box->BoxGetElementCoord("Label1")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(84))*4.5,0,0));
+			box->SetCoordElementProp("Label2",box->BoxGetElementCoord("Label2")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(85))*4.5,0,0));
+			box->SetCoordElementProp("Label3",box->BoxGetElementCoord("Label3")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(86))*4.5,0,0));
+			box->SetCoordElementProp("Label4",box->BoxGetElementCoord("Label4")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(87))*4.5,0,0));
+			box->SetCoordElementProp("ButonCopiarEnlace",box->BoxGetElementCoord("ButonCopiarEnlace")+CRD(box->Wigth/2,0,0)-CRD(25,0,0));
 			box->SetWigthElementProp("ButonCancelAbout",box->Wigth-5);
-			box->NewCRD(new CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
+			box->NewCRD(CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
 			box->SetProfundidad(1);
 			box->BoxSetDrawLineForElement(false);
 			return box;
@@ -2219,12 +2220,12 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			box->AddForm(f,box);
 			f=new Button("ButonDesconectar",Type::BUTTON,CRD(0,0,0),1,0,0,box->Wigth,25,wigth,height);
 			box->AddForm(f,box);
-			box->SetCoordElementProp("Label1",&(*box->BoxGetElementCoord("Label1")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(89))*4.5,0,0))));
-			box->SetCoordElementProp("Label2",&(*box->BoxGetElementCoord("Label2")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(90))*4.5,0,0))));
-			box->SetCoordElementProp("StackAnimationsBoxREconnect",&(*box->BoxGetElementCoord("StackAnimationsBoxREconnect")+*(new CRD(box->Wigth/2,box->GetHeightElement("StackAnimationsBoxREconnect")/2,0))));
+			box->SetCoordElementProp("Label1",box->BoxGetElementCoord("Label1")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(89))*4.5,0,0));
+			box->SetCoordElementProp("Label2",box->BoxGetElementCoord("Label2")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(90))*4.5,0,0));
+			box->SetCoordElementProp("StackAnimationsBoxREconnect",box->BoxGetElementCoord("StackAnimationsBoxREconnect")+CRD(box->Wigth/2,box->GetHeightElement("StackAnimationsBoxREconnect")/2,0));
 			box->SetWigthElementProp("ButonDesconectar",box->Wigth-5);
 			box->SetHeightElementProp("StackAnimationsBoxREconnect",box->GetHeightElement("StackAnimationsBoxREconnect")/2);
-			box->NewCRD(new CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
+			box->NewCRD(CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
 			box->SetProfundidad(1);
 			box->BoxSetDrawLineForElement(false);
 			return box;
@@ -2275,10 +2276,10 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 			box->AddForm(f,box);
 			f=new Button("ButonCancelExit",Type::BUTTON,CRD(0,0,0),1,0,0,50,25,wigth,height);
 			box->AddForm(f,box);
-			box->SetCoordElementProp("Label1",&(*box->BoxGetElementCoord("Label1")+*(new CRD(box->Wigth/2,0,0))-*(new CRD(strlen(Frases(97))*4.5,0,0))));
+			box->SetCoordElementProp("Label1",box->BoxGetElementCoord("Label1")+CRD(box->Wigth/2,0,0)-CRD(strlen(Frases(97))*4.5,0,0));
 			box->SetWigthElementProp("ButonAceptExit",box->Wigth-5);
 			box->SetWigthElementProp("ButonCancelExit",box->Wigth-5);
-			box->NewCRD(new CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
+			box->NewCRD(CRD(wigth/2-box->Wigth/2,height/2-box->Height/2,0));
 			box->SetProfundidad(1);
 			box->BoxSetDrawLineForElement(false);
 			return box;
@@ -2302,8 +2303,8 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 	ss=ss1=box->name;
 	ss+="ButtonAcept";
 	ss1+="ButtonCancel";
-	ManejadorForms->Add(new Button((char*)ss.c_str(),Type::BUTTONACEPTRB,*new CRD(box->coord->x-6,box->coord->y+box->Height+5,box->coord->z),0,1,0,box->Wigth+6,10,box->TotalWigth,box->TotalHeight),ManejadorForms);
-	ManejadorForms->Add(new Button((char*)ss1.c_str(),Type::BUTTONCANCELRB,*new CRD(box->coord->x+box->Wigth,box->coord->y-6,box->coord->z),1,0,0,10,box->Height+21,box->TotalWigth,box->TotalHeight),ManejadorForms);
+	ManejadorForms->Add(new Button((char*)ss.c_str(),Type::BUTTONACEPTRB,CRD(box->coord.x-6,box->coord.y+box->Height+5,box->coord.z),0,1,0,box->Wigth+6,10,box->TotalWigth,box->TotalHeight),ManejadorForms);
+	ManejadorForms->Add(new Button((char*)ss1.c_str(),Type::BUTTONCANCELRB,CRD(box->coord.x+box->Wigth,box->coord.y-6,box->coord.z),1,0,0,10,box->Height+21,box->TotalWigth,box->TotalHeight),ManejadorForms);
 	if(desactivaAcept)
 		ManejadorForms->DesactivateForm((char*)ss.c_str(),ManejadorForms);
 	if(desactiaCancel)
@@ -2314,18 +2315,18 @@ Box* ESE_GRS::Interfaz(unsigned interfzAponer,INTERFZType t) {
 void ESE_GRS::reshape(int x,int y){
 	wigth=(float)x;height=(float)y;
 	ManejadorForms->NewTotalsProp((float)x,(float)y,ManejadorForms);
-	ManejadorForms->GetForm("labelVersion",ManejadorForms)->NewCRD(new CRD(wigth-50,height-20,0));
-	ManejadorForms->GetForm("ButtonExit",ManejadorForms)->NewCRD(new CRD(wigth-25,8,0));
-	ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)->NewCRD(new CRD(wigth-120,8,0));
-	ManejadorForms->GetForm("labelAngule0",ManejadorForms)->NewCRD(new CRD(wigth-120,25,0));
-	ManejadorForms->GetForm("labelAngule1",ManejadorForms)->NewCRD(new CRD(wigth-120,40,0));
-	ManejadorForms->GetForm("labelAngule2",ManejadorForms)->NewCRD(new CRD(wigth-120,55,0));
-	ManejadorForms->GetForm("labelAngule3",ManejadorForms)->NewCRD(new CRD(wigth-120,70,0));
-	ManejadorForms->GetForm("labelAngule4",ManejadorForms)->NewCRD(new CRD(wigth-120,85,0));
-	ManejadorForms->GetForm("labelAngule5",ManejadorForms)->NewCRD(new CRD(wigth-120,100,0));
-	ManejadorForms->GetForm("labelCoordX",ManejadorForms)->NewCRD(new CRD(wigth-120,115,0));
-	ManejadorForms->GetForm("labelCoordY",ManejadorForms)->NewCRD(new CRD(wigth-120,130,0));
-	ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->NewCRD(new CRD(wigth-120,145,0));
+	ManejadorForms->GetForm("labelVersion",ManejadorForms)->NewCRD(CRD(wigth-50,height-20,0));
+	ManejadorForms->GetForm("ButtonExit",ManejadorForms)->NewCRD(CRD(wigth-25,8,0));
+	ManejadorForms->GetForm("radioButtonMostrarAngules",ManejadorForms)->NewCRD(CRD(wigth-120,8,0));
+	ManejadorForms->GetForm("labelAngule0",ManejadorForms)->NewCRD(CRD(wigth-120,25,0));
+	ManejadorForms->GetForm("labelAngule1",ManejadorForms)->NewCRD(CRD(wigth-120,40,0));
+	ManejadorForms->GetForm("labelAngule2",ManejadorForms)->NewCRD(CRD(wigth-120,55,0));
+	ManejadorForms->GetForm("labelAngule3",ManejadorForms)->NewCRD(CRD(wigth-120,70,0));
+	ManejadorForms->GetForm("labelAngule4",ManejadorForms)->NewCRD(CRD(wigth-120,85,0));
+	ManejadorForms->GetForm("labelAngule5",ManejadorForms)->NewCRD(CRD(wigth-120,100,0));
+	ManejadorForms->GetForm("labelCoordX",ManejadorForms)->NewCRD(CRD(wigth-120,115,0));
+	ManejadorForms->GetForm("labelCoordY",ManejadorForms)->NewCRD(CRD(wigth-120,130,0));
+	ManejadorForms->GetForm("labelCoordZ",ManejadorForms)->NewCRD(CRD(wigth-120,145,0));
 	/*
 	if(recibir_serie&&p->GetType()==ConnectionType::SOCKET_SERVER)
 	{
@@ -2386,8 +2387,8 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 	{
 	   bool eRror=false;
 	   string s;
-	   MutexManejadorForms.lock();
-	   MutexManejadorSketchs.lock();
+	   
+	   
 	   switch (ManejadorForms->PresionarForm((float)x,(float)y,ManejadorForms))
 	   {
 	   case 0:
@@ -2479,8 +2480,8 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 			   }
 			   else if(ManejadorForms->GetForm("BoxExit",ManejadorForms)->BoxGetElemChecket()==1)
 			   {
-				   MutexManejadorSketchs.unlock();
-				   MutexManejadorForms.unlock();
+				   
+				   
 				   default_menu(-13);
 			   }
 		   }
@@ -2731,12 +2732,12 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 							ManejadorForms->Add(new Label("labelAngule3",(char*)to_string(angles[3]).c_str(),*new CRD(wigth-120,70,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 							ManejadorForms->Add(new Label("labelAngule4",(char*)to_string(angles[4]).c_str(),*new CRD(wigth-120,85,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
 							ManejadorForms->Add(new Label("labelAngule5",(char*)to_string(angles[5]).c_str(),*new CRD(wigth-120,100,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-							ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd->x)).c_str(),*new CRD(wigth-120,115,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-							ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd->y)).c_str(),*new CRD(wigth-120,130,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-							ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd->z)).c_str(),*new CRD(wigth-120,145,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
-							MutexManejadorForms.unlock();
+							ManejadorForms->Add(new Label("labelCoordX",(char*)(string("x:")+to_string(cooRd.x)).c_str(),*new CRD(wigth-120,115,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelCoordY",(char*)(string("y:")+to_string(cooRd.y)).c_str(),*new CRD(wigth-120,130,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							ManejadorForms->Add(new Label("labelCoordZ",(char*)(string("z:")+to_string(cooRd.z)).c_str(),*new CRD(wigth-120,145,0),1,(GLfloat)0.4,(GLfloat)0.4,(GLfloat)0.4,wigth,height),ManejadorForms);
+							
 							ShowAngules(true);
-							MutexManejadorForms.lock();
+							
 					  }
 				else
 				   {
@@ -2855,18 +2856,17 @@ void ESE_GRS::teclaRaton(int boton,int state,int x,int y){
 					s.clear();
 				
 				   }
-				   
-				   //CalcularCoordenadas();
-				   CalcularCoordenadas();
-				   MutexManejadorForms.unlock();	
+				   // DataProcessor::CalcularCoordenadas(cooRd,angles);
+				   DataProcessor::CalcularCoordenadas(cooRd,angles);
+				   	
 				   ShowAngules();
-				   MutexManejadorForms.lock();	
+				   	
 				   if(ModoSonido)sonidos(8);
 				}
 			 break;     
 	   }
-	   MutexManejadorSketchs.unlock();
-	   MutexManejadorForms.unlock();	
+	   
+	   	
 	}
    
   
@@ -2887,7 +2887,7 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y )
 
 
 		XLSClass asd;
-		asd.SalvarGrabar(GrabarAngle,Grabar,GrabarCont);
+		asd.SalvarGrabar(GrabarAngle,Grabar,GrabarCont,anglesRedirecc);
 
 		messeng->NewMeSSenger(messeng,"Grabacion Terminada",position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
 	  }
@@ -2911,68 +2911,68 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y )
   {
 	if(!recibir_serie&&!SetAngules)
 	{
-	  CRD*CoordElement;
+	  CRD CoordElement;
 	  double*ElementCoord;
 	  switch (tecla)
 	    {
         case '1':
 			angles[0]+=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '2':
 			angles[0]-=(GLfloat)0.9;	
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '3':
 			angles[1]+=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '4':
 			angles[1]-=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '5':
 			angles[2]+=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '6':
 			angles[2]-=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '7':
 			angles[3]+=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '8':
 			angles[3]-=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '9':	
 			angles[4]+=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '0':
 			angles[4]-=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '-':			
 			angles[5]+=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '=':
 			angles[5]-=(GLfloat)0.9;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		break;
 
 		case '<':
@@ -2992,21 +2992,23 @@ void ESE_GRS::keyboard(unsigned char tecla,int x,int y )
 		case 'w':
 			ElementCoord=ManejadorForms->FocusClick("BoxInterfazPricipal",ManejadorForms);
 			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)ElementCoord[0],(int)ElementCoord[1]);
+			delete[]ElementCoord;
 		break;
 
 		case 'q':
 			CoordElement=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetCoord(ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms));
-			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)CoordElement->x,(int)CoordElement->y);
+			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)CoordElement.x,(int)CoordElement.y);
 		break;
 
 		case 'e':
 			CoordElement=ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->GetCoord(ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms));
-			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)CoordElement->x,(int)CoordElement->y);
+			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)CoordElement.x,(int)CoordElement.y);
 		break;
 	    }
-
-	    ShowAngules();
 	    DataProcessor::RectificarAngules(angles);
+	    ShowAngules();
+	   
+
 	 }
 	 else
      {
@@ -3049,7 +3051,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 		angles[3]=(GLfloat)anglesRedirecc[3];
 		angles[4]=(GLfloat)anglesRedirecc[4];
 		angles[5]=(GLfloat)anglesRedirecc[5];
-		CalcularCoordenadas();
+		 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		ShowAngules();
 	break;
 
@@ -3072,10 +3074,10 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 	case GLUT_KEY_F3:	  //Girar al Plano(Solo interfaz 2 && boceto!=0)
 		if((interfaz==2||PlanoAcceso)&&Plano::IsRestring(ManejadorSketchs->BocetoActual(ManejadorSketchs)))
 		{
-			CRD*toMove=Plano::RotarAlPlano(ManejadorSketchs->BocetoActual(ManejadorSketchs));
-			movESE_GRSX=(float)toMove->x*velGiro;
-			movESE_GRSY=(float)toMove->y*velGiro;
-			movESE_GRSZ=(float)toMove->z*velGiro;
+			CRD toMove=Plano::RotarAlPlano(ManejadorSketchs->BocetoActual(ManejadorSketchs));
+			movESE_GRSX=(float)toMove.x*velGiro;
+			movESE_GRSY=(float)toMove.y*velGiro;
+			movESE_GRSZ=(float)toMove.z*velGiro;
 			if(RotarAlPlanoContrar)
 			{
 				movESE_GRSX+=180*velGiro;
@@ -3089,6 +3091,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 				RotarAlPlanoContrar=true;
 				Plano::verPlanoRotado((float)-0.1,ManejadorSketchs->BocetoActual(ManejadorSketchs));
 			}
+
 		}
 	break;
 
@@ -3111,7 +3114,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 			angles[4]=(GLfloat)anglesRedirecc[4];
 			angles[5]=(GLfloat)anglesRedirecc[5];
 			MenuVista(-1);
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 			ShowAngules();
 		}
 		else
@@ -3138,7 +3141,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 		   angles[5]=0;
 		   SeguirPuntoFinal=false;
 		   MenuVista(-1);
-		   CalcularCoordenadas();
+		   DataProcessor::CalcularCoordenadas(cooRd,angles);
 		   ShowAngules();
 		}
 		else
@@ -3152,9 +3155,9 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 	break;
 
 	case GLUT_KEY_F6:	//Ir al punto final del brazo
-		trasladarX=-cooRd->x;
-		trasladarY=-cooRd->y;
-		trasladarZ=-cooRd->z;
+		trasladarX=-cooRd.x;
+		trasladarY=-cooRd.y;
+		trasladarZ=-cooRd.z;
 		SeguirPuntoFinal=false;
 	break;
 
@@ -3162,7 +3165,7 @@ void ESE_GRS::SpecialKeys(int tecla,int x,int y ){
 		if(!SeguirPuntoFinal)
 		{   
 			SeguirPuntoFinal=true;
-			CalcularCoordenadas();
+			 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		}
 		break;
 	case GLUT_KEY_F8:
@@ -3649,9 +3652,9 @@ void ESE_GRS::recivirDatosCOM(){
 			 if(p->inicializa(toSaveCOM,toSaveSpeed))
 			 {
 				ErrorConnect=false;
-				MutexManejadorForms.lock();
+				
 				ManejadorForms->Add(Interfaz(9),ManejadorForms);
-				MutexManejadorForms.unlock();
+				
 				if(ModoSonido)sonidos(5);
 				messeng->NewMeSSenger(messeng,Frases(91),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 				if(ModoLogger)cout<<Frases(91)<<endl;
@@ -3660,7 +3663,15 @@ void ESE_GRS::recivirDatosCOM(){
 		  }
 			///////////////////////////////////////////////////////RECIVO DATOS/////////////////////////////////////////////////////////////////////////
 		  char*c=p->Recibir();//Recivo un dato
-		  if(!recibir_serie)
+		  if(c!=NULL)
+		  {
+			  cout<<"///////////////Bytes de entrada:////////////////////"<<endl;
+			  for(unsigned i=0;i<strlen(c);i++)
+				  DataProcessor::printByte(c[i]);
+			  cout<<"////////////////////////////////////////////////////"<<endl;
+		  }
+
+			if(!recibir_serie)
 			  return;
 			/////////////////////////////////////////////////////////ERROR CONEXION////////////////////////////////////////////////////////////////////
 		  if(p->Error())	 //Si algo dio error
@@ -3677,7 +3688,7 @@ void ESE_GRS::recivirDatosCOM(){
 				ErrorConnect=true;
 				EsperandoReedireccionar=true;
 				p->CloseConnection();
-				MutexManejadorForms.lock();
+				
 				ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->AddNewText(Frases(115));
 				ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->SetColor(1,1,0);
 				ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->ActivateDesactivate(false);
@@ -3685,16 +3696,16 @@ void ESE_GRS::recivirDatosCOM(){
 				ManejadorForms->Add(Interfaz(9),ManejadorForms);
 				ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(104));
 				ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(1,1,0);
-				MutexManejadorForms.unlock();
+				
 				Acces=false;
 				Acceso(Acces);
 				if(PlanoAcceso)
 				{
 					PlanoAcceso=false;
-					MutexManejadorSketchs.lock();
+					
 					ManejadorSketchs->Sub("PlanoAcceso",ManejadorSketchs);
 					ManejadorSketchs->SetDraw(false,ManejadorSketchs);
-					MutexManejadorSketchs.unlock();
+					
 				}
 				if(ModoSonido)sonidos(1);
 				delete[]c;
@@ -3719,7 +3730,13 @@ void ESE_GRS::recivirDatosCOM(){
 				}
 				*/
 				contt++;
-				if(ModoLogger)cout<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-";
+				if(ModoLogger)
+				{
+					DataProcessor::printByte(c[i+1],false);
+					cout<<"-";
+					DataProcessor::printByte(c[i],false);
+					cout<<"-["<<contt<<"]-";
+				}
 				if(GrabarBool)
 				{
 					if(GrabarCont==connstGrab)
@@ -3737,7 +3754,7 @@ void ESE_GRS::recivirDatosCOM(){
 						continue;
 				}
 				////////////////////////////////////////////////////CODIGO DE DIBUJO//////////////////////////////////////////////////////////////
-				 if(DataProcessor::CodigoCliente(c[i],c[1]))
+				 if(DataProcessor::CodigoCliente(c[i],c[i+1]))
 				 {
 					 ESE_GRS::CodigoCliente(c,i);
 			     }
@@ -3748,48 +3765,57 @@ void ESE_GRS::recivirDatosCOM(){
 					 if(ModoSonido)sonidos(6);
 				 }
 				//////////////////////////////////////////////////////////////MOVER Y/O PINTAR///////////////////////////////////////////////////////////
-				 else if(DataProcessor::CodigoESE(c[0],c[1]))
+				 else if(DataProcessor::CodigoESE(c[i],c[i+1]))
 			     {
 				    bool pintar=DataProcessor::PorcesarDatos(c[i],c[i+1],angles);//ejecuto la lectura de los bits y muevo los angulos(true es pintar)
-					CalcularCoordenadas();
+					DataProcessor::CalcularCoordenadas(cooRd,angles);
 					ShowAngules(false,true);
-					MutexManejadorSketchs.lock();
+					
 					if(interfaz==2)///////Actualizo la ultima coordenada en el StackBoceto///////
 				       ManejadorSketchs->ActualizaLastCood(cooRd,ManejadorSketchs);
 					else if(interfaz==-5)
 						ManejadorSketchs->ActualizaNewPlanoToCreate(cooRd,ManejadorSketchs,deFult);
-					MutexManejadorSketchs.unlock();
+					
 					if(pintar) 
 					{ 
 					   if(interfaz==-1) ///////interfaz de Add new Boceto////////
 					   {
-						   MutexManejadorSketchs.lock();
+						   
 						   if(ManejadorSketchs->contNPl<3||CambiarPointSpecificPlano!=3)
 						   {
 							   ManejadorSketchs->AddPuntoNewPlano(cooRd,ManejadorSketchs,CambiarPointSpecificPlano);
-							   MutexManejadorForms.lock();
+							   
 							   ManejadorForms->Add(Interfaz(-1),ManejadorForms);
-							   MutexManejadorForms.unlock();
+							   
 							   if(ManejadorSketchs->contNPl==3)
 								   ManejadorForms->ActivateForm("BoxInterfazPricipalButtonAcept",ManejadorForms);
 						   }
-						   MutexManejadorSketchs.unlock();
+						   
 					   }
 					   else if(interfaz==2||PlanoAcceso)/////////////Interfaz de Dibujo////////////
 				       {
-						  MutexManejadorForms.lock();
+						  
 						  ManejadorForms->GetForm("BoxInterfazPricipal",ManejadorForms)->BoxSetActivateDesactivate("RadioButtomCancelLast",true); 
-						  MutexManejadorForms.unlock();
-						  MutexManejadorSketchs.lock();
-						  ManejadorSketchs->AddPoint(*cooRd,ManejadorSketchs);
-						  MutexManejadorSketchs.unlock();
+						  
+						  
+						  ManejadorSketchs->AddPoint(cooRd,ManejadorSketchs);
+						  
 						  if(ModoSonido)sonidos(4);
 					   }
 			        }//end if(pintar)		
 			     }//end else
 				 else
-					 cout<<"!!!!!CUIDADO"<<DataProcessor::printfBits(c[i+1])<<"-"<<DataProcessor::printfBits(c[i])<<"-["<<contt<<"]-No es un codigo ESE, Bytes no procesados(Tal vez ocurra un error en la seguridad del protocolo";
-			     if(ModoLogger)cout<<"("<<tCOM.Incrementa(&tCOM)<<")"<<endl;
+				 {
+					 if(ModoLogger)
+					 {
+						cout<<"!!!!!CUIDADO";
+						DataProcessor::printByte(c[i+1]);
+						cout<<"-";
+						DataProcessor::printByte(c[i]);
+						cout<<"-["<<contt<<"]-No es un codigo ESE, Bytes no procesados(Tal vez ocurra un error en la seguridad del protocolo";
+					 }
+				 }
+				 if(ModoLogger)cout<<"("<<tCOM.Incrementa(&tCOM)<<")"<<endl;
 		         tCOM.ResettIncrementa(&tCOM);
 		      }//end for
 		   }//end if(!NULL)
@@ -3909,7 +3935,7 @@ void ESE_GRS::cargarInitDatos(){
 		delete[]a;
 		delete[]d;
 		delete[]h;
-	    CalcularCoordenadas();
+	    DataProcessor::CalcularCoordenadas(cooRd,angles);
 		f.read((char*)&idioma,sizeof(Language));
 		f.read((char*)&Connecttype,sizeof(ConnectionType));
 	    f.close();
@@ -3940,38 +3966,50 @@ void ESE_GRS::cargarInitDatos(){
 	
 	}
 char* ESE_GRS::VerificacionDatos(char*cc,unsigned&strleN){
-			  unsigned RealStrleN=strleN;
-			  bool adjunt=false;
-			  if(bytBool)
-			         {
-				     if(strleN%2==0)
-				        adjunt=true;
-					 if(ModoLogger)cout<<"Se ha adjuntado {"<<DataProcessor::printfBits(byt)<<"} a {"<<DataProcessor::printfBits(cc[0])<<"}"<<endl;
-					 char*newc=new char[strleN+2];
-				     newc[strleN+1]=0;
-					 newc[0]=byt;
-					 newc[1]=cc[0];
-				     for(unsigned i=1;i<strleN;i++)
-					     newc[i+1]=cc[i];
-				     delete[]cc;
-					 cc=newc;
-				     strleN=strlen(cc);
-				     bytBool=false;
-			        }
-			  if(!DataProcessor::ExistMensage59(cc))
-				  if((strleN)%2!=0)
-					   {
-						 if(!bytBool)
-							{
-							if(ModoLogger)cout<<"Cuidado,ha llegado "<<RealStrleN<<" bytes"<<(adjunt?"(+1)porque se ha adjuntado un elemento q estaba en espera,":",")<<"{"<<DataProcessor::printfBits(cc[strleN-1])<<"}=>esperando a adjuntarse"<<endl;
-							adjunt=false;
-							byt=cc[strleN-1];
-							cc[strleN-1]=0;
-							strleN=strlen(cc);
-							bytBool=true;
-							}
-					   }
-			 return cc;
+		unsigned RealStrleN=strleN;
+		bool adjunt=false;
+		if(bytBool)
+		{
+			if(strleN%2==0)
+				adjunt=true;
+			if(ModoLogger)
+			{
+				cout<<"Se ha adjuntado {";
+				DataProcessor::printByte(byt,false);
+				printf("} a {");
+				DataProcessor::printByte(cc[0],false);
+				printf("}\n");
+			}
+			char*newc=new char[strleN+2];
+			newc[strleN+1]=0;
+			newc[0]=byt;
+			newc[1]=cc[0];
+			for(unsigned i=1;i<strleN;i++)
+				newc[i+1]=cc[i];
+			delete[]cc;
+			cc=newc;
+			strleN=strlen(cc);
+			bytBool=false;
+		}
+		//if(!DataProcessor::ExistMensage59(cc))
+		if((strleN)%2!=0)
+		{
+			if(!bytBool)
+			{
+				if(ModoLogger)
+				{
+					cout<<"Cuidado,ha llegado "<<RealStrleN<<" bytes"<<(adjunt?"(+1)porque se ha adjuntado un elemento q estaba en espera,":",")<<"{";
+					DataProcessor::printByte(cc[strleN-1],false);
+					printf("}=>esperando a adjuntarse\n");
+				}	
+				adjunt=false;
+				byt=cc[strleN-1];
+				cc[strleN-1]=0;
+				strleN=strlen(cc);
+				bytBool=true;
+			}
+		}
+		return cc;
 }
 bool ESE_GRS::VerificacionSeguridad(char*c,unsigned i)
 {
@@ -3980,16 +4018,16 @@ bool ESE_GRS::VerificacionSeguridad(char*c,unsigned i)
 		if(DataProcessor::BitData(c[i],0)==0||DataProcessor::BitData(c[i+1],0)==0)
 		{
 			if(ModoLogger)cout<<Frases(53)<<endl;
-		if(contt>10000)
-			contt=0;
-		return true;
+			if(contt>10000)
+				contt=0;
+			return true;
 		}
 		if(ModoLogger)cout<<Frases(55)<<endl;
 		messeng->NewMeSSenger(messeng,Frases(55),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
-		MutexManejadorForms.lock();
+		
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->AddNewText(Frases(115));
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->SetColor(1,1,0);
-		MutexManejadorForms.unlock();
+		
 		EsperandoReedireccionar=true;
 		if(ModoSonido)sonidos(1);
 		return true;
@@ -3998,10 +4036,10 @@ bool ESE_GRS::VerificacionSeguridad(char*c,unsigned i)
 	{
 		if(ModoLogger)cout<<Frases(54)<<endl;
 		messeng->NewMeSSenger(messeng,Frases(54),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,20,1,0,0,2);
-		MutexManejadorForms.lock();
+		
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->AddNewText(Frases(115));
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->SetColor(1,1,0);
-		MutexManejadorForms.unlock();
+		
 		EsperandoReedireccionar=true;
 		if(ModoSonido)sonidos(1);
 		return true;
@@ -4010,8 +4048,8 @@ bool ESE_GRS::VerificacionSeguridad(char*c,unsigned i)
 }
 bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 {
-	double*a;	
-	CRD*aa;
+	double*aDoub=new double;	
+	CRD aa;
 	if(ModoLogger)cout<<Frases(56)<<(unsigned)c[i];
 	switch (c[i])
 	{
@@ -4019,19 +4057,19 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 		SpecialKeys(-1,0,0);
 		messeng->NewMeSSenger(messeng,Frases(51),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,2,0,1,0,2);
 		EsperandoReedireccionar=false;
-		MutexManejadorForms.lock();
+		
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->AddNewText(Frases(114));
 		ManejadorForms->GetForm("labelRedireccionar",ManejadorForms)->SetColor(0,1,0);
-		MutexManejadorForms.unlock();
+		
 		if(ModoLogger)cout<<Frases(57);
 		if(ModoSonido)sonidos(3);
-		CalcularCoordenadas();
+		 DataProcessor::CalcularCoordenadas(cooRd,angles);
 		ShowAngules();
-		MutexManejadorSketchs.lock();
+		
 		ManejadorSketchs->ActualizaLastCood(cooRd,ManejadorSketchs); 
 		if(interfaz==-5)
 			ManejadorSketchs->ActualizaNewPlanoToCreate(cooRd,ManejadorSketchs,deFult);
-		MutexManejadorSketchs.unlock();
+		
 		contt=0;
 		/*
 		if(interfaz==2&&(p->GetType()==ConnectionType::SOCKET_CLIENT||p->GetType()==ConnectionType::WEBSOCKET_CLIENT||p->GetType()==ConnectionType::SOCKET_SERVER))
@@ -4049,29 +4087,30 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 		if(PlanoAcceso)
 		{
 			PlanoAcceso=false;
-			MutexManejadorSketchs.lock();
+			
 			ManejadorSketchs->Sub("PlanoAcceso",ManejadorSketchs);
 			ManejadorSketchs->SetDraw(false,ManejadorSketchs);
-			MutexManejadorSketchs.unlock();
+			
 		}
 		return true;				
 	case 11:  ///////////////////Next Focus////////////////
 		if(Acces)
 		{
 			if(ModoSonido)sonidos(9);
-			MutexManejadorForms.lock();
+			
 			ManejadorForms->NextFocus("BoxInterfazPricipal",ManejadorForms);
-			MutexManejadorForms.unlock();
+			
 			if(ModoLogger)cout<<Frases(58);
 		}
 	break;			
 	case 15:   //////////////////////Focus Click//////////////
 		if(Acces)
 		{
-			MutexManejadorForms.lock();
-			a=ManejadorForms->FocusClick("BoxInterfazPricipal",ManejadorForms);
-			MutexManejadorForms.unlock();
-			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)a[0],(int)a[1]);
+			delete aDoub;
+			
+			aDoub=ManejadorForms->FocusClick("BoxInterfazPricipal",ManejadorForms);
+			
+			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aDoub[0],(int)aDoub[1]);
 			if(ModoLogger)cout<<Frases(59);
 		}
 	break;
@@ -4079,11 +4118,11 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 	case 19:  ///////////////////Acept Button////////////////
 		if(Acces)
 		{
-			MutexManejadorForms.lock();
+			
 			aa=ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms)->GetCoord(ManejadorForms->GetForm("BoxInterfazPricipalButtonAcept",ManejadorForms));
-			MutexManejadorForms.unlock();
+			
 			AceptCancelButtonDesdeThread=true;
-			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aa->x,(int)aa->y);
+			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aa.x,(int)aa.y);
 			if(ModoLogger)cout<<Frases(60);
 		}
 	break;
@@ -4091,11 +4130,11 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 	case 23://///////////////Cancel Button/////////////////
 		if(Acces)
 		{
-			MutexManejadorForms.lock();
+			
 			aa=ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms)->GetCoord(ManejadorForms->GetForm("BoxInterfazPricipalButtonCancel",ManejadorForms));
-			MutexManejadorForms.unlock();
+			
 			AceptCancelButtonDesdeThread=true;
-			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aa->x,(int)aa->y);
+			teclaRaton(GLUT_LEFT_BUTTON,GLUT_UP,(int)aa.x,(int)aa.y);
 			if(ModoLogger)cout<<Frases(61);
 		}
 	if(ModoLogger)cout<<Frases(61);
@@ -4105,6 +4144,7 @@ bool ESE_GRS::CodigoCliente(char*c,unsigned i)
 		if(ModoLogger)cout<<Frases(63);
 	break;
 	}
+	delete[]aDoub;
 	return false;
 }
 bool ESE_GRS::CodigoServer(char*c,unsigned&i)
@@ -4121,20 +4161,20 @@ bool ESE_GRS::CodigoServer(char*c,unsigned&i)
 				delete messeng;
 				messeng=new MeSSenger(Frases(105),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
 				MutexMessag.unlock();
-				MutexManejadorForms.lock();
+				
 				ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(103));
 				ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(0,1,0);
-				MutexManejadorForms.unlock();
+				
 				Acces=true;
 				Acceso(Acces);
 				if(ModoSonido)sonidos(5);
 				if(PlanoAcceso)
 				{
 					PlanoAcceso=false;
-					MutexManejadorSketchs.lock();
+					
 					ManejadorSketchs->Sub("PlanoAcceso",ManejadorSketchs);
 					ManejadorSketchs->SetDraw(false,ManejadorSketchs);
-					MutexManejadorSketchs.unlock();
+					
 				}
 				return false;
 			}
@@ -4168,20 +4208,20 @@ bool ESE_GRS::CodigoServer(char*c,unsigned&i)
 				delete messeng;
 				messeng=new MeSSenger(Frases(106),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,1,0,0,2);
 				MutexMessag.unlock();
-				MutexManejadorForms.lock();
+				
 				ManejadorForms->GetForm("labelAcceso",ManejadorForms)->AddNewText(Frases(104));
 				ManejadorForms->GetForm("labelAcceso",ManejadorForms)->SetColor(1,1,0);
-				MutexManejadorForms.unlock();
+				
 				Acces=false;
 				Acceso(Acces);
 				if(ModoSonido)sonidos(1);
 				if(PlanoAcceso)
 				{
 					PlanoAcceso=false;
-					MutexManejadorSketchs.lock();
+					
 					ManejadorSketchs->Sub("PlanoAcceso",ManejadorSketchs);
 					ManejadorSketchs->SetDraw(false,ManejadorSketchs);
-					MutexManejadorSketchs.unlock();
+					
 				}
 				return false;
 			}
@@ -4207,10 +4247,10 @@ bool ESE_GRS::ChekEntada(char*c,unsigned&i)
 		{
 			if(ModoLogger)cout<<Frases(116)<<endl;
 			PlanoAcceso=false;
-			MutexManejadorSketchs.lock();
+			
 			ManejadorSketchs->Sub("PlanoAcceso",ManejadorSketchs);
 			ManejadorSketchs->SetDraw(false,ManejadorSketchs);
-			MutexManejadorSketchs.unlock();
+			
 		}
 	}
 	else if(c[i]==(char)59)/////////////////ADD BOCETO//////////////////
@@ -4238,9 +4278,9 @@ bool ESE_GRS::ChekEntada(char*c,unsigned&i)
 
 		if(PlanoAcceso)
 		{
-			MutexManejadorSketchs.lock();
+			
 			ManejadorSketchs->Sub("PlanoAcceso",ManejadorSketchs);
-			MutexManejadorSketchs.unlock();
+			
 		}
 		/*du.SetStrCodif(data.c_str());
 		uns=du.u.Unsigned;
@@ -4402,13 +4442,13 @@ bool ESE_GRS::ChekEntada(char*c,unsigned&i)
 		//		ss=ss.substr(ss.find("{}")+2,ss.length());
 		//	}
 		//}*/
-		Plano*p=new Plano("PlanoAcceso",&crd[1],&crd[2],&crd[0],t);
+		Plano*p=new Plano("PlanoAcceso",crd[1],crd[2],crd[0],t);
 		p->items->t=it;
-		MutexManejadorSketchs.lock();
+		
 		ManejadorSketchs->Add(p,ManejadorSketchs);
 		for(unsigned ii=0;ii<uns;ii++)
 		{
-			ManejadorSketchs->bocetos[ManejadorSketchs->contB-1]->items->Add(&crd1[ii]);
+			ManejadorSketchs->bocetos[ManejadorSketchs->contB-1]->items->Add(crd1[ii]);
 		}
 		PlanoAcceso=true;
 		ManejadorSketchs->bocetos[ManejadorSketchs->contB-1]->pintarPlano=true;
@@ -4416,96 +4456,71 @@ bool ESE_GRS::ChekEntada(char*c,unsigned&i)
 		ManejadorSketchs->SetDrawAll(false,ManejadorSketchs);
 		ManejadorSketchs->PlanoCheckeeado=ManejadorSketchs->contB-1;
 		ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=pintPlano;
-		MutexManejadorSketchs.unlock();
+		
 		return true;
 	}
 	else if(c[i]==(char)67)/////////////////DRAW POINTS//////////////////
 	{
 		if(ModoLogger)cout<<Frases(118)<<endl;
-		MutexManejadorSketchs.lock();
+		
 		Plano::ActualizaItem(ItemsType::POINTSS,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-		MutexManejadorSketchs.unlock();
+		
 	}
 	else if(c[i]==(char)71)/////////////////DRAW LINES//////////////////
 	{
 		if(ModoLogger)cout<<Frases(119)<<endl;
-		MutexManejadorSketchs.lock();
+		
 		Plano::ActualizaItem(ItemsType::LINES,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-		MutexManejadorSketchs.unlock();
+		
 	}
 	else if(c[i]==(char)75)/////////////////DRAW STRPLINES//////////////////
 	{
 		if(ModoLogger)cout<<Frases(120)<<endl;
-		MutexManejadorSketchs.lock();
+		
 		Plano::ActualizaItem(ItemsType::LINE_STRIP,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-		MutexManejadorSketchs.unlock();
+		
 	}
 	else if(c[i]==(char)79)/////////////////DRAW SPLINES//////////////////
 	{
 		if(ModoLogger)cout<<Frases(121)<<endl;
-		MutexManejadorSketchs.lock();
+		
 		Plano::ActualizaItem(ItemsType::SPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-		MutexManejadorSketchs.unlock();
+		
 	}
 	else if(c[i]==(char)83)/////////////////DRAW BSPLINES//////////////////
 	{
 		if(ModoLogger)cout<<Frases(122)<<endl;
-		MutexManejadorSketchs.lock();
+		
 		Plano::ActualizaItem(ItemsType::BSPLINE,ManejadorSketchs->BocetoActual(ManejadorSketchs));
-		MutexManejadorSketchs.unlock();
+		
 	}
 	else if(c[i]==(char)87)/////////////////CANCEL POINT//////////////////
 	{
 		if(ModoLogger)cout<<Frases(123)<<endl;
-		MutexManejadorSketchs.lock();
+		
 		Plano::CancelLastPoint(ManejadorSketchs->BocetoActual(ManejadorSketchs));
 		if(ModoSonido)sonidos(6);
-		MutexManejadorSketchs.unlock();
+		
 	}
 	else if(c[i]==(char)91)/////////////////MOSTRAR PLANO//////////////////
 	{
 		if(ModoLogger)cout<<Frases(124)<<endl;
-		MutexManejadorSketchs.lock();
+		
 		ManejadorSketchs->Pintar_NoPintar_LineaSuspensiva(true,ManejadorSketchs);
 		ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=true;
-		MutexManejadorSketchs.unlock();
+		
 	}
 	else if(c[i]==(char)95)/////////////////NO MOSTRAR PLANO//////////////////
 	{
 		if(ModoLogger)cout<<Frases(125)<<endl;
-		MutexManejadorSketchs.lock();
+		
 		ManejadorSketchs->Pintar_NoPintar_LineaSuspensiva(true,ManejadorSketchs);
 		ManejadorSketchs->BocetoActual(ManejadorSketchs)->pintarPlano=false;
-		MutexManejadorSketchs.unlock();
+		
 	}
 	return false;
 };
-void ESE_GRS::CalcularCoordenadas()
-  {
-	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6,cosAlfa7,senAlfa7,senFi7,cosFi7;
-      cosFi1=cos((angles[0])*PI/180);
-      senFi1=sin((angles[0])*PI/180);
-      cosFi2=cos(angles[1]*PI/180);
-      senFi2=sin(angles[1]*PI/180);
-      cosFi3=cos((angles[2])*PI/180);
-      senFi3=sin((angles[2])*PI/180);
-      cosFi4=cos(angles[3]*PI/180);
-      senFi4=sin(angles[3]*PI/180);
-      cosFi5=cos((angles[4]-90)*PI/180);
-      senFi5=sin((angles[4]-90)*PI/180);
-	  cosFi6=cos((angles[5])*PI/180);
-      senFi6=sin((angles[5])*PI/180);
-	  cosAlfa7=cos( 0 *PI/180);
-	  senAlfa7=sin( 0 *PI/180);
-	  senFi7=sin( 90 *PI/180);
-	  cosFi7=cos(90 *PI/180);
-	
-	 cooRd->x=  (12901*senFi1)/500 + 150*cosFi1*cosFi2 - (1223*cosFi5*senFi1)/20 + 177*senFi6*(senFi1*senFi5 - cosFi5*(cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - senFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2))) - 177*cosFi6*(cosFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2) + senFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3)) - (1223*senFi5*(cosFi4*(cosFi1*cosFi2*cosFi3 - cosFi1*senFi2*senFi3) - senFi4*(cosFi1*cosFi2*senFi3 + cosFi1*cosFi3*senFi2)))/20 + (4027889324543443*cosFi1*cosFi2*cosFi3)/17592186044416 - (4027889324543443*cosFi1*senFi2*senFi3)/17592186044416;
-	 cooRd->y=(1223*cosFi1*cosFi5)/20 - 177*cosFi6*(cosFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2) + senFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3)) - (12901*cosFi1)/500 - (1223*senFi5*(cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - senFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2)))/20 + 150*cosFi2*senFi1 - 177*senFi6*(cosFi5*(cosFi4*(cosFi2*cosFi3*senFi1 - senFi1*senFi2*senFi3) - senFi4*(cosFi2*senFi1*senFi3 + cosFi3*senFi1*senFi2)) + cosFi1*senFi5) + (4027889324543443*cosFi2*cosFi3*senFi1)/17592186044416 - (4027889324543443*senFi1*senFi2*senFi3)/17592186044416;
-     cooRd->z=(1223*senFi5*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)))/20 - (4027889324543443*cosFi2*senFi3)/17592186044416 - (4027889324543443*cosFi3*senFi2)/17592186044416 - 177*cosFi6*(cosFi4*(cosFi2*cosFi3 - senFi2*senFi3) - senFi4*(cosFi2*senFi3 + cosFi3*senFi2)) - 150*senFi2 + 177*cosFi5*senFi6*(cosFi4*(cosFi2*senFi3 + cosFi3*senFi2) + senFi4*(cosFi2*cosFi3 - senFi2*senFi3)) + 883/10;
-        
 
-}
 bool ESE_GRS::SetAnglesREdirecc()
 {
 	fstream f;
@@ -4550,7 +4565,8 @@ void ESE_GRS::ThreadCargObject()
 	else
 	{
 		if(ModoSonido)sonidos(2);
-		system("cls");
+		messeng->NewMeSSenger(messeng,Frases(400),position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,10,0,1,0,2);
+		//system("cls");
 	}
 }
 
