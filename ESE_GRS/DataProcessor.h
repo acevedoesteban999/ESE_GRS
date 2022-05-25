@@ -408,7 +408,7 @@ public:
 	}
 	static void CalcularCoordenadas(CRD&cooRd,GLfloat angles[6])
     {
-	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6,cosAlfa7,senAlfa7,senFi7,cosFi7;  
+	  double cosFi1,senFi1,cosFi2,senFi2,cosFi3,senFi3,cosFi4,senFi4,cosFi5,senFi5,cosFi6,senFi6;  
 	  /*double q1=angles[0];
 	  double q2=angles[1];
 	  double q3=angles[2];
