@@ -6,7 +6,7 @@ class RadioButtonGroup:public Forms
 protected:
 	unsigned cantRB,contRB,Checket;
 	RadioButton**RB;
-	
+	mutex m;
 public:
 	RadioButtonGroup()
 	{
@@ -30,7 +30,9 @@ public:
 		for(unsigned i=0;i<contRB;i++)
 			RB[i]->NewTotalProp(wigth,height);
 	}	
-	void Draw(){
+	void Draw()
+	{
+			
 			if(!this->NoDraw)
 			{
 				glPushMatrix();
@@ -44,11 +46,13 @@ public:
 				glVertex3f(-5,-Height-5,(GLfloat)-1.1);
 				glEnd();
 				glPopMatrix();
+				m.lock();
 				for(unsigned i=0;i<contRB;i++)
 				   this->RB[i]->Draw();
+				m.unlock();
 	
 			}
-		
+			
 	}
     unsigned Click(){
 	for(unsigned i=0;i<contRB;i++)
@@ -131,7 +135,7 @@ public:
 	}
     void RBGSubRB(char*nameRB)
 	{
-		
+		m.lock();
 		for(unsigned i=0;i<this->contRB;i++)
 		{
 			if(!strcmp(this->RB[i]->name,nameRB))
@@ -144,6 +148,7 @@ public:
 		}
 		this->contRB--;
 		this->Height-=18;
+		m.unlock();
 		
 	}
 	void Activate(){

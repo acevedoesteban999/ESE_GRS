@@ -6,6 +6,7 @@ class StackAnimation:public Forms
 public:
 	Animacion**animations;
 	unsigned cant,cont;
+	mutex m;
 	StackAnimation(char*name):Forms(name,CRD(0,0,0),0,0,0,0){
 		Wigth=Height=0;
 		cont=0;
@@ -20,14 +21,15 @@ public:
 	};
 	void Draw()
 	{
-		
+		m.lock();
 		if(active&&!NoDraw)
 			for(unsigned i=0;i<cont;i++)
 				animations[i]->Draw();
+		m.unlock();
 	}
 	void Sub(char*AnimationName)
 	{
-		
+		m.lock();
 		for(unsigned i=0;i<cont;i++)
 		{
 			if(!strcmp(AnimationName,animations[i]->name))
@@ -39,7 +41,7 @@ public:
 				break;
 			}
 		}
-		
+		m.unlock();
 
 	}
 	unsigned Click(){return 0;};

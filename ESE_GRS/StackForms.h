@@ -9,6 +9,7 @@ private:
 	Forms**forms;
 	unsigned cant;
 	unsigned cont;
+	mutex m;
 public:
 	StackForms(){cont=0;cant=10;forms=new Forms*[cant];};
 	~StackForms()
@@ -21,7 +22,7 @@ public:
 		if(form->Cancel)
 			return;
 		for(int i=(int)sf->cont-1;i>=0;i--)
-		   {
+		{
 			if(sf->ExistForm(form->name,sf->forms[i]))
 			{
 		       sf->Sub(form->name,sf);
@@ -44,7 +45,7 @@ public:
 }
 	static void Sub(char*name,StackForms*sf)
 	{
-		
+		sf->m.lock();
 		for(int i=(int)sf->cont-1;i>=0;i--)
 		{
 			if(sf->ExistForm(name,sf->forms[i]))
@@ -56,11 +57,15 @@ public:
 				break;
 			}
 		}
+		sf->m.unlock();
 		
 	}
-	static void DrawForms(StackForms*sf){
+	static void DrawForms(StackForms*sf)
+	{
+		sf->m.lock();
 		for(unsigned i=0;i<sf->cont;i++)
 			    sf->forms[i]->Draw();
+		sf->m.unlock();
 	}
 	static void ActivateForm(char*name,StackForms*sf){
 		for(unsigned i=0;i<sf->cont;i++)

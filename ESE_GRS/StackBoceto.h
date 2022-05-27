@@ -1,11 +1,12 @@
 #pragma once
 #include "Plano.h"
-
-class StackBoceto{
+class StackBoceto
+{
 public:
 	Plano**bocetos;
 	CRD coord,*coorNewPlano;
 	TypePlano NewPlanoType;
+	mutex m;
 	unsigned contNPl,toDrawNPl,cantB,contB,PlanoCheckeeado;
 	bool draw,drawAll;
 	StackBoceto()
@@ -33,84 +34,86 @@ public:
 		sb->drawAll=drawall;
 		
 	};
-	static void Add(Plano*p,StackBoceto*b)
+	static void Add(Plano*p,StackBoceto*sb)
 	{
 		
-		for(unsigned i=0;i<b->contB;i++)
-			if(!strcmp(b->bocetos[i]->name,p->name))
-				b->Sub(b->bocetos[i]->name,b);
+		for(unsigned i=0;i<sb->contB;i++)
+			if(!strcmp(sb->bocetos[i]->name,p->name))
+				sb->Sub(sb->bocetos[i]->name,sb);
 
-		if(b->contB>=b->cantB)
+		if(sb->contB>=sb->cantB)
 		{
-			Plano**Newp=new Plano*[b->cantB+10];
-			b->cantB+=10;
-			for(unsigned i=0;i<b->contB;i++)
-				Newp[i]=b->bocetos[i];
-			delete[]b->bocetos;
-			b->bocetos=Newp;
+			Plano**Newp=new Plano*[sb->cantB+10];
+			sb->cantB+=10;
+			for(unsigned i=0;i<sb->contB;i++)
+				Newp[i]=sb->bocetos[i];
+			delete[]sb->bocetos;
+			sb->bocetos=Newp;
 		}
-		b->bocetos[b->contB++]=p;
+		sb->bocetos[sb->contB++]=p;
 		
 	
 	}
-	static void Pintar_NoPintar_LineaSuspensiva(bool pintarNoPintar,StackBoceto*b){
-//		b->bocetos[b->PlanoCheckeeado]->Pintar_NoPintar_LineaSuspensiva(pintarNoPintar,b->bocetos[b->PlanoCheckeeado]);
+	static void Pintar_NoPintar_LineaSuspensiva(bool pintarNoPintar,StackBoceto*sb){
+//		sb->bocetos[sb->PlanoCheckeeado]->Pintar_NoPintar_LineaSuspensiva(pintarNoPintar,sb->bocetos[sb->PlanoCheckeeado]);
 	}
-	static void ActualizaLastCood(CRD coord,StackBoceto*b)
+	static void ActualizaLastCood(CRD coord,StackBoceto*sb)
 	{
-		b->coord=coord;
-		if(b->contB)
-			b->BocetoActual(b)->ActualiWidthHeight(Plano::CoordRestringida(b->coord,b->BocetoActual(b)),b->BocetoActual(b));
+		sb->coord=coord;
+		if(sb->contB)
+			sb->BocetoActual(sb)->ActualiWidthHeight(Plano::CoordRestringida(sb->coord,sb->BocetoActual(sb)),sb->BocetoActual(sb));
 	}
-	static void AddPoint(CRD coord,StackBoceto*b)
+	static void AddPoint(CRD coord,StackBoceto*sb)
 	{
-		b->BocetoActual(b)->add(coord,b->BocetoActual(b));
+		sb->BocetoActual(sb)->add(coord,sb->BocetoActual(sb));
 	}
-	static void Sub(char*name,StackBoceto*b)
+	static void Sub(char*name,StackBoceto*sb)
 	{
-		
-		for(int i=(int)b->contB-1;i>=0;i--)
+		sb->m.lock();
+		for(int i=(int)sb->contB-1;i>=0;i--)
 		{
-			if(!strcmp(name,b->bocetos[i]->name))
+			if(!strcmp(name,sb->bocetos[i]->name))
 			{
-				delete b->bocetos[i];
-				for(unsigned ii=i;ii<b->contB-1;ii++)
-					b->bocetos[ii]=b->bocetos[ii+1];
-				b->contB--;
-				if(b->contB)
-					b->bocetos[b->contB]->~Plano();
+				delete sb->bocetos[i];
+				for(unsigned ii=i;ii<sb->contB-1;ii++)
+					sb->bocetos[ii]=sb->bocetos[ii+1];
+				sb->contB--;
+				if(sb->contB)
+					sb->bocetos[sb->contB]->~Plano();
 				break;
 			}
 		}
-		
+		sb->m.unlock();
 	}
-	static void Draw(StackBoceto*b,bool proyectpunt=false){
-			if(b->contNPl)
+	static void Draw(StackBoceto*sb,bool proyectpunt=false)
+	{
+
+			if(sb->contNPl)
 			{
 				glColor3f(1,1,1);
 				glPointSize(4);
 				glLineWidth(3);
-				if(b->contNPl==1)
+				if(sb->contNPl==1)
 				{
-					if(b->toDrawNPl==3)
+					if(sb->toDrawNPl==3)
 					{
 						glBegin(GL_POINTS);
-						glVertex3f((GLfloat)b->coorNewPlano[0].x,(GLfloat)b->coorNewPlano[0].y,(GLfloat)b->coorNewPlano[0].z);
+						glVertex3f((GLfloat)sb->coorNewPlano[0].x,(GLfloat)sb->coorNewPlano[0].y,(GLfloat)sb->coorNewPlano[0].z);
 					}
 				}
 				else
 				{
 				glBegin(GL_LINE_LOOP);
-				for(unsigned i=0;i<b->contNPl;i++)
-					glVertex3f((GLfloat)b->coorNewPlano[i].x,(GLfloat)b->coorNewPlano[i].y,(GLfloat)b->coorNewPlano[i].z);
+				for(unsigned i=0;i<sb->contNPl;i++)
+					glVertex3f((GLfloat)sb->coorNewPlano[i].x,(GLfloat)sb->coorNewPlano[i].y,(GLfloat)sb->coorNewPlano[i].z);
 				}
-				if(b->toDrawNPl<3)
+				if(sb->toDrawNPl<3)
 				{
 					glEnd();
 					glPointSize(5);
 					glColor3f(0,0,1);
 					glBegin(GL_POINTS);
-					glVertex3f((GLfloat)b->coorNewPlano[b->toDrawNPl].x,(GLfloat)b->coorNewPlano[b->toDrawNPl].y,(GLfloat)b->coorNewPlano[b->toDrawNPl].z);	
+					glVertex3f((GLfloat)sb->coorNewPlano[sb->toDrawNPl].x,(GLfloat)sb->coorNewPlano[sb->toDrawNPl].y,(GLfloat)sb->coorNewPlano[sb->toDrawNPl].z);	
 					glPointSize(1);
 				}
 				glEnd();
@@ -118,17 +121,21 @@ public:
 				glLineWidth(1);
 			
 			}
-			if(b->draw)
+			if(sb->draw)
 			{
-			if(b->drawAll)
-				 for(unsigned i=0;i<b->contB;i++)
-					 b->bocetos[i]->Draw(b->coord,b->bocetos[i],false,false,true);
-			else if(b->contB&&b->PlanoCheckeeado!=b->contB)
-				b->bocetos[b->PlanoCheckeeado]->Draw(b->coord,b->bocetos[b->PlanoCheckeeado],true,proyectpunt);
+			if(sb->drawAll)
+			{
+				sb->m.lock();
+				 for(unsigned i=0;i<sb->contB;i++)
+					 sb->bocetos[i]->Draw(sb->coord,sb->bocetos[i],false,false,true);
+				sb->m.unlock();
+			}
+			else if(sb->contB&&sb->PlanoCheckeeado!=sb->contB)
+				sb->bocetos[sb->PlanoCheckeeado]->Draw(sb->coord,sb->bocetos[sb->PlanoCheckeeado],true,proyectpunt);
 			}
 	};
-	static void SetPlanoCheckeeado(unsigned plano,StackBoceto*b){
-		b->PlanoCheckeeado=plano;
+	static void SetPlanoCheckeeado(unsigned plano,StackBoceto*sb){
+		sb->PlanoCheckeeado=plano;
 	};
 	static Plano*BocetoActual(StackBoceto*sb){return sb->bocetos[sb->PlanoCheckeeado];};
 	static void SetDraw(bool draw,StackBoceto*sb)

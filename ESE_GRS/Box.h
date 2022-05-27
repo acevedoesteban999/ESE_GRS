@@ -162,8 +162,6 @@ public:
 				glPopMatrix();
 				for(unsigned i=0;i<cont;i++)
 					forms[i]->Draw();
-			
-		
 			}
 		
 	}
