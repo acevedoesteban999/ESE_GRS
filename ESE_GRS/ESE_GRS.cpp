@@ -64,7 +64,7 @@ StackLoaderObject*ManejadorObject=new StackLoaderObject();
 Connection*p=new Connection();
 TimeDuration tCOM(true);
 StackBoceto*ManejadorSketchs=new StackBoceto();
-thread*t1=new thread();
+thread*t1;
 //mutex MutexManejadorForms,MutexManejadorSketchs;
 MeSSenger*messeng=new MeSSenger();
 StackForms*ManejadorForms=new StackForms();
@@ -924,14 +924,14 @@ void DestruirVariablesGlobales()
 	if(!VariablesDestruidas)
 	{
 		VariablesDestruidas=true;
-		if(recibir_serie||!ManejadorObject->Salir)
+		if(recibir_serie)
 		{
 			recibir_serie=false;
-			ManejadorObject->Salir=true;
-
+			
 			if(p->GetType()==ConnectionType::SERIAL_PORT)
 			{
 				t1->join();
+				delete t1;
 				p->CloseConnection();
 			}
 			else if(p->GetType()==ConnectionType::CONNECTION)
@@ -942,6 +942,12 @@ void DestruirVariablesGlobales()
 				 p->CloseConnection();
 				 t1->join();
 			}		 
+		}
+		else if(!ManejadorObject->Salir)
+		{
+			ManejadorObject->Salir=true;
+			t1->join();
+			delete t1;
 		}
 		delete p;
 		delete ManejadorForms;
@@ -3313,7 +3319,6 @@ void ESE_GRS::default_menu(int opcion){
 
 
 		       recibir_serie=true;
-
 			   t1=new thread(ThreadCOM);
 			   contMenuToDraw=-1;
 			   messeng->NewMeSSenger(messeng,msg,position::CENTER_TOP,(GLfloat)wigth,(GLfloat)height,3,0,1,0,2);
@@ -3370,7 +3375,9 @@ void ESE_GRS::default_menu(int opcion){
 			}
 			if(p->GetType()==ConnectionType::SERIAL_PORT)
 			{
+
 				t1->join();
+				delete t1;
 				p->CloseConnection();
 			}
 			else

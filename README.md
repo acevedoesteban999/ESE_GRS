@@ -31,13 +31,11 @@ para usar otros servicios.
 
 ## Sobre los desarrolladores
 >***Creación y mantenimiento del brazo físico:***
-> - Telegram:@ACB273
->
->***Comunicación entre sensores y arduino:***
-> - Telegram:@Andros_Cuba_98
+> - Telegram:  @ACB273
 >
 >***Comunicación arduino PC y desarrollo de la aplicación:***
-> - Telegram:@EstebanACB2
+> - Telegram:  @EstebanACB2
+> - Correo:    acevedoesteban999@gmail.com
 
 ***Importante para el desarrollo en Visual Studio 2012***
 > 1. Configuration Properites->General->characterSet=Not Set
