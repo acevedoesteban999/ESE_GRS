@@ -11,7 +11,7 @@ para usar otros servicios.
 ## [Descargar ESE_GRS](https://github.com/Esteban1914/ESE_GRS/raw/master/media/ESE_GRS/ESE_GRS.rar)
 
 |-----------------------|-------------------------|
-| ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS.png) | ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS1.png)
+| ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS.png) | ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS1.png) |
 
 | Video Pruebas de Uso | Video Pruebas de Líneas |
 |-----------------------|-------------------------|
