@@ -13,11 +13,10 @@ para usar otros servicios.
 ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS.png)
 ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS1.png)
 
-[![Video Pruebas de Lineas](https://github.com/user-attachments/assets/ec42e990-8856-42d3-9897-f8c5b3e9f17b)](https://youtube.com/shorts/k08Z69qYJ9E)
-[![Video Pruebas de Uso]()](https://youtube.com/shorts/reRHz0o7SlI)
+[![Video Pruebas de Uso](https://github.com/user-attachments/assets/bb33f92c-5e10-49fc-a6d8-3cddcdaa4f09)](https://youtube.com/shorts/reRHz0o7SlI)
+[![Video Pruebas de Lineas](https://github.com/user-attachments/assets/3aca6863-8dd5-4742-8191-78114cbe1ff7)](https://youtube.com/shorts/k08Z69qYJ9E)
 
-[<img src="https://github.com/user-attachments/assets/ec42e990-8856-42d3-9897-f8c5b3e9f17b" width="50%">](https://youtube.com/shorts/k08Z69qYJ9E "ESE-GRS")
-[<img src="" width="50%">](https://youtube.com/shorts/k08Z69qYJ9E "ESE-GRS")
+
 
 ## Plataforma
 >WindowsX64
