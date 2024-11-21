@@ -13,8 +13,8 @@ para usar otros servicios.
 ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS.png)
 ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS1.png)
 
-[![Video Pruebas de Lineas]](https://youtube.com/shorts/k08Z69qYJ9E)
-[![Video Pruebas de Uso]](https://youtube.com/shorts/reRHz0o7SlI)
+[![Video Pruebas de Lineas]()](https://youtube.com/shorts/k08Z69qYJ9E)
+[![Video Pruebas de Uso]()](https://youtube.com/shorts/reRHz0o7SlI)
 
 ## Plataforma
 >WindowsX64
