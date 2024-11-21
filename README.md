@@ -16,6 +16,9 @@ para usar otros servicios.
 [![Video Pruebas de Lineas](https://github.com/user-attachments/assets/ec42e990-8856-42d3-9897-f8c5b3e9f17b)](https://youtube.com/shorts/k08Z69qYJ9E)
 [![Video Pruebas de Uso]()](https://youtube.com/shorts/reRHz0o7SlI)
 
+[<img src="https://github.com/user-attachments/assets/ec42e990-8856-42d3-9897-f8c5b3e9f17b" width="50%">](https://youtube.com/shorts/k08Z69qYJ9E "ESE-GRS")
+[<img src="" width="50%">](https://youtube.com/shorts/k08Z69qYJ9E "ESE-GRS")
+
 ## Plataforma
 >WindowsX64
 
