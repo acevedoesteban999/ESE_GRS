@@ -1,9 +1,9 @@
 # ESE_GRS v3.2.1 
 
-Este proyecto tiene como objetivo el desarrollo de una aplicaci髇
+Este proyecto tiene como objetivo el desarrollo de una aplicaci贸n
 para simular el movimiento del brazo ESE_GRS de 6 articulaciones y 
 generar superficies complejas utilizando planos y superficies a partir 
-de puntos, l韓eas y curvas con un acabado final en el editor 3D Autodesk 
+de puntos, l铆neas y curvas con un acabado final en el editor 3D Autodesk 
 Inventor. Puede vincularse con el [ESE_GRSConnectionSimulator](https://github.com/Esteban1914/ESE_GRS_ConnectionSimulator)
 para usar otros servicios.
 
@@ -13,6 +13,8 @@ para usar otros servicios.
 ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS.png)
 ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS1.png)
 
+![Video Pruebas de Lineas](https://youtube.com/shorts/k08Z69qYJ9E)
+![Video Pruebas de Uso](https://youtube.com/shorts/reRHz0o7SlI)
 
 ## Plataforma
 >WindowsX64
@@ -23,17 +25,17 @@ para usar otros servicios.
 ## Librerias utilizadas
 > - OpenGL(Simular el brazo en un entorno 3D)
 > - winsock(Conexiones por Sockets)
-> - libxl(Comunicaci髇 de la Aplicacion con Autodesk Inventor)
+> - libxl(Comunicaci贸n de la Aplicacion con Autodesk Inventor)
 
 ## Conexiones
 > - Puerto Serie
 > - Sockets(Eternet y Wifi)
 
 ## Sobre los desarrolladores
->***Creaci髇 y mantenimiento del brazo f韘ico:***
+>***Creaci贸n y mantenimiento del brazo f铆sico:***
 > - Telegram:  @ACB273
 >
->***Comunicaci髇 arduino PC y desarrollo de la aplicaci髇:***
+>***Comunicaci贸n arduino PC y desarrollo de la aplicaci贸n:***
 > - Telegram:  @EstebanACB2
 > - Correo:    acevedoesteban999@gmail.com
 
