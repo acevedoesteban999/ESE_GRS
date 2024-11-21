@@ -10,12 +10,10 @@ para usar otros servicios.
 
 ## [Descargar ESE_GRS](https://github.com/Esteban1914/ESE_GRS/raw/master/media/ESE_GRS/ESE_GRS.rar)
 
-<div style="text-align: center;">
-    <img src="https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS.png" alt="Foto de ESE_GRS" style="width: 50%; height: auto;">
-    <img src="https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS1.png" alt="Foto de ESE_GRS1" style="width: 50%; height: auto;">
-</div>
+![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS.png)
 
-### Videos de Pruebas de Uso
+![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS1.png)
+
 | Video Pruebas de Uso  | Video Pruebas de Líneas |
 |-----------------------|-------------------------|
 | [![Video Pruebas de Uso](https://github.com/user-attachments/assets/bb33f92c-5e10-49fc-a6d8-3cddcdaa4f09)](https://youtube.com/shorts/reRHz0o7SlI) | [![Video Pruebas de Líneas](https://github.com/user-attachments/assets/3aca6863-8dd5-4742-8191-78114cbe1ff7)](https://youtube.com/shorts/k08Z69qYJ9E) |
