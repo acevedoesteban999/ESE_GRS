@@ -13,7 +13,7 @@ para usar otros servicios.
 ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS.png)
 ![Foto de ESE_GRS](https://github.com/Esteban1914/ESE_GRS/blob/master/media/ESE_GRS1.png)
 
-[![Video Pruebas de Lineas]()](https://youtube.com/shorts/k08Z69qYJ9E)
+[![Video Pruebas de Lineas](![imagen](https://github.com/user-attachments/assets/ec42e990-8856-42d3-9897-f8c5b3e9f17b))](https://youtube.com/shorts/k08Z69qYJ9E)
 [![Video Pruebas de Uso]()](https://youtube.com/shorts/reRHz0o7SlI)
 
 ## Plataforma
